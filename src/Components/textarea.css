@@ -1,0 +1,7 @@
+textarea {
+  width: 50%;
+  height: 500px;
+  text-align: left;
+  vertical-align: top;
+  resize: none;
+}   
