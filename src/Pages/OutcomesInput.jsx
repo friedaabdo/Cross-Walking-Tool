@@ -3,15 +3,18 @@ import { useRef, useState } from 'react'
 import './OutcomesInput.css'
 import CertTextarea from '../Components/textarea'
 import ConfirmCertInfo from '../Components/confirmationArea'
-import Submit from '../Components/button'
-import ConfirmCert from '../Components/button'
+import Button from '../Components/button'
+import SyllTextArea from '../Components/textarea'
+import ConfirmSyllInfo from '../Components/confirmationArea'
 import { useNavigate } from 'react-router-dom'
 
 function OutcomesInput({pageName}) {
-    const [lines, setLines] = useState([])
-    const textareaRef = useRef(null)
+    const [certLines, setCertLines] = useState([])
+    const [syllLines, setSyllLines] = useState([])
+    const textareaCertRef = useRef(null)
+    const textareaSyllRef = useRef(null)
 
-    const handleSubmit = () => {
+    const handleSubmit = (textareaRef, setLines) => {
         const value = textareaRef.current?.value ?? ''
         const submittedLines = value
             .split('\n')
@@ -25,14 +28,21 @@ function OutcomesInput({pageName}) {
     const navigateToSyllabus = () => {
         navigate('/syllabus')
     }
+    const navigateToDND = () => {
+        navigate('/crosswalk')
+    }
 
     return (
         <div id = "outcomes-div">
             <h1>{pageName} Outcomes Input</h1>
-            <CertTextarea pageName={pageName} textareaRef={textareaRef} />
-            <Submit onClick={handleSubmit} text="Submit" />
-            <ConfirmCertInfo pageName={pageName} lines={lines} />
-            <ConfirmCert onClick={navigateToSyllabus} text="Confirm Certification Outcomes" />
+            <CertTextarea pageName={pageName} textareaRef={textareaCertRef} />
+            <Button onClick={() => handleSubmit(textareaCertRef, setCertLines)} text="Submit" />
+            <ConfirmCertInfo pageName={pageName} lines={certLines} />
+            <Button onClick={navigateToSyllabus} text="Confirm Certification Outcomes" />
+            <SyllTextArea pageName={pageName} textareaRef={textareaSyllRef} />
+            <Button onClick={() => handleSubmit(textareaSyllRef, setSyllLines)} text="Submit" />
+            <ConfirmSyllInfo pageName={pageName} lines={syllLines} />
+            <Button onClick={navigateToDND} text="Confirm Syllabus Outcomes" />
         </div>
     )
 }
