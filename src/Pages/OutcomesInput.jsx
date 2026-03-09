@@ -1,5 +1,5 @@
 // create a react page with a text box input and submit button.
-import { useRef, useState } from 'react'
+import { useRef } from 'react'
 import './OutcomesInput.css'
 import CertTextarea from '../Components/textarea'
 import ConfirmCertInfo from '../Components/confirmationArea'
@@ -8,11 +8,8 @@ import SyllTextArea from '../Components/textarea'
 import ConfirmSyllInfo from '../Components/confirmationArea'
 import { useNavigate } from 'react-router-dom'
 
-function OutcomesInput({pageName}) {
+function OutcomesInput({pageName, certLines, setCertLines, syllLines, setSyllLines}) {
     const isCertificatePage = pageName.toLowerCase() === 'certificate'
-
-    const [certLines, setCertLines] = useState([])
-    const [syllLines, setSyllLines] = useState([])
     const textareaCertRef = useRef(null)
     const textareaSyllRef = useRef(null)
 
@@ -30,7 +27,7 @@ function OutcomesInput({pageName}) {
     const navigateToSyllabus = () => {
         navigate('/syllabus')
     }
-    const navigateToDND = () => {
+    const navigateToCrosswalk = () => {
         navigate('/crosswalk')
     }
 
@@ -51,7 +48,7 @@ function OutcomesInput({pageName}) {
                     <SyllTextArea pageName={pageName} textareaRef={textareaSyllRef} />
                     <Button onClick={() => handleSubmit(textareaSyllRef, setSyllLines)} text="Submit" />
                     <ConfirmSyllInfo pageName={pageName} lines={syllLines} />
-                    <Button onClick={navigateToDND} text="Confirm Syllabus Outcomes" />
+                    <Button onClick={navigateToCrosswalk} text="Confirm Syllabus Outcomes" />
                 </>
             )}
         </div>
