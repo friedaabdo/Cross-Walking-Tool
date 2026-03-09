@@ -1,12 +1,11 @@
 import './confirmationArea.css'
+import OutcomeCard from './Outcome-card'
 
 function ConfirmationArea({pageName, lines}) {
     return (
         <div id = "confirmation-area">
             <h1>Confirm {pageName} Outcomes</h1>
-            {lines.map((line, index) => (
-                <p key={`${line}-${index}`}>{line}</p>
-            ))}
+            <OutcomeCard lines={lines} />
         </div>
     )
 }
