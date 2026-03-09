@@ -8,10 +8,9 @@ function App() {
 
   return (
     <div className="App">
-  
+  <h1>Cross Walking Tool</h1>
     <BrowserRouter>
     <Routes>
-      <Route path="/" element={<h1>Cross Walking Tool</h1>} />
       <Route path="/certificate" element={<CertOutcomes pageName="Certificate"/>} />
       <Route path="/syllabus" element={<SyllOutcomes pageName="Syllabus"/>} />
       <Route path="*" element={<h1>404 Not Found</h1>} />

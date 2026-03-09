@@ -1,16 +1,13 @@
 /* make the text box bigger - half width and half length of the page */
 /* submit button should be below the text box on the bottom right corner*/
 
-.outcomes-div {
+#outcomes-div {
   display: flex;
   flex-direction: column;
-  /* align-items: center; */
+  align-items: center;
   justify-content: center;
   height: 100vh;
 }
 
 
 
-button {
-  
-    }
