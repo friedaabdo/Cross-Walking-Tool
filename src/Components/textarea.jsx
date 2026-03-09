@@ -1,19 +1,11 @@
 import './textarea.css'
-function Textarea({pageName, onLinesChange}) {
-    
-    const handleTextAreaInput = (e) => {
-        const textarea = e.target;
-        const lines = textarea.value
-            .split('\n')
-            .map((line) => line.trim())
-            .filter((line) => line !== '');
-        onLinesChange(lines);
-
-    };
-
+function Textarea({pageName, textareaRef}) {
     return (
         <div>
-            { <textarea placeholder={`Enter ${pageName} info. Each field on a new line.`} onInput={handleTextAreaInput} /> }
+            <textarea
+                ref={textareaRef}
+                placeholder={`Enter ${pageName} info. Each field on a new line.`}
+            />
         </div>
     )
 }
