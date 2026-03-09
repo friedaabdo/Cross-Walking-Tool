@@ -13,7 +13,7 @@ function App() {
     <Routes>
       <Route path="/certificate" element={<CertOutcomes pageName="Certificate"/>} />
       <Route path="/syllabus" element={<SyllOutcomes pageName="Syllabus"/>} />
-      <Route path="*" element={<h1>404 Not Found</h1>} />
+      <Route path="/*" element={<h1>404 Not Found</h1>} />
     </Routes>
     </BrowserRouter>
     
