@@ -1,0 +1,39 @@
+#crosswalk-div {
+    /* display: grid; 
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(5, 1fr);
+    grid-column-gap: 0px;
+    grid-row-gap: 0px; */
+    display: flex;
+    flex-direction: column;
+}
+
+#columns-div {
+    display: grid; 
+    /* i want a grid layout of 3 columns and as many rows as there are syllabus lines */
+    grid-template-columns: repeat(3, 1fr);
+    grid-auto-rows: 1fr;
+    grid-column-gap: 0px;
+    grid-row-gap: 0px;
+}
+
+#crosswalk-cert-div {
+/*  */
+display: flex;
+flex-direction: row;
+}
+
+.crosswalk-cert-card {
+    width: 150px;
+}
+
+#crosswalk-syll {
+    grid-area: 1 / 1 / 6 / 1;
+    display: flex;
+    flex-direction: column;
+}
+
+textarea {
+    width: 100%;
+    height: 100%;
+}

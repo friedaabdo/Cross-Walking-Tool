@@ -18,7 +18,7 @@ function App() {
         path="/"
         element={
           <CertOutcomes
-            pageName="Certificate"
+            pageName="Learning Experience"
             certLines={certLines}
             setCertLines={setCertLines}
             // syllLines={syllLines}

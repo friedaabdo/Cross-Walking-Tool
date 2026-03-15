@@ -1,13 +1,15 @@
-import './Outcome-card.css'
+import "./Outcome-card.css";
 
-function OutcomeCard({lines}) {
-    return (
-        <>
-       {lines.map((line, index) => (
-                <p key={`${line}-${index}`}>{line}</p>
-            ))}
-        </>
-    )
+function OutcomeCard({ lines, className }) {
+  return (
+    <>
+      {lines.map((line, index) => (
+        <p key={`${line}-${index}`} className={className}>
+          {line}
+        </p>
+      ))}
+    </>
+  );
 }
 
-export default OutcomeCard
+export default OutcomeCard;

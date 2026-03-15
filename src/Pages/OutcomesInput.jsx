@@ -9,7 +9,7 @@ import ConfirmSyllInfo from '../Components/confirmationArea'
 import { useNavigate } from 'react-router-dom'
 
 function OutcomesInput({pageName, certLines, setCertLines, syllLines, setSyllLines}) {
-    const isCertificatePage = pageName.toLowerCase() === 'certificate'
+    const isCertificatePage = pageName.toLowerCase() === 'learning experience'
     const textareaCertRef = useRef(null)
     const textareaSyllRef = useRef(null)
 
