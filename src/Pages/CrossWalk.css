@@ -3,47 +3,57 @@
     flex-direction: column;
 }
 
+#horizontal-div {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    background: #1c1919;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
 #columns-div {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     column-gap: 12px;
-    align-items: start;
+    row-gap: 12px;
+    align-items: stretch;
 }
 
 #crosswalk-cert-div {
 display: flex;
 flex-direction: row;
+max-height: 20vh;
+overflow-x: auto;
+overflow-y: hidden;
+overscroll-behavior: contain;
 }
 
 .crosswalk-cert-card {
-    width: 350px;
+    max-width: 30vw;
+    min-width: 350px;
 }
 
-#crosswalk-syll h2,
-#crosswalk-match-div h2,
-#crosswalk-notes-div h2 {
+.grid-heading {
     margin-bottom: 0;
 }
 
-.syll-rows,
-.matches,
-.notes {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
-.matches .droppable-area,
-.notes textarea {
+#columns-div .droppable-area,
+#columns-div textarea,
+#columns-div .outcome-card-item {
     min-height: 72px;
     box-sizing: border-box;
     margin: 0;
 }
 
-.notes textarea {
+#columns-div .outcome-card-item {
+    display: flex;
+    align-items: center;
+}
+
+#columns-div textarea {
     width: 100%;
-    height: 72px;
-    resize: none;
+    height: 100%;
+    resize: vertical;
 }
 
 .drop-placeholder {

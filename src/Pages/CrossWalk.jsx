@@ -1,9 +1,8 @@
-import OutcomeCard from "../Components/Outcome-card";
 import DraggableCard from "../Components/Draggable-card";
 import "./CrossWalk.css";
 import { DragDropProvider } from "@dnd-kit/react";
 import DroppableArea from "../Components/Droppable-area";
-import { useMemo, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 
 
 function CrossWalk({ certLines, syllLines }) {
@@ -40,12 +39,19 @@ function CrossWalk({ certLines, syllLines }) {
     });
   };
 
+  const handleCertWheel = (event) => {
+    const container = event.currentTarget;
+    event.preventDefault();
+    event.stopPropagation();
+    container.scrollLeft += event.deltaY + event.deltaX;
+  };
+
   return (
     <DragDropProvider onDragEnd={handleDragEnd}>
       <div id="crosswalk-div">
         <div id="horizontal-div">
         <h2>Learning Experience Outcomes</h2>
-        <div id="crosswalk-cert-div">
+        <div id="crosswalk-cert-div" onWheelCapture={handleCertWheel}>
           {certLines.map((line, index) => (
             <DraggableCard
               key={index}
@@ -58,38 +64,25 @@ function CrossWalk({ certLines, syllLines }) {
       </div>
 
       <div id="columns-div">
-        <div id="crosswalk-syll">
-          <h2>Syllabus Outcomes</h2>
-          <OutcomeCard
-            lines={syllLines}
-            className="crosswalk-syll-card"
-            containerClassName="syll-rows"
-          />
-        </div>
-        <div id="crosswalk-match-div">
-          <h2>Matches</h2>
-          <div className="matches">
-            {syllLines.map((line, index) => {
-              const rowId = `drop-${index}`;
-              const matchedId = matchesByRow[rowId];
-              const matchedLine = matchedId ? certById[matchedId] : null;
+        <h2 className="grid-heading">Syllabus Outcomes</h2>
+        <h2 className="grid-heading">Matches</h2>
+        <h2 className="grid-heading">Notes</h2>
 
-              return (
-                <DroppableArea key={index} id={rowId}>
-                  {matchedLine || <span className="drop-placeholder">Drop outcome here</span>}
-                </DroppableArea>
-              );
-            })}
-          </div>
-        </div>
-        <div id="crosswalk-notes-div">
-          <h2>Notes</h2>
-          <div className="notes">
-            {syllLines.map((line, index) => (
-              <textarea key={index} placeholder="Add notes here..." />
-            ))}
-          </div>
-        </div>
+        {syllLines.map((line, index) => {
+          const rowId = `drop-${index}`;
+          const matchedId = matchesByRow[rowId];
+          const matchedLine = matchedId ? certById[matchedId] : null;
+
+          return (
+            <Fragment key={`row-${index}`}>
+              <p className="outcome-card-item crosswalk-syll-card">{line}</p>
+              <DroppableArea id={rowId}>
+                {matchedLine || <span className="drop-placeholder">Drop outcome here</span>}
+              </DroppableArea>
+              <textarea placeholder="Add notes here..." />
+            </Fragment>
+          );
+        })}
       </div>
     </div>
     </DragDropProvider>
