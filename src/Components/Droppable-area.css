@@ -1,0 +1,7 @@
+.droppable-area {
+  border: 2px dashed #ccc;
+  border-radius: 4px;
+  padding: 16px;
+  min-height: 100px;
+  margin-top: 16px;
+}
