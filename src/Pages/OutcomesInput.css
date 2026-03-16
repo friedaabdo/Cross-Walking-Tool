@@ -9,5 +9,9 @@
   height: auto;
 }
 
-
+textarea {
+  width: 100px;
+  height: 50vh;
+  margin-bottom: 16px;
+}
 

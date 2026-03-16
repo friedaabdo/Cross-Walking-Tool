@@ -1,41 +1,49 @@
 #crosswalk-div {
-    /* display: grid; 
-    grid-template-columns: repeat(3, 1fr);
-    grid-template-rows: repeat(5, 1fr);
-    grid-column-gap: 0px;
-    grid-row-gap: 0px; */
     display: flex;
     flex-direction: column;
 }
 
 #columns-div {
-    display: grid; 
-    /* i want a grid layout of 3 columns and as many rows as there are syllabus lines */
-    grid-template-columns: repeat(3, 1fr);
-    grid-auto-rows: 1fr;
-    grid-column-gap: 0px;
-    grid-row-gap: 0px;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    column-gap: 12px;
+    align-items: start;
 }
 
 #crosswalk-cert-div {
-/*  */
 display: flex;
 flex-direction: row;
 }
 
 .crosswalk-cert-card {
-    width: 150px;
+    width: 350px;
 }
 
-#crosswalk-syll {
-    grid-area: 1 / 1 / 6 / 1;
+#crosswalk-syll h2,
+#crosswalk-match-div h2,
+#crosswalk-notes-div h2 {
+    margin-bottom: 0;
+}
+
+.syll-rows,
+.matches,
+.notes {
     display: flex;
     flex-direction: column;
+    gap: 12px;
 }
 
-textarea {
+.matches .droppable-area,
+.notes textarea {
+    min-height: 72px;
+    box-sizing: border-box;
+    margin: 0;
+}
+
+.notes textarea {
     width: 100%;
-    height: 100%;
+    height: 72px;
+    resize: none;
 }
 
 .drop-placeholder {

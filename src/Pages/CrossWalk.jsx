@@ -60,7 +60,11 @@ function CrossWalk({ certLines, syllLines }) {
       <div id="columns-div">
         <div id="crosswalk-syll">
           <h2>Syllabus Outcomes</h2>
-          <OutcomeCard className="crosswalk-syll-card" lines={syllLines} />
+          <OutcomeCard
+            lines={syllLines}
+            className="crosswalk-syll-card"
+            containerClassName="syll-rows"
+          />
         </div>
         <div id="crosswalk-match-div">
           <h2>Matches</h2>
