@@ -2,10 +2,10 @@ import { useDraggable } from "@dnd-kit/react";
 import "./Draggable-card.css";
 
 function DraggableCard({ id, className, line }) {
-    const { ref } = useDraggable({ id });
+    const { ref, attributes, listeners } = useDraggable({ id });
 
     return (
-        <p ref={ref} className={className}>
+        <p ref={ref} className={className} {...attributes} {...listeners}>
             {line}
         </p>
     );

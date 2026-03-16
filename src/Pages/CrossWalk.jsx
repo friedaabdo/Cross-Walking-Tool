@@ -3,20 +3,56 @@ import DraggableCard from "../Components/Draggable-card";
 import "./CrossWalk.css";
 import { DragDropProvider } from "@dnd-kit/react";
 import DroppableArea from "../Components/Droppable-area";
+import { useMemo, useState } from "react";
 
 
 function CrossWalk({ certLines, syllLines }) {
-  //a function that creates a unique id
-  // const createUniqueId = () => Math.random().toString(36).substr(2, 9);
+  const [matchesByRow, setMatchesByRow] = useState({});
+
+  const certById = useMemo(
+    () => Object.fromEntries(certLines.map((line, index) => [`cert-${index}`, line])),
+    [certLines]
+  );
+
+  const handleDragEnd = (event) => {
+    if (event.canceled) {
+      return;
+    }
+
+    const draggedId = event.operation?.source?.id;
+    const dropId = event.operation?.target?.id;
+
+    if (!draggedId || !dropId) {
+      return;
+    }
+
+    setMatchesByRow((previous) => {
+      const next = { ...previous };
+
+      Object.keys(next).forEach((rowId) => {
+        if (next[rowId] === draggedId) {
+          delete next[rowId];
+        }
+      });
+
+      next[dropId] = draggedId;
+      return next;
+    });
+  };
 
   return (
-    <DragDropProvider>
+    <DragDropProvider onDragEnd={handleDragEnd}>
       <div id="crosswalk-div">
         <div id="horizontal-div">
         <h2>Learning Experience Outcomes</h2>
         <div id="crosswalk-cert-div">
           {certLines.map((line, index) => (
-            <DraggableCard key={index} id={`cert-${index}`} className="crosswalk-cert-card" line={line} />
+            <DraggableCard
+              key={index}
+              id={`cert-${index}`}
+              className="crosswalk-cert-card"
+              line={line}
+            />
           ))}
         </div>
       </div>
@@ -29,12 +65,17 @@ function CrossWalk({ certLines, syllLines }) {
         <div id="crosswalk-match-div">
           <h2>Matches</h2>
           <div className="matches">
-            {/* i want as many div elements as there are syllabus lines */}
-            {syllLines.map((line, index) => (
-              <DroppableArea key={index} id={`match-${index}`} >
-                
-              </DroppableArea>
-            ))}
+            {syllLines.map((line, index) => {
+              const rowId = `drop-${index}`;
+              const matchedId = matchesByRow[rowId];
+              const matchedLine = matchedId ? certById[matchedId] : null;
+
+              return (
+                <DroppableArea key={index} id={rowId}>
+                  {matchedLine || <span className="drop-placeholder">Drop outcome here</span>}
+                </DroppableArea>
+              );
+            })}
           </div>
         </div>
         <div id="crosswalk-notes-div">
