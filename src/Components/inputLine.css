@@ -1,0 +1,7 @@
+/* make the placeholder text less prominent */
+.input-line {
+    margin: 10px 0;
+}
+.input-line input::placeholder {
+    color: #cccccc97;
+}

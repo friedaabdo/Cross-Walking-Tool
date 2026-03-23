@@ -4,6 +4,7 @@ import './App.css'
 import CertOutcomes from './Pages/OutcomesInput'
 import SyllOutcomes from './Pages/OutcomesInput'
 import CrossWalk from './Pages/CrossWalk'
+import Home from './Pages/Home'
 
 function App() {
   const [certLines, setCertLines] = useState([])
@@ -14,15 +15,19 @@ function App() {
   <h1>Cross Walking Tool</h1>
     <BrowserRouter>
     <Routes>
+      <Route path="/"
+        element={<Home>
+          </Home>}>
+        
+      </Route>
       <Route
-        path="/"
+        path="/learning-experience"
         element={
           <CertOutcomes
             pageName="Learning Experience"
             certLines={certLines}
             setCertLines={setCertLines}
-            // syllLines={syllLines}
-            // setSyllLines={setSyllLines}
+            
           />
         }
       />
@@ -31,8 +36,6 @@ function App() {
         element={
           <SyllOutcomes
             pageName="Syllabus"
-            // certLines={certLines}
-            // setCertLines={setCertLines}
             syllLines={syllLines}
             setSyllLines={setSyllLines}
           />
