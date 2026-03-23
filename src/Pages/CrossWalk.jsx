@@ -7,6 +7,10 @@ import { Fragment, useMemo, useState } from "react";
 
 function CrossWalk({ certLines, syllLines }) {
   const [matchesByRow, setMatchesByRow] = useState({});
+  const [notesByRow, setNotesByRow] = useState({});
+
+  const normalizeMatches = (value) =>
+    Array.isArray(value) ? value : value ? [value] : [];
 
   const certById = useMemo(
     () => Object.fromEntries(certLines.map((line, index) => [`cert-${index}`, line])),
@@ -27,13 +31,7 @@ function CrossWalk({ certLines, syllLines }) {
 
     setMatchesByRow((previous) => {
       const next = { ...previous };
-
-      const currentMatches = next[dropId];
-      const matchesForRow = Array.isArray(currentMatches)
-        ? currentMatches
-        : currentMatches
-          ? [currentMatches]
-          : [];
+      const matchesForRow = normalizeMatches(next[dropId]);
 
       if (!matchesForRow.includes(draggedId)) {
         next[dropId] = [...matchesForRow, draggedId];
@@ -48,6 +46,43 @@ function CrossWalk({ certLines, syllLines }) {
     event.preventDefault();
     event.stopPropagation();
     container.scrollLeft += event.deltaY + event.deltaX;
+  };
+
+  const getMatchesForRow = (rowId) => {
+    return normalizeMatches(matchesByRow[rowId]);
+  };
+
+  const escapeCsvCell = (value) => {
+    const text = String(value ?? "");
+    return `"${text.replace(/"/g, '""')}"`;
+  };
+
+  const handleExportCsv = () => {
+    const header = ["Syllabus Outcome", "Matches", "Notes"];
+
+    const rows = syllLines.map((line, index) => {
+      const rowId = `drop-${index}`;
+      const matchedLines = getMatchesForRow(rowId)
+        .map((matchedId) => certById[matchedId])
+        .filter(Boolean);
+
+      return [line, matchedLines.join("\r\n"), notesByRow[rowId] ?? ""];
+    });
+
+    const csvContent = [header, ...rows]
+      .map((row) => row.map((cell) => escapeCsvCell(cell)).join(","))
+      .join("\r\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const objectUrl = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.href = objectUrl;
+    link.download = `crosswalk-export-${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(objectUrl);
   };
 
   return (
@@ -67,6 +102,12 @@ function CrossWalk({ certLines, syllLines }) {
         </div>
       </div>
 
+      <div id="columns-actions">
+        <button type="button" id="export-csv-button" onClick={handleExportCsv}>
+          Export CSV
+        </button>
+      </div>
+
       <div id="columns-div">
         <h2 className="grid-heading">Syllabus Outcomes</h2>
         <h2 className="grid-heading">Matches</h2>
@@ -74,12 +115,7 @@ function CrossWalk({ certLines, syllLines }) {
 
         {syllLines.map((line, index) => {
           const rowId = `drop-${index}`;
-          const currentMatches = matchesByRow[rowId];
-          const matchedIds = Array.isArray(currentMatches)
-            ? currentMatches
-            : currentMatches
-              ? [currentMatches]
-              : [];
+          const matchedIds = getMatchesForRow(rowId);
           const matchedLines = matchedIds
             .map((matchedId) => certById[matchedId])
             .filter(Boolean);
@@ -103,7 +139,14 @@ function CrossWalk({ certLines, syllLines }) {
                   <span className="drop-placeholder">Drop outcome here</span>
                 )}
               </DroppableArea>
-              <textarea placeholder="Add notes here..." />
+              <textarea
+                placeholder="Add notes here..."
+                value={notesByRow[rowId] ?? ""}
+                onChange={(event) => {
+                  const { value } = event.target;
+                  setNotesByRow((previous) => ({ ...previous, [rowId]: value }));
+                }}
+              />
             </Fragment>
           );
         })}

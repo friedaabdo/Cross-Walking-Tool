@@ -72,3 +72,23 @@ overscroll-behavior: contain;
     width: 100%;
     min-height: auto;
 }
+
+#columns-actions {
+    display: flex;
+    justify-content: flex-end;
+    padding: 12px 0;
+}
+
+#export-csv-button {
+    border: 1px solid #475569;
+    background: #0f172a;
+    color: #e2e8f0;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+#export-csv-button:hover {
+    background: #1e293b;
+}
