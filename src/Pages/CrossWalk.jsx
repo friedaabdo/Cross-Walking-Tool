@@ -28,13 +28,17 @@ function CrossWalk({ certLines, syllLines }) {
     setMatchesByRow((previous) => {
       const next = { ...previous };
 
-      Object.keys(next).forEach((rowId) => {
-        if (next[rowId] === draggedId) {
-          delete next[rowId];
-        }
-      });
+      const currentMatches = next[dropId];
+      const matchesForRow = Array.isArray(currentMatches)
+        ? currentMatches
+        : currentMatches
+          ? [currentMatches]
+          : [];
 
-      next[dropId] = draggedId;
+      if (!matchesForRow.includes(draggedId)) {
+        next[dropId] = [...matchesForRow, draggedId];
+      }
+
       return next;
     });
   };
@@ -70,14 +74,34 @@ function CrossWalk({ certLines, syllLines }) {
 
         {syllLines.map((line, index) => {
           const rowId = `drop-${index}`;
-          const matchedId = matchesByRow[rowId];
-          const matchedLine = matchedId ? certById[matchedId] : null;
+          const currentMatches = matchesByRow[rowId];
+          const matchedIds = Array.isArray(currentMatches)
+            ? currentMatches
+            : currentMatches
+              ? [currentMatches]
+              : [];
+          const matchedLines = matchedIds
+            .map((matchedId) => certById[matchedId])
+            .filter(Boolean);
 
           return (
             <Fragment key={`row-${index}`}>
               <p className="outcome-card-item crosswalk-syll-card">{line}</p>
               <DroppableArea id={rowId}>
-                {matchedLine || <span className="drop-placeholder">Drop outcome here</span>}
+                {matchedLines.length > 0 ? (
+                  <div className="matches-list">
+                    {matchedLines.map((matchedLine, matchedIndex) => (
+                      <p
+                        key={matchedIds[matchedIndex]}
+                        className="draggable-card-item crosswalk-match-card"
+                      >
+                        {matchedLine}
+                      </p>
+                    ))}
+                  </div>
+                ) : (
+                  <span className="drop-placeholder">Drop outcome here</span>
+                )}
               </DroppableArea>
               <textarea placeholder="Add notes here..." />
             </Fragment>

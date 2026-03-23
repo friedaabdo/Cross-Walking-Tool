@@ -60,3 +60,15 @@ overscroll-behavior: contain;
     color: #64748b;
     font-size: 0.9rem;
 }
+
+.matches-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+}
+
+.crosswalk-match-card {
+    width: 100%;
+    min-height: auto;
+}
