@@ -102,11 +102,7 @@ function CrossWalk({ certLines, syllLines }) {
         </div>
       </div>
 
-      <div id="columns-actions">
-        <button type="button" id="export-csv-button" onClick={handleExportCsv}>
-          Export CSV
-        </button>
-      </div>
+     
 
       <div id="columns-div">
         <h2 className="grid-heading">Syllabus Outcomes</h2>
@@ -152,6 +148,11 @@ function CrossWalk({ certLines, syllLines }) {
         })}
       </div>
     </div>
+     <div id="columns-actions">
+        <button type="button" id="export-csv-button" onClick={handleExportCsv}>
+          Export CSV
+        </button>
+      </div>
     </DragDropProvider>
   );
 }
