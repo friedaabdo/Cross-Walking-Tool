@@ -1,10 +1,10 @@
 import './confirmationArea.css'
 import OutcomeCard from './Outcome-card'
 
-function ConfirmationArea({pageName, lines}) {
+function ConfirmationArea({ lines, title}) {
     return (
         <div id = "confirmation-area">
-            <h1>Confirm {pageName} Outcomes</h1>
+            <h1>Confirm {title} Outcomes</h1>
             <OutcomeCard lines={lines} />
         </div>
     )

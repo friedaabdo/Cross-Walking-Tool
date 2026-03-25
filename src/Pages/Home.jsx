@@ -3,7 +3,12 @@ import InputLine from '../Components/inputLine';
 import Button from '../Components/button';
 import { useNavigate } from 'react-router-dom';
 
-function Home() {
+function Home({
+    learningExperienceTitle,
+    setLearningExperienceTitle,
+    cunyCourseTitle,
+    setCunyCourseTitle,
+}) {
     const navigate = useNavigate();
 
     return (
@@ -12,19 +17,28 @@ function Home() {
             <p>This tool is designed to help you cross walk learning outcomes from a learning experience to a syllabus.</p>
             <p>To get started, please input the titles for the learning experience and CUNY course.</p>
 
-            <InputLine placeholder="Learning Experience Title" value=""/>
-            <InputLine placeholder="CUNY Course Title" value="" />
+            <p>You can start from scratch by inputting the learning experience and syllabus outcomes in their respective pages.</p>
+            <InputLine
+                placeholder="Learning Experience Title"
+                value={learningExperienceTitle}
+                onChange={(event) => setLearningExperienceTitle(event.target.value)}
+            />
+            <InputLine
+                placeholder="CUNY Course Title"
+                value={cunyCourseTitle}
+                onChange={(event) => setCunyCourseTitle(event.target.value)}
+            />
+            <div id="home-actions">
+                <Button text="Go to Learning Experience Outcomes" onClick={() => navigate('/learning-experience')} />
+            </div>
 
-            <p>If you have a .csv file, import it here:</p>
-            <InputLine placeholder="Import .csv file" type="file" value="" />
+            <p>Or, if you have a .csv file, import it here:</p>
+            <InputLine type="file" />
             <Button text="Import" onClick={() => {}} />
 
-            <p>Or, you can start from scratch by inputting the learning experience and syllabus outcomes in their respective pages.</p>
-             <div id="home-actions">
-                <Button text="Go to Learning Experience Outcomes" onClick={() => navigate('/learning-experience')} />
               
              </div>
-        </div>
+      
     )
 }
  

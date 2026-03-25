@@ -5,7 +5,7 @@ import DroppableArea from "../Components/Droppable-area";
 import { Fragment, useMemo, useState } from "react";
 
 
-function CrossWalk({ certLines, syllLines }) {
+function CrossWalk({ certLines, syllLines, leTitle, ccTitle }) {
   const [matchesByRow, setMatchesByRow] = useState({});
   const [notesByRow, setNotesByRow] = useState({});
 
@@ -89,7 +89,7 @@ function CrossWalk({ certLines, syllLines }) {
     <DragDropProvider onDragEnd={handleDragEnd}>
       <div id="crosswalk-div">
         <div id="horizontal-div">
-        <h2>Learning Experience Outcomes</h2>
+        <h2>{leTitle} Outcomes</h2>
         <div id="crosswalk-cert-div" onWheelCapture={handleCertWheel}>
           {certLines.map((line, index) => (
             <DraggableCard
@@ -105,7 +105,7 @@ function CrossWalk({ certLines, syllLines }) {
      
 
       <div id="columns-div">
-        <h2 className="grid-heading">Syllabus Outcomes</h2>
+        <h2 className="grid-heading">{ccTitle} Outcomes</h2>
         <h2 className="grid-heading">Matches</h2>
         <h2 className="grid-heading">Notes</h2>
 

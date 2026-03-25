@@ -1,12 +1,13 @@
 import './inputLine.css';
 
-function InputLine({input,placeholder,type}) {
+function InputLine({ value, onChange, placeholder, type = '' }) {
 
     return (
         <div className="input-line">
             <input
                 type={type}
-                value={input}
+                value={value}
+                onChange={onChange}
                 placeholder={placeholder}
                 />
         </div>

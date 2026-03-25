@@ -9,6 +9,9 @@ import Home from './Pages/Home'
 function App() {
   const [certLines, setCertLines] = useState([])
   const [syllLines, setSyllLines] = useState([])
+  const [leTitle, setLeTitle] = useState('')
+  const [ccTitle, setccTitle] = useState('')
+  
 
   return (
     <div className="App">
@@ -16,8 +19,12 @@ function App() {
     <BrowserRouter>
     <Routes>
       <Route path="/"
-        element={<Home>
-          </Home>}>
+        element={<Home
+          learningExperienceTitle={leTitle}
+          setLearningExperienceTitle={setLeTitle}
+          cunyCourseTitle={ccTitle}
+          setCunyCourseTitle={setccTitle}
+        />}>
         
       </Route>
       <Route
@@ -27,7 +34,8 @@ function App() {
             pageName="Learning Experience"
             certLines={certLines}
             setCertLines={setCertLines}
-            
+            leTitle={leTitle}
+            setLeTitle={setLeTitle}
           />
         }
       />
@@ -38,10 +46,22 @@ function App() {
             pageName="Syllabus"
             syllLines={syllLines}
             setSyllLines={setSyllLines}
+            ccTitle={ccTitle}
+            setCcTitle={setccTitle}
           />
         }
       />
-      <Route path="/crosswalk" element={<CrossWalk certLines={certLines} syllLines={syllLines} />} />
+      <Route
+        path="/crosswalk"
+        element={
+          <CrossWalk
+            certLines={certLines}
+            syllLines={syllLines}
+            leTitle={leTitle}
+            ccTitle={ccTitle}
+          />
+        }
+      />
       <Route path="/*" element={<h1>404 Not Found</h1>} />
     </Routes>
     </BrowserRouter>
