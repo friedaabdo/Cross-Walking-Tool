@@ -3,11 +3,13 @@ import "./CrossWalk.css";
 import { DragDropProvider } from "@dnd-kit/react";
 import DroppableArea from "../Components/Droppable-area";
 import { Fragment, useMemo, useState } from "react";
-
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faCircleXmark } from '@fortawesome/free-solid-svg-icons'
 
 function CrossWalk({ certLines, syllLines, leTitle, ccTitle }) {
   const [matchesByRow, setMatchesByRow] = useState({});
   const [notesByRow, setNotesByRow] = useState({});
+  const [draggedOnceById, setDraggedOnceById] = useState({});
 
   const normalizeMatches = (value) =>
     Array.isArray(value) ? value : value ? [value] : [];
@@ -24,6 +26,16 @@ function CrossWalk({ certLines, syllLines, leTitle, ccTitle }) {
 
     const draggedId = event.operation?.source?.id;
     const dropId = event.operation?.target?.id;
+
+    if (draggedId?.startsWith("cert-")) {
+      setDraggedOnceById((previous) => {
+        if (previous[draggedId]) {
+          return previous;
+        }
+
+        return { ...previous, [draggedId]: true };
+      });
+    }
 
     if (!draggedId || !dropId) {
       return;
@@ -91,14 +103,21 @@ function CrossWalk({ certLines, syllLines, leTitle, ccTitle }) {
         <div id="horizontal-div">
         <h2>{leTitle} Outcomes</h2>
         <div id="crosswalk-cert-div" onWheelCapture={handleCertWheel}>
-          {certLines.map((line, index) => (
-            <DraggableCard
-              key={index}
-              id={`cert-${index}`}
-              className="crosswalk-cert-card"
-              line={line}
-            />
-          ))}
+          {certLines.map((line, index) => {
+            const certId = `cert-${index}`;
+            const draggedClass = draggedOnceById[certId]
+              ? "crosswalk-cert-card-dragged"
+              : "";
+
+            return (
+              <DraggableCard
+                key={index}
+                id={certId}
+                className={`crosswalk-cert-card ${draggedClass}`}
+                line={line}
+              />
+            );
+          })}
         </div>
       </div>
 
@@ -127,6 +146,7 @@ function CrossWalk({ certLines, syllLines, leTitle, ccTitle }) {
                         key={matchedIds[matchedIndex]}
                         className="draggable-card-item crosswalk-match-card"
                       >
+                        <FontAwesomeIcon className="close-icon" icon={faCircleXmark} />
                         {matchedLine}
                       </p>
                     ))}

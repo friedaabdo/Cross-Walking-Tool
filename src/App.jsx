@@ -31,6 +31,7 @@ function App() {
         path="/learning-experience"
         element={
           <CertOutcomes
+            key="learning-experience"
             pageName="Learning Experience"
             certLines={certLines}
             setCertLines={setCertLines}
@@ -43,6 +44,7 @@ function App() {
         path="/syllabus"
         element={
           <SyllOutcomes
+            key="syllabus"
             pageName="Syllabus"
             syllLines={syllLines}
             setSyllLines={setSyllLines}
