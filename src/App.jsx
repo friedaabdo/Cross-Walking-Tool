@@ -1,19 +1,61 @@
-import { useState } from 'react'
+import { lazy, Suspense, useEffect, useState } from 'react'
 import {BrowserRouter, Routes, Route} from 'react-router-dom'
 import './App.css'
-import CertOutcomes from './Pages/OutcomesInput'
-import SyllOutcomes from './Pages/OutcomesInput'
-import CrossWalk from './Pages/CrossWalk'
-import Home from './Pages/Home'
+
+const CertOutcomes = lazy(() => import('./Pages/OutcomesInput'))
+const SyllOutcomes = lazy(() => import('./Pages/OutcomesInput'))
+const CrossWalk = lazy(() => import('./Pages/CrossWalk'))
+const Home = lazy(() => import('./Pages/Home'))
+
+const STORAGE_KEYS = {
+  certLines: 'crosswalk.certLines',
+  syllLines: 'crosswalk.syllLines',
+  leTitle: 'crosswalk.leTitle',
+  ccTitle: 'crosswalk.ccTitle',
+  matchesByRow: 'crosswalk.matchesByRow',
+  notesByRow: 'crosswalk.notesByRow',
+  draggedOnceById: 'crosswalk.draggedOnceById',
+}
+
+function getStoredValue(key, fallbackValue) {
+  try {
+    const raw = localStorage.getItem(key)
+    if (raw === null) {
+      return fallbackValue
+    }
+
+    return JSON.parse(raw)
+  } catch {
+    return fallbackValue
+  }
+}
 
 function App() {
-  const [certLines, setCertLines] = useState([])
-  const [syllLines, setSyllLines] = useState([])
-  const [leTitle, setLeTitle] = useState('')
-  const [ccTitle, setccTitle] = useState('')
-  const [matchesByRow, setMatchesByRow] = useState({})
-  const [notesByRow, setNotesByRow] = useState({})
-  const [draggedOnceById, setDraggedOnceById] = useState({})
+  const [certLines, setCertLines] = useState(() => getStoredValue(STORAGE_KEYS.certLines, []))
+  const [syllLines, setSyllLines] = useState(() => getStoredValue(STORAGE_KEYS.syllLines, []))
+  const [leTitle, setLeTitle] = useState(() => getStoredValue(STORAGE_KEYS.leTitle, ''))
+  const [ccTitle, setccTitle] = useState(() => getStoredValue(STORAGE_KEYS.ccTitle, ''))
+  const [matchesByRow, setMatchesByRow] = useState(() => getStoredValue(STORAGE_KEYS.matchesByRow, {}))
+  const [notesByRow, setNotesByRow] = useState(() => getStoredValue(STORAGE_KEYS.notesByRow, {}))
+  const [draggedOnceById, setDraggedOnceById] = useState(() => getStoredValue(STORAGE_KEYS.draggedOnceById, {}))
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.certLines, JSON.stringify(certLines))
+    localStorage.setItem(STORAGE_KEYS.syllLines, JSON.stringify(syllLines))
+    localStorage.setItem(STORAGE_KEYS.leTitle, JSON.stringify(leTitle))
+    localStorage.setItem(STORAGE_KEYS.ccTitle, JSON.stringify(ccTitle))
+    localStorage.setItem(STORAGE_KEYS.matchesByRow, JSON.stringify(matchesByRow))
+    localStorage.setItem(STORAGE_KEYS.notesByRow, JSON.stringify(notesByRow))
+    localStorage.setItem(STORAGE_KEYS.draggedOnceById, JSON.stringify(draggedOnceById))
+  }, [
+    certLines,
+    syllLines,
+    leTitle,
+    ccTitle,
+    matchesByRow,
+    notesByRow,
+    draggedOnceById,
+  ])
 
   const resetCrosswalkState = () => {
     setMatchesByRow({})
@@ -25,6 +67,7 @@ function App() {
     <div className="App">
   <h1>Cross Walking Tool</h1>
     <BrowserRouter>
+    <Suspense fallback={<p>Loading page...</p>}>
     <Routes>
       <Route path="/"
         element={<Home
@@ -88,6 +131,7 @@ function App() {
       />
       <Route path="/*" element={<h1>404 Not Found</h1>} />
     </Routes>
+    </Suspense>
     </BrowserRouter>
     
      </div> 
