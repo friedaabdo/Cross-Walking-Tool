@@ -11,7 +11,15 @@ function App() {
   const [syllLines, setSyllLines] = useState([])
   const [leTitle, setLeTitle] = useState('')
   const [ccTitle, setccTitle] = useState('')
-  
+  const [matchesByRow, setMatchesByRow] = useState({})
+  const [notesByRow, setNotesByRow] = useState({})
+  const [draggedOnceById, setDraggedOnceById] = useState({})
+
+  const resetCrosswalkState = () => {
+    setMatchesByRow({})
+    setNotesByRow({})
+    setDraggedOnceById({})
+  }
 
   return (
     <div className="App">
@@ -24,6 +32,13 @@ function App() {
           setLearningExperienceTitle={setLeTitle}
           cunyCourseTitle={ccTitle}
           setCunyCourseTitle={setccTitle}
+          setCertLines={setCertLines}
+          setSyllLines={setSyllLines}
+          setLeTitle={setLeTitle}
+          setccTitle={setccTitle}
+          setMatchesByRow={setMatchesByRow}
+          setNotesByRow={setNotesByRow}
+          setDraggedOnceById={setDraggedOnceById}
         />}>
         
       </Route>
@@ -61,6 +76,13 @@ function App() {
             syllLines={syllLines}
             leTitle={leTitle}
             ccTitle={ccTitle}
+            matchesByRow={matchesByRow}
+            setMatchesByRow={setMatchesByRow}
+            notesByRow={notesByRow}
+            setNotesByRow={setNotesByRow}
+            draggedOnceById={draggedOnceById}
+            setDraggedOnceById={setDraggedOnceById}
+            resetCrosswalkState={resetCrosswalkState}
           />
         }
       />

@@ -3,19 +3,76 @@ import "./CrossWalk.css";
 import { DragDropProvider } from "@dnd-kit/react";
 import { Fragment, useMemo } from "react";
 import CrosswalkRow from "../Components/Crosswalk-row";
-import useCrosswalkState from "../hooks/useCrosswalkState";
 import downloadCrosswalkCsv from "../utils/csvExport";
+import { normalizeToArray } from "../utils/collections";
 
-function CrossWalk({ certLines, syllLines, leTitle, ccTitle }) {
-  const {
-    draggedOnceById,
-    notesByRow,
-    handleDragEnd,
-    handleNotesChange,
-    handleRemoveMatch,
-    getMatchesForRow,
-    matchesByRow,
-  } = useCrosswalkState();
+function CrossWalk({ 
+  certLines, 
+  syllLines, 
+  leTitle, 
+  ccTitle,
+  matchesByRow,
+  setMatchesByRow,
+  notesByRow,
+  setNotesByRow,
+  draggedOnceById,
+  setDraggedOnceById,
+}) {
+  const getMatchesForRow = (rowId) => normalizeToArray(matchesByRow[rowId]);
+
+  const handleDragEnd = (event) => {
+    if (event.canceled) {
+      return;
+    }
+
+    const draggedId = event.operation?.source?.id;
+    const dropId = event.operation?.target?.id;
+
+    if (draggedId?.startsWith("cert-")) {
+      setDraggedOnceById((previous) => {
+        if (previous[draggedId]) {
+          return previous;
+        }
+
+        return { ...previous, [draggedId]: true };
+      });
+    }
+
+    if (!draggedId || !dropId) {
+      return;
+    }
+
+    setMatchesByRow((previous) => {
+      const next = { ...previous };
+      const matchesForRow = normalizeToArray(next[dropId]);
+
+      if (!matchesForRow.includes(draggedId)) {
+        next[dropId] = [...matchesForRow, draggedId];
+      }
+
+      return next;
+    });
+  };
+
+  const handleRemoveMatch = (rowId, matchedId) => {
+    setMatchesByRow((previous) => {
+      const matchesForRow = normalizeToArray(previous[rowId]);
+      const nextMatches = matchesForRow.filter((id) => id !== matchedId);
+
+      if (nextMatches.length === matchesForRow.length) {
+        return previous;
+      }
+
+      return {
+        ...previous,
+        [rowId]: nextMatches,
+      };
+    });
+  };
+
+  const handleNotesChange = (rowId, value) => {
+    setNotesByRow((previous) => ({ ...previous, [rowId]: value }));
+  };
 
   const certById = useMemo(
     () => Object.fromEntries(certLines.map((line, index) => [`cert-${index}`, line])),
