@@ -5,6 +5,19 @@ const escapeCsvCell = (value) => {
   return `"${text.replace(/"/g, '""')}"`;
 };
 
+const toFileSafeSegment = (value, fallback) => {
+  const text = String(value ?? "").trim();
+  if (!text) {
+    return fallback;
+  }
+
+  return text
+    .replace(/[<>:"/\\|?*]+/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
+};
+
 function downloadCrosswalkCsv({
   ccTitle,
   certById,
@@ -54,7 +67,7 @@ function downloadCrosswalkCsv({
   const link = document.createElement("a");
 
   link.href = objectUrl;
-  link.download = `crosswalk-export-${new Date().toISOString().slice(0, 10)}.csv`;
+  link.download = `crosswalk-export-${toFileSafeSegment(leTitle, "learning-experience")}-${toFileSafeSegment(ccTitle, "syllabus")}.csv`;
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
