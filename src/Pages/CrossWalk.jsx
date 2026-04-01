@@ -5,6 +5,8 @@ import { Fragment, useMemo } from "react";
 import CrosswalkRow from "../Components/Crosswalk-row";
 import downloadCrosswalkCsv from "../utils/csvExport";
 import { normalizeToArray } from "../utils/collections";
+import { useNavigate } from "react-router-dom";
+import Button from "../Components/button";
 
 function CrossWalk({ 
   certLines, 
@@ -18,6 +20,7 @@ function CrossWalk({
   draggedOnceById,
   setDraggedOnceById,
 }) {
+  const navigate = useNavigate();
   const getMatchesForRow = (rowId) => normalizeToArray(matchesByRow[rowId]);
 
   const handleDragEnd = (event) => {
@@ -99,6 +102,10 @@ function CrossWalk({
     });
   };
 
+  const handleBackNavigation = () => {
+    navigate('/syllabus');
+  };
+
   return (
     <DragDropProvider onDragEnd={handleDragEnd}>
       <div id="crosswalk-div">
@@ -154,9 +161,8 @@ function CrossWalk({
       </div>
     </div>
      <div id="columns-actions">
-        <button type="button" id="export-csv-button" onClick={handleExportCsv}>
-          Export CSV
-        </button>
+        <Button text="Back" onClick={handleBackNavigation} />
+        <Button text="Export CSV" onClick={handleExportCsv} />
       </div>
     </DragDropProvider>
   );

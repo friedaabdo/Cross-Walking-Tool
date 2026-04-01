@@ -107,14 +107,25 @@ function OutcomesInput({
         navigateToCrosswalk()
     }
 
+    const handleBackNavigation = () => {
+        if (isCertificatePage) {
+            navigate('/')
+            return
+        }
+
+        navigate('/learning-experience')
+    }
+
     return (
         <div id = "outcomes-div">
-
             <div className="outcomes-layout">
                 <section className="outcomes-input-panel">
             <h1>{title} Outcomes Input</h1>
                     <Textarea pageName={pageName} value={inputValue} onChange={setInputValue} />
-                    <Button onClick={handleSubmit} text="Submit" />
+                    <div className="outcomes-input-actions">
+                        <Button onClick={handleBackNavigation} text="Back" />
+                        <Button onClick={handleSubmit} text="Submit" />
+                    </div>
                 </section>
 
                 {hasSubmitted && (
