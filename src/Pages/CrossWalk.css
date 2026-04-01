@@ -43,6 +43,7 @@ padding-bottom: var(--space-2);
 #columns-div textarea,
 #columns-div .outcome-card-item {
     min-height: var(--card-min-height);
+    height: 100%;
     box-sizing: border-box;
     margin: 0;
 }
@@ -60,12 +61,12 @@ padding-bottom: var(--space-2);
 #columns-div textarea {
     display: block;
     width: 100%;
-    min-height: var(--card-min-height);
+    min-height: 0;
     padding: var(--space-3);
     font: inherit;
     color: inherit;
     line-height: inherit;
-    overflow-y: hidden;
+    overflow-y: auto;
     resize: none;
 }
 

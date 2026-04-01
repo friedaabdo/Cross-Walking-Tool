@@ -5,8 +5,30 @@ const escapeCsvCell = (value) => {
   return `"${text.replace(/"/g, '""')}"`;
 };
 
-function downloadCrosswalkCsv({ certById, matchesByRow, notesByRow, syllLines }) {
-  const header = ["Syllabus Outcome", "Matches", "Notes"];
+function downloadCrosswalkCsv({
+  ccTitle,
+  certById,
+  certLines,
+  draggedOnceById,
+  leTitle,
+  matchesByRow,
+  notesByRow,
+  syllLines,
+}) {
+  const matchedIdSet = new Set(
+    Object.values(matchesByRow).flatMap((value) => normalizeToArray(value))
+  );
+
+  const horizontalHeader = [`${leTitle || "Learning Experience"} Outcome`, "Dragged", "Currently Matched"];
+  const horizontalRows = certLines.map((line, index) => {
+    const certId = `cert-${index}`;
+    const dragged = draggedOnceById?.[certId] ? "Yes" : "No";
+    const currentlyMatched = matchedIdSet.has(certId) ? "Yes" : "No";
+
+    return [line, dragged, currentlyMatched];
+  });
+
+  const crosswalkHeader = [`${ccTitle || "Syllabus"} Outcome`, "Matches", "Notes"];
 
   const rows = syllLines.map((line, index) => {
     const rowId = `drop-${index}`;
@@ -17,7 +39,13 @@ function downloadCrosswalkCsv({ certById, matchesByRow, notesByRow, syllLines })
     return [line, matchedLines.join("\r\n"), notesByRow[rowId] ?? ""];
   });
 
-  const csvContent = [header, ...rows]
+  const csvContent = [
+    horizontalHeader,
+    ...horizontalRows,
+    [],
+    crosswalkHeader,
+    ...rows,
+  ]
     .map((row) => row.map((cell) => escapeCsvCell(cell)).join(","))
     .join("\r\n");
 

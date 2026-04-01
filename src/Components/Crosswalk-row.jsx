@@ -1,6 +1,5 @@
 import DroppableArea from "./Droppable-area";
 import MatchesList from "./Matches-list";
-import { useLayoutEffect, useRef } from "react";
 import { splitOutcomeText } from "../utils/outcomeText";
 import "./outcome-rich.css";
 
@@ -14,20 +13,6 @@ function CrosswalkRow({
   rowId,
 }) {
   const { bullets, statement } = splitOutcomeText(line);
-  const notesRef = useRef(null);
-
-  const resizeNotes = (element = notesRef.current) => {
-    if (!element) {
-      return;
-    }
-
-    element.style.height = "0px";
-    element.style.height = `${element.scrollHeight}px`;
-  };
-
-  useLayoutEffect(() => {
-    resizeNotes();
-  }, [note]);
 
   return (
     <>
@@ -49,20 +34,10 @@ function CrosswalkRow({
         />
       </DroppableArea>
       <textarea
-        ref={notesRef}
         placeholder="Add notes here..."
         value={note}
-        onInput={(event) => {
-          resizeNotes(event.currentTarget);
-        }}
-        onFocus={(event) => {
-          resizeNotes(event.currentTarget);
-        }}
         onChange={(event) => {
           onNoteChange(rowId, event.target.value);
-          requestAnimationFrame(() => {
-            resizeNotes(event.target);
-          });
         }}
       />
     </>

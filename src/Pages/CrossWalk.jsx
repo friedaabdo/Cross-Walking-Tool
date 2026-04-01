@@ -30,7 +30,16 @@ function CrossWalk({ certLines, syllLines, leTitle, ccTitle }) {
   };
 
   const handleExportCsv = () => {
-    downloadCrosswalkCsv({ certById, matchesByRow, notesByRow, syllLines });
+    downloadCrosswalkCsv({
+      ccTitle,
+      certById,
+      certLines,
+      draggedOnceById,
+      leTitle,
+      matchesByRow,
+      notesByRow,
+      syllLines,
+    });
   };
 
   return (
