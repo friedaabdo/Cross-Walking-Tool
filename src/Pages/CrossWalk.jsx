@@ -1,100 +1,36 @@
 import DraggableCard from "../Components/Draggable-card";
 import "./CrossWalk.css";
 import { DragDropProvider } from "@dnd-kit/react";
-import DroppableArea from "../Components/Droppable-area";
-import { Fragment, useMemo, useState } from "react";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faCircleXmark } from '@fortawesome/free-solid-svg-icons'
+import { Fragment, useMemo } from "react";
+import CrosswalkRow from "../Components/Crosswalk-row";
+import useCrosswalkState from "../hooks/useCrosswalkState";
+import downloadCrosswalkCsv from "../utils/csvExport";
 
 function CrossWalk({ certLines, syllLines, leTitle, ccTitle }) {
-  const [matchesByRow, setMatchesByRow] = useState({});
-  const [notesByRow, setNotesByRow] = useState({});
-  const [draggedOnceById, setDraggedOnceById] = useState({});
-
-  const normalizeMatches = (value) =>
-    Array.isArray(value) ? value : value ? [value] : [];
+  const {
+    draggedOnceById,
+    notesByRow,
+    handleDragEnd,
+    handleNotesChange,
+    handleRemoveMatch,
+    getMatchesForRow,
+    matchesByRow,
+  } = useCrosswalkState();
 
   const certById = useMemo(
     () => Object.fromEntries(certLines.map((line, index) => [`cert-${index}`, line])),
     [certLines]
   );
 
-  const handleDragEnd = (event) => {
-    if (event.canceled) {
-      return;
-    }
-
-    const draggedId = event.operation?.source?.id;
-    const dropId = event.operation?.target?.id;
-
-    if (draggedId?.startsWith("cert-")) {
-      setDraggedOnceById((previous) => {
-        if (previous[draggedId]) {
-          return previous;
-        }
-
-        return { ...previous, [draggedId]: true };
-      });
-    }
-
-    if (!draggedId || !dropId) {
-      return;
-    }
-
-    setMatchesByRow((previous) => {
-      const next = { ...previous };
-      const matchesForRow = normalizeMatches(next[dropId]);
-
-      if (!matchesForRow.includes(draggedId)) {
-        next[dropId] = [...matchesForRow, draggedId];
-      }
-
-      return next;
-    });
-  };
-
   const handleCertWheel = (event) => {
     const container = event.currentTarget;
-    event.preventDefault();
+    // event.preventDefault();
     event.stopPropagation();
     container.scrollLeft += event.deltaY + event.deltaX;
   };
 
-  const getMatchesForRow = (rowId) => {
-    return normalizeMatches(matchesByRow[rowId]);
-  };
-
-  const escapeCsvCell = (value) => {
-    const text = String(value ?? "");
-    return `"${text.replace(/"/g, '""')}"`;
-  };
-
   const handleExportCsv = () => {
-    const header = ["Syllabus Outcome", "Matches", "Notes"];
-
-    const rows = syllLines.map((line, index) => {
-      const rowId = `drop-${index}`;
-      const matchedLines = getMatchesForRow(rowId)
-        .map((matchedId) => certById[matchedId])
-        .filter(Boolean);
-
-      return [line, matchedLines.join("\r\n"), notesByRow[rowId] ?? ""];
-    });
-
-    const csvContent = [header, ...rows]
-      .map((row) => row.map((cell) => escapeCsvCell(cell)).join(","))
-      .join("\r\n");
-
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    const objectUrl = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-
-    link.href = objectUrl;
-    link.download = `crosswalk-export-${new Date().toISOString().slice(0, 10)}.csv`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(objectUrl);
+    downloadCrosswalkCsv({ certById, matchesByRow, notesByRow, syllLines });
   };
 
   return (
@@ -137,31 +73,14 @@ function CrossWalk({ certLines, syllLines, leTitle, ccTitle }) {
 
           return (
             <Fragment key={`row-${index}`}>
-              <p className="outcome-card-item crosswalk-syll-card">{line}</p>
-              <DroppableArea id={rowId}>
-                {matchedLines.length > 0 ? (
-                  <div className="matches-list">
-                    {matchedLines.map((matchedLine, matchedIndex) => (
-                      <p
-                        key={matchedIds[matchedIndex]}
-                        className="draggable-card-item crosswalk-match-card"
-                      >
-                        <FontAwesomeIcon className="close-icon" icon={faCircleXmark} />
-                        {matchedLine}
-                      </p>
-                    ))}
-                  </div>
-                ) : (
-                  <span className="drop-placeholder">Drop outcome here</span>
-                )}
-              </DroppableArea>
-              <textarea
-                placeholder="Add notes here..."
-                value={notesByRow[rowId] ?? ""}
-                onChange={(event) => {
-                  const { value } = event.target;
-                  setNotesByRow((previous) => ({ ...previous, [rowId]: value }));
-                }}
+              <CrosswalkRow
+                line={line}
+                matchedIds={matchedIds}
+                matchedLines={matchedLines}
+                note={notesByRow[rowId] ?? ""}
+                onNoteChange={handleNotesChange}
+                onRemoveMatch={handleRemoveMatch}
+                rowId={rowId}
               />
             </Fragment>
           );
