@@ -7,3 +7,8 @@
   width: 100%;
 }
 
+#confirmation-area .outcome-card-item {
+  font-size: 0.95rem;
+  font-weight: 400;
+}
+

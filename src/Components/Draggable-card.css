@@ -1,4 +1,16 @@
+.draggable-card-wrapper {
+    position: relative;
+}
+
+.draggable-card-wrapper.draggable-card-wrapper-overflow {
+    height: 150px;
+    overflow: visible;
+    z-index: 0;
+}
+
 .draggable-card-item {
+    --card-bg-rgb: 59, 59, 59;
+    --card-bg-alpha: 1;
     font-size: 0.95rem;
     padding: 12px;
     border: 1px solid #ccc;
@@ -6,10 +18,68 @@
     box-sizing: border-box;
     margin: 0;
     cursor: grab;
-    Background-color: #3b3b3b;
+    background-color: rgba(var(--card-bg-rgb), var(--card-bg-alpha));
     position: relative;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
+    transition: max-height 0.2s ease, box-shadow 0.2s ease;
+}
+
+.draggable-card-item.crosswalk-cert-card {
+    max-height: 150px;
+    overflow: hidden;
+}
+
+.draggable-card-item.draggable-card-has-overflow::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 50px;
+    pointer-events: none;
+    background: linear-gradient(
+        to bottom,
+        rgba(var(--card-bg-rgb), 0),
+        rgba(var(--card-bg-rgb), var(--card-bg-alpha))
+    );
+}
+
+.draggable-card-item.draggable-card-expanded {
+    position: fixed;
+    top: var(--expanded-top);
+    left: var(--expanded-left);
+    width: var(--expanded-width);
+    max-height: 70vh;
+    overflow-x: hidden;
+    overflow-y: auto;
+    scrollbar-gutter: stable;
+    z-index: 120;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+}
+
+.draggable-card-item.draggable-card-expanded::after {
+    display: none;
+}
+
+.draggable-card-content {
+    width: 100%;
+    text-align: left;
+}
+
+.draggable-card-statement {
+    display: block;
+    white-space: pre-wrap;
+}
+
+.draggable-card-bullets {
+    margin: 8px 0 0 20px;
+    padding: 0;
+    list-style: disc;
+}
+
+.draggable-card-bullets li {
+    margin: 2px 0;
 }
 
 .draggable-card-item svg {
@@ -26,7 +96,8 @@
 }
 
 .draggable-card-item.crosswalk-cert-card-dragged {
-    background-color: #1f2937d2;
+    --card-bg-rgb: 31, 41, 55;
+    --card-bg-alpha: 0.82;
     border-color: #60a5fa35;
     
 }

@@ -1,7 +1,18 @@
-textarea {
-  width: auto;
-  height: 500px;
-  text-align: left;
-  vertical-align: top;
-  resize: none;
-}   
+.textarea-quill-shell {
+  width: 100%;
+}
+
+.textarea-quill-toolbar {
+  border: 1px solid #757575;
+  border-bottom: 0;
+  background: #8f8f8f;
+}
+
+.textarea-quill-shell .ql-container {
+  border-top: 1px solid #646464;
+}
+
+.textarea-quill-editor .ql-editor {
+  min-height: 500px;
+  white-space: pre-wrap;
+}
