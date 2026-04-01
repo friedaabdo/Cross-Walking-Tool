@@ -1,26 +1,11 @@
 .outcome-card-item {
-    font-size: 0.95rem;
+    font-size: var(--font-size-card);
     font-weight: 400;
-    padding: 12px;
-    border: 1px solid #ccc;
-    min-height: 72px;
+    padding: var(--space-3);
+    border: 1px solid var(--card-border-color);
+    min-height: var(--card-min-height);
     box-sizing: border-box;
     margin: 0;
     white-space: pre-wrap;
-}
-
-.outcome-card-statement {
-    display: block;
-}
-
-.outcome-card-bullets {
-    margin: 8px 0 0 0;
-    padding-left: 18px;
-    list-style: disc;
-}
-
-.outcome-card-bullets li {
-    margin: 2px 0;
-    padding-left: 2px;
 }
 

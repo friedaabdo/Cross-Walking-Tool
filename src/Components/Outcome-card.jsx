@@ -1,19 +1,6 @@
 import "./Outcome-card.css";
-
-const splitOutcomeText = (text) => {
-  const segments = String(text ?? "")
-    .split("\n")
-    .map((item) => item.trim())
-    .filter((item) => item !== "");
-
-  const bullets = segments
-    .filter((item) => /^-\s+/.test(item))
-    .map((item) => item.replace(/^-\s+/, ""));
-
-  const statement = segments.filter((item) => !/^-\s+/.test(item)).join("\n");
-
-  return { bullets, statement };
-};
+import "./outcome-rich.css";
+import { splitOutcomeText } from "../utils/outcomeText";
 
 function OutcomeCard({ lines, className, containerClassName }) {
   return (
@@ -22,10 +9,10 @@ function OutcomeCard({ lines, className, containerClassName }) {
         const { bullets, statement } = splitOutcomeText(line);
 
         return (
-          <div key={`${line}-${index}`} className={`outcome-card-item ${className ?? ""}`}>
-            {statement ? <span className="outcome-card-statement">{statement}</span> : null}
+          <div key={`${line}-${index}`} className={`outcome-card-item outcome-rich-content ${className ?? ""}`}>
+            {statement ? <span className="outcome-rich-statement">{statement}</span> : null}
             {bullets.length > 0 ? (
-              <ul className="outcome-card-bullets">
+              <ul className="outcome-rich-bullets">
                 {bullets.map((bullet, bulletIndex) => (
                   <li key={`outcome-${index}-bullet-${bulletIndex}`}>{bullet}</li>
                 ))}

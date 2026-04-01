@@ -1,5 +1,4 @@
-const normalizeMatches = (value) =>
-  Array.isArray(value) ? value : value ? [value] : [];
+import { normalizeToArray } from "./collections";
 
 const escapeCsvCell = (value) => {
   const text = String(value ?? "");
@@ -11,7 +10,7 @@ function downloadCrosswalkCsv({ certById, matchesByRow, notesByRow, syllLines })
 
   const rows = syllLines.map((line, index) => {
     const rowId = `drop-${index}`;
-    const matchedLines = normalizeMatches(matchesByRow[rowId])
+    const matchedLines = normalizeToArray(matchesByRow[rowId])
       .map((matchedId) => certById[matchedId])
       .filter(Boolean);
 

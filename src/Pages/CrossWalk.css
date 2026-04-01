@@ -7,15 +7,15 @@
     position: sticky;
     top: 0;
     z-index: 30;
-    background: #1c1919;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    background: var(--panel-bg);
+    box-shadow: var(--panel-shadow);
 }
 
 #columns-div {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    column-gap: 12px;
-    row-gap: 12px;
+    column-gap: var(--space-3);
+    row-gap: var(--space-3);
     align-items: stretch;
 }
 
@@ -26,8 +26,8 @@ overflow-x: auto;
 overflow-y: visible;
 overscroll-behavior: contain;
 align-items: flex-start;
-gap: 8px;
-padding-bottom: 8px;
+gap: var(--space-2);
+padding-bottom: var(--space-2);
 }
 
 .crosswalk-cert-card {
@@ -42,7 +42,7 @@ padding-bottom: 8px;
 #columns-div .droppable-area,
 #columns-div textarea,
 #columns-div .outcome-card-item {
-    min-height: 72px;
+    min-height: var(--card-min-height);
     box-sizing: border-box;
     margin: 0;
 }
@@ -57,34 +57,11 @@ padding-bottom: 8px;
     align-items: flex-start;
 }
 
-.outcome-rich-content,
-.crosswalk-syll-card {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    text-align: left;
-}
-
-.outcome-rich-statement {
-    display: block;
-    white-space: pre-wrap;
-}
-
-.outcome-rich-bullets {
-    margin: 8px 0 0 20px;
-    padding: 0;
-    list-style: disc;
-}
-
-.outcome-rich-bullets li {
-    margin: 2px 0;
-}
-
 #columns-div textarea {
     display: block;
     width: 100%;
-    min-height: 72px;;
-    padding: 12px;
+    min-height: var(--card-min-height);
+    padding: var(--space-3);
     font: inherit;
     color: inherit;
     line-height: inherit;
@@ -94,13 +71,13 @@ padding-bottom: 8px;
 
 .drop-placeholder {
     color: #64748b;
-    font-size: 0.9rem;
+    font-size: var(--font-size-small);
 }
 
 .matches-list {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: var(--space-2);
     width: 100%;
 }
 
@@ -115,19 +92,19 @@ padding-bottom: 8px;
 #columns-actions {
     display: flex;
     justify-content: flex-end;
-    padding: 12px 0;
+    padding: var(--space-3) 0;
 }
 
 #export-csv-button {
-    border: 1px solid #475569;
-    background: #0f172a;
-    color: #e2e8f0;
+    border: 1px solid var(--button-border);
+    background: var(--button-bg);
+    color: var(--button-text);
     border-radius: 8px;
-    padding: 8px 12px;
+    padding: var(--space-2) var(--space-3);
     font-weight: 600;
     cursor: pointer;
 }
 
 #export-csv-button:hover {
-    background: #1e293b;
+    background: var(--button-bg-hover);
 }

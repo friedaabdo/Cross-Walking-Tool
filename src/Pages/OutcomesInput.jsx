@@ -1,10 +1,9 @@
 // create a react page with a text box input and submit button.
 import { useState } from 'react'
 import './OutcomesInput.css'
-import CertTextarea from '../Components/textarea'
+import Textarea from '../Components/textarea'
 import ConfirmCertInfo from '../Components/confirmationArea'
 import Button from '../Components/button'
-import SyllTextArea from '../Components/textarea'
 import ConfirmSyllInfo from '../Components/confirmationArea'
 import { useNavigate } from 'react-router-dom'
 
@@ -84,8 +83,6 @@ function OutcomesInput({
     const lines = isCertificatePage ? certLines : syllLines
     const setLines = isCertificatePage ? setCertLines : setSyllLines
     const ConfirmInfo = isCertificatePage ? ConfirmCertInfo : ConfirmSyllInfo
-    const TextareaComponent = isCertificatePage ? CertTextarea : SyllTextArea
-
     const handleSubmit = () => {
         const submittedLines = parseInputToOutcomeLines(inputValue)
         setLines(submittedLines)
@@ -116,7 +113,7 @@ function OutcomesInput({
             <div className="outcomes-layout">
                 <section className="outcomes-input-panel">
             <h1>{title} Outcomes Input</h1>
-                    <TextareaComponent pageName={pageName} value={inputValue} onChange={setInputValue} />
+                    <Textarea pageName={pageName} value={inputValue} onChange={setInputValue} />
                     <Button onClick={handleSubmit} text="Submit" />
                 </section>
 

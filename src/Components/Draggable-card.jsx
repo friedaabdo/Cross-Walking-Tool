@@ -1,6 +1,8 @@
 import { useDraggable } from "@dnd-kit/react";
 import { useEffect, useRef, useState } from "react";
+import { splitOutcomeText } from "../utils/outcomeText";
 import "./Draggable-card.css";
+import "./outcome-rich.css";
 
 const COLLAPSED_CARD_HEIGHT = 150;
 
@@ -12,18 +14,7 @@ function DraggableCard({ id, className, line }) {
     const [isExpanded, setIsExpanded] = useState(false);
     const [expandedRect, setExpandedRect] = useState({ left: 0, top: 0, width: 0 });
 
-    const segments = String(line ?? "")
-        .split("\n")
-        .map((item) => item.trim())
-        .filter((item) => item !== "");
-
-    const bulletLines = segments
-        .filter((item) => /^-\s+/.test(item))
-        .map((item) => item.replace(/^-\s+/, ""));
-
-    const statementText = segments
-        .filter((item) => !/^-\s+/.test(item))
-        .join("\n");
+    const { bullets, statement } = splitOutcomeText(line);
 
     useEffect(() => {
         if (!cardRef.current) {
@@ -93,12 +84,12 @@ function DraggableCard({ id, className, line }) {
                 {...attributes}
                 {...listeners}
             >
-                <div className="draggable-card-content">
-                    {statementText ? <span className="draggable-card-statement">{statementText}</span> : null}
-                    {bulletLines.length > 0 ? (
-                        <ul className="draggable-card-bullets">
-                            {bulletLines.map((bulletLine, index) => (
-                                <li key={`${id}-bullet-${index}`}>{bulletLine}</li>
+                <div className="draggable-card-content outcome-rich-content">
+                    {statement ? <span className="outcome-rich-statement">{statement}</span> : null}
+                    {bullets.length > 0 ? (
+                        <ul className="outcome-rich-bullets">
+                            {bullets.map((bullet, index) => (
+                                <li key={`${id}-bullet-${index}`}>{bullet}</li>
                             ))}
                         </ul>
                     ) : null}

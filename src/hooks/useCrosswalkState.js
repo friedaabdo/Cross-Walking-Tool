@@ -1,14 +1,12 @@
 import { useState } from "react";
-
-const normalizeMatches = (value) =>
-  Array.isArray(value) ? value : value ? [value] : [];
+import { normalizeToArray } from "../utils/collections";
 
 function useCrosswalkState() {
   const [matchesByRow, setMatchesByRow] = useState({});
   const [notesByRow, setNotesByRow] = useState({});
   const [draggedOnceById, setDraggedOnceById] = useState({});
 
-  const getMatchesForRow = (rowId) => normalizeMatches(matchesByRow[rowId]);
+  const getMatchesForRow = (rowId) => normalizeToArray(matchesByRow[rowId]);
 
   const handleDragEnd = (event) => {
     if (event.canceled) {
@@ -34,7 +32,7 @@ function useCrosswalkState() {
 
     setMatchesByRow((previous) => {
       const next = { ...previous };
-      const matchesForRow = normalizeMatches(next[dropId]);
+      const matchesForRow = normalizeToArray(next[dropId]);
 
       if (!matchesForRow.includes(draggedId)) {
         next[dropId] = [...matchesForRow, draggedId];
@@ -46,7 +44,7 @@ function useCrosswalkState() {
 
   const handleRemoveMatch = (rowId, matchedId) => {
     setMatchesByRow((previous) => {
-      const matchesForRow = normalizeMatches(previous[rowId]);
+      const matchesForRow = normalizeToArray(previous[rowId]);
       const nextMatches = matchesForRow.filter((id) => id !== matchedId);
 
       if (nextMatches.length === matchesForRow.length) {
