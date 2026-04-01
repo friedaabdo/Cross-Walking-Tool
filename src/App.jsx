@@ -39,6 +39,15 @@ function App() {
   const [notesByRow, setNotesByRow] = useState(() => getStoredValue(STORAGE_KEYS.notesByRow, {}))
   const [draggedOnceById, setDraggedOnceById] = useState(() => getStoredValue(STORAGE_KEYS.draggedOnceById, {}))
 
+  const hasSavedProgress =
+    certLines.length > 0 ||
+    syllLines.length > 0 ||
+    Boolean(leTitle.trim()) ||
+    Boolean(ccTitle.trim()) ||
+    Object.keys(matchesByRow).length > 0 ||
+    Object.keys(notesByRow).length > 0 ||
+    Object.keys(draggedOnceById).length > 0
+
   useEffect(() => {
     localStorage.setItem(STORAGE_KEYS.certLines, JSON.stringify(certLines))
     localStorage.setItem(STORAGE_KEYS.syllLines, JSON.stringify(syllLines))
@@ -63,6 +72,20 @@ function App() {
     setDraggedOnceById({})
   }
 
+  const clearSavedProgress = () => {
+    setCertLines([])
+    setSyllLines([])
+    setLeTitle('')
+    setccTitle('')
+    setMatchesByRow({})
+    setNotesByRow({})
+    setDraggedOnceById({})
+
+    Object.values(STORAGE_KEYS).forEach((key) => {
+      localStorage.removeItem(key)
+    })
+  }
+
   return (
     <div className="App">
   <h1>Cross Walking Tool</h1>
@@ -82,6 +105,8 @@ function App() {
           setMatchesByRow={setMatchesByRow}
           setNotesByRow={setNotesByRow}
           setDraggedOnceById={setDraggedOnceById}
+          hasSavedProgress={hasSavedProgress}
+          clearSavedProgress={clearSavedProgress}
         />}>
         
       </Route>

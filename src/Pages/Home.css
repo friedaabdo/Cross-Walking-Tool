@@ -1,0 +1,11 @@
+.home-persistence-actions {
+	display: flex;
+	gap: 12px;
+	flex-wrap: wrap;
+	justify-content: center;
+}
+
+.home-save-hint {
+	font-size: 0.9rem;
+	color: #475569;
+}

@@ -17,6 +17,8 @@ function Home({
     setMatchesByRow,
     setNotesByRow,
     setDraggedOnceById,
+    hasSavedProgress,
+    clearSavedProgress,
 }) {
     const navigate = useNavigate();
     const fileInputRef = useRef(null);
@@ -59,6 +61,14 @@ function Home({
         fileInputRef.current?.click();
     };
 
+    const handleClearSavedProgress = () => {
+        clearSavedProgress();
+        setImportError(null);
+        if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+        }
+    };
+
     return (
         <div id="home-div">
             <h1>Welcome to the Cross Walking Tool</h1>
@@ -80,6 +90,19 @@ function Home({
                 <Button text="Go to Learning Experience Outcomes" onClick={() => navigate('/learning-experience')} />
             </div>
 
+            <div className="home-persistence-actions">
+                <Button
+                    text="Resume Saved Progress"
+                    onClick={() => navigate('/crosswalk')}
+                    disabled={!hasSavedProgress}
+                />
+                <Button
+                    text="Clear Saved Progress"
+                    onClick={handleClearSavedProgress}
+                    disabled={!hasSavedProgress}
+                />
+            </div>
+
             <p>Or, if you have a .csv file, import it here:</p>
             <input
                 ref={fileInputRef}
@@ -94,6 +117,11 @@ function Home({
                 disabled={isImporting}
             />
             {importError && <p style={{ color: 'red' }}>{importError}</p>}
+            <p className="home-save-hint">
+                {hasSavedProgress
+                    ? 'Progress is auto-saved on this browser.'
+                    : 'No saved progress found on this browser yet.'}
+            </p>
         </div>
     );
 }
