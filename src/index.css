@@ -19,6 +19,7 @@
   --button-bg-hover: #1e293b;
   --button-border: #475569;
   --button-text: #e2e8f0;
+  --placeholder-color: rgba(226, 232, 240, 0.55);
 
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);

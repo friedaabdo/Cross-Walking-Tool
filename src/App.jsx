@@ -66,12 +66,6 @@ function App() {
     draggedOnceById,
   ])
 
-  const resetCrosswalkState = () => {
-    setMatchesByRow({})
-    setNotesByRow({})
-    setDraggedOnceById({})
-  }
-
   const clearSavedProgress = () => {
     setCertLines([])
     setSyllLines([])
@@ -150,7 +144,6 @@ function App() {
             setNotesByRow={setNotesByRow}
             draggedOnceById={draggedOnceById}
             setDraggedOnceById={setDraggedOnceById}
-            resetCrosswalkState={resetCrosswalkState}
           />
         }
       />

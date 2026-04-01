@@ -2,9 +2,8 @@
 import { useState } from 'react'
 import './OutcomesInput.css'
 import Textarea from '../Components/textarea'
-import ConfirmCertInfo from '../Components/confirmationArea'
+import ConfirmationArea from '../Components/confirmationArea'
 import Button from '../Components/button'
-import ConfirmSyllInfo from '../Components/confirmationArea'
 import { useNavigate } from 'react-router-dom'
 
 const parseInputToOutcomeLines = (value) => {
@@ -82,7 +81,7 @@ function OutcomesInput({
     const title = isCertificatePage ? leTitle : ccTitle
     const lines = isCertificatePage ? certLines : syllLines
     const setLines = isCertificatePage ? setCertLines : setSyllLines
-    const ConfirmInfo = isCertificatePage ? ConfirmCertInfo : ConfirmSyllInfo
+
     const handleSubmit = () => {
         const submittedLines = parseInputToOutcomeLines(inputValue)
         setLines(submittedLines)
@@ -130,7 +129,7 @@ function OutcomesInput({
 
                 {hasSubmitted && (
                     <section className="outcomes-confirmation-panel">
-                        <ConfirmInfo pageName={pageName} title={title} lines={lines} />
+                        <ConfirmationArea pageName={pageName} title={title} lines={lines} />
                         <Button onClick={handleConfirmNavigation} text={`Confirm ${title} Outcomes`} />
                     </section>
                 )}

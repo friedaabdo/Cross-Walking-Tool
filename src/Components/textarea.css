@@ -16,3 +16,8 @@
   min-height: 500px;
   white-space: pre-wrap;
 }
+
+.textarea-quill-editor .ql-editor.ql-blank::before {
+  color: var(--placeholder-color);
+  font-style: normal;
+}
