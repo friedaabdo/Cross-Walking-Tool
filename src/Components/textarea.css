@@ -3,13 +3,19 @@
 }
 
 .textarea-quill-toolbar {
-  border: 1px solid #757575;
+  border: 1px solid var(--card-border-color);
   border-bottom: 0;
-  background: #8f8f8f;
+  background: var(--bg-soft);
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
 }
 
 .textarea-quill-shell .ql-container {
-  border-top: 1px solid #646464;
+  border: 1px solid var(--card-border-color);
+  border-top: 1px solid var(--card-border-color);
+  background: var(--bg-surface);
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
 }
 
 .textarea-quill-editor .ql-editor {

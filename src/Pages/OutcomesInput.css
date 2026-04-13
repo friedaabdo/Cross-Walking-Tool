@@ -26,6 +26,11 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  background: var(--bg-surface);
+  border: 1px solid var(--card-border-color);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: var(--panel-shadow);
 }
 
 .outcomes-input-actions {
@@ -39,6 +44,7 @@
   width: min(520px, 100%);
   height: 500px;
   margin-bottom: 16px;
+  background: var(--bg-surface);
 }
 
 @media (max-width: 900px) {

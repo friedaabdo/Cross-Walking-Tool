@@ -1,3 +1,18 @@
+#home-div {
+	max-width: 820px;
+	margin: 0 auto;
+	padding: 28px;
+	border: 1px solid var(--card-border-color);
+	border-radius: 18px;
+	background: var(--bg-surface);
+	box-shadow: var(--panel-shadow);
+}
+
+#home-actions {
+	display: flex;
+	justify-content: center;
+}
+
 .home-persistence-actions {
 	display: flex;
 	gap: 12px;
@@ -7,5 +22,5 @@
 
 .home-save-hint {
 	font-size: 0.9rem;
-	color: #475569;
+	color: var(--text-muted);
 }

@@ -1,5 +1,4 @@
 // create a react page with a text box input and submit button.
-import { useState } from 'react'
 import './OutcomesInput.css'
 import Textarea from '../Components/textarea'
 import ConfirmationArea from '../Components/confirmationArea'
@@ -71,21 +70,25 @@ function OutcomesInput({
     setCertLines,
     syllLines,
     setSyllLines,
+    draftValue,
+    setDraftValue,
     leTitle,
     ccTitle,
 }) {
     const isCertificatePage = pageName.toLowerCase() === 'learning experience'
-    const [hasSubmitted, setHasSubmitted] = useState(false)
-    const [inputValue, setInputValue] = useState('')
-
-    const title = isCertificatePage ? leTitle : ccTitle
     const lines = isCertificatePage ? certLines : syllLines
     const setLines = isCertificatePage ? setCertLines : setSyllLines
+    const title = isCertificatePage ? leTitle : ccTitle
+    const hasSubmitted = lines.length > 0
+    const inputValue = draftValue || lines.join('\n')
+
+    const handleInputChange = (value) => {
+        setDraftValue(value)
+    }
 
     const handleSubmit = () => {
         const submittedLines = parseInputToOutcomeLines(inputValue)
         setLines(submittedLines)
-        setHasSubmitted(true)
     }
 
 
@@ -120,7 +123,7 @@ function OutcomesInput({
             <div className="outcomes-layout">
                 <section className="outcomes-input-panel">
             <h1>{title} Outcomes Input</h1>
-                    <Textarea pageName={pageName} value={inputValue} onChange={setInputValue} />
+                    <Textarea pageName={pageName} value={inputValue} onChange={handleInputChange} />
                     <div className="outcomes-input-actions">
                         <Button onClick={handleBackNavigation} text="Back" />
                         <Button onClick={handleSubmit} text="Submit" />

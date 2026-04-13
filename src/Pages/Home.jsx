@@ -40,11 +40,12 @@ function Home({
             setccTitle(data.ccTitle);
             setCertLines(data.certLines);
             setSyllLines(data.syllLines);
+          
             setMatchesByRow(data.matchesByRow);
             setNotesByRow(data.notesByRow);
             setDraggedOnceById(data.draggedOnceById);
 
-            // Navigate to crosswalk
+            // Open the learning experience editor so imported outcomes can be reviewed and edited
             navigate('/crosswalk');
         } catch (error) {
             setImportError(error.message || 'Failed to import CSV file');

@@ -3,9 +3,11 @@
     font-weight: 400;
     padding: var(--space-3);
     border: 1px solid var(--card-border-color);
+    border-radius: 12px;
     min-height: var(--card-min-height);
     box-sizing: border-box;
-    margin: 0;
+    margin: 5px;
     white-space: pre-wrap;
+    background: var(--bg-surface);
 }
 

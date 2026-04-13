@@ -9,11 +9,12 @@
 }
 
 .draggable-card-item {
-    --card-bg-rgb: 59, 59, 59;
+    --card-bg-rgb: 248, 251, 255;
     --card-bg-alpha: 1;
     font-size: var(--font-size-card);
     padding: var(--space-3);
     border: 1px solid var(--card-border-color);
+    border-radius: 12px;
     min-height: var(--card-min-height);
     box-sizing: border-box;
     margin: 0;
@@ -35,8 +36,8 @@
     position: absolute;
     left: 0;
     right: 0;
-    bottom: 0;
-    height: 50px;
+    bottom: -1px;
+    height: 80px;
     pointer-events: none;
     background: linear-gradient(
         to bottom,
@@ -55,7 +56,7 @@
     overflow-y: auto;
     scrollbar-gutter: stable;
     z-index: 120;
-    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+    box-shadow: 0 14px 30px rgba(24, 39, 75, 0.15);
 }
 
 .draggable-card-item.draggable-card-expanded::after {
@@ -80,8 +81,8 @@
 }
 
 .draggable-card-item.crosswalk-cert-card-dragged {
-    --card-bg-rgb: 31, 41, 55;
-    --card-bg-alpha: 0.82;
-    border-color: #60a5fa35;
+    --card-bg-rgb: 222, 235, 255;
+    --card-bg-alpha: 1;
+    border-color: #9db8eb;
     
 }

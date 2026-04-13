@@ -1,5 +1,5 @@
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: "Nunito Sans", "Segoe UI", Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
   height:auto;
@@ -11,25 +11,78 @@
   --font-size-small: 0.9rem;
   --card-min-height: 72px;
   --card-collapsed-height: 150px;
-  --card-border-color: #ccc;
+  --card-border-color: #d5deee;
   --bullet-indent: 18px;
-  --panel-bg: #1c1919;
-  --panel-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-  --button-bg: #0f172a;
-  --button-bg-hover: #1e293b;
-  --button-border: #475569;
-  --button-text: #e2e8f0;
-  --placeholder-color: rgba(226, 232, 240, 0.55);
+  --bg-page: #f3f6fb;
+  --bg-surface: #ffffff;
+  --bg-soft: #e9eef8;
+  --text-primary: #1e293b;
+  --text-muted: #5b6880;
+  --panel-bg: #f8fbff;
+  --panel-shadow: 0 6px 22px rgba(24, 39, 75, 0.08);
+  --button-bg: #2f6fed;
+  --button-bg-hover: #275dca;
+  --button-border: #2452b3;
+  --button-text: #ffffff;
+  --placeholder-color: rgba(91, 104, 128, 0.72);
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  color-scheme: light;
+  color: var(--text-primary);
+  background-color: var(--bg-page);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background:
+    radial-gradient(circle at top right, #d8e6ff 0%, transparent 40%),
+    linear-gradient(180deg, #f6f9ff 0%, var(--bg-page) 100%);
+  color: var(--text-primary);
+  min-height: 100vh;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  color: var(--text-primary);
+}
+
+p {
+  color: var(--text-muted);
+}
+
+button {
+  border: 1px solid var(--button-border);
+  background: var(--button-bg);
+  color: var(--button-text);
+  border-radius: 10px;
+  padding: 10px 16px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  transition: background-color 0.2s ease, transform 0.15s ease;
+}
+
+button:hover:not(:disabled) {
+  background: var(--button-bg-hover);
+  transform: translateY(-1px);
+}
+
+input {
+  border: 1px solid var(--card-border-color);
+  border-radius: 10px;
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  padding: 10px 12px;
 }
 
 

@@ -10,6 +10,8 @@ const Home = lazy(() => import('./Pages/Home'))
 const STORAGE_KEYS = {
   certLines: 'crosswalk.certLines',
   syllLines: 'crosswalk.syllLines',
+  certDraft: 'crosswalk.certDraft',
+  syllDraft: 'crosswalk.syllDraft',
   leTitle: 'crosswalk.leTitle',
   ccTitle: 'crosswalk.ccTitle',
   matchesByRow: 'crosswalk.matchesByRow',
@@ -33,6 +35,8 @@ function getStoredValue(key, fallbackValue) {
 function App() {
   const [certLines, setCertLines] = useState(() => getStoredValue(STORAGE_KEYS.certLines, []))
   const [syllLines, setSyllLines] = useState(() => getStoredValue(STORAGE_KEYS.syllLines, []))
+  const [certDraft, setCertDraft] = useState(() => getStoredValue(STORAGE_KEYS.certDraft, ''))
+  const [syllDraft, setSyllDraft] = useState(() => getStoredValue(STORAGE_KEYS.syllDraft, ''))
   const [leTitle, setLeTitle] = useState(() => getStoredValue(STORAGE_KEYS.leTitle, ''))
   const [ccTitle, setccTitle] = useState(() => getStoredValue(STORAGE_KEYS.ccTitle, ''))
   const [matchesByRow, setMatchesByRow] = useState(() => getStoredValue(STORAGE_KEYS.matchesByRow, {}))
@@ -51,6 +55,8 @@ function App() {
   useEffect(() => {
     localStorage.setItem(STORAGE_KEYS.certLines, JSON.stringify(certLines))
     localStorage.setItem(STORAGE_KEYS.syllLines, JSON.stringify(syllLines))
+    localStorage.setItem(STORAGE_KEYS.certDraft, JSON.stringify(certDraft))
+    localStorage.setItem(STORAGE_KEYS.syllDraft, JSON.stringify(syllDraft))
     localStorage.setItem(STORAGE_KEYS.leTitle, JSON.stringify(leTitle))
     localStorage.setItem(STORAGE_KEYS.ccTitle, JSON.stringify(ccTitle))
     localStorage.setItem(STORAGE_KEYS.matchesByRow, JSON.stringify(matchesByRow))
@@ -59,6 +65,8 @@ function App() {
   }, [
     certLines,
     syllLines,
+    certDraft,
+    syllDraft,
     leTitle,
     ccTitle,
     matchesByRow,
@@ -69,6 +77,8 @@ function App() {
   const clearSavedProgress = () => {
     setCertLines([])
     setSyllLines([])
+    setCertDraft('')
+    setSyllDraft('')
     setLeTitle('')
     setccTitle('')
     setMatchesByRow({})
@@ -112,6 +122,8 @@ function App() {
             pageName="Learning Experience"
             certLines={certLines}
             setCertLines={setCertLines}
+            draftValue={certDraft}
+            setDraftValue={setCertDraft}
             leTitle={leTitle}
             setLeTitle={setLeTitle}
           />
@@ -125,6 +137,8 @@ function App() {
             pageName="Syllabus"
             syllLines={syllLines}
             setSyllLines={setSyllLines}
+            draftValue={syllDraft}
+            setDraftValue={setSyllDraft}
             ccTitle={ccTitle}
             setCcTitle={setccTitle}
           />
