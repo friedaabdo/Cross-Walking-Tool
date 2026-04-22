@@ -2,6 +2,7 @@
     font-size: var(--font-size-card);
     font-weight: 400;
     padding: var(--space-3);
+    position: relative;
     border: 1px solid var(--card-border-color);
     border-radius: 12px;
     min-height: var(--card-min-height);
@@ -9,5 +10,79 @@
     margin: 5px;
     white-space: pre-wrap;
     background: var(--bg-surface);
+}
+
+.outcome-card-top-right-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    line-height: 1;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    padding: 0;
+    margin: 0;
+}
+
+.outcome-card-top-right-control {
+    position: relative;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    line-height: 1;
+    margin-bottom: 2px;
+    z-index: 2;
+}
+
+.outcome-card-link-tooltip {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    display: none;
+    width: 240px;
+    padding: 10px;
+    border: 1px solid var(--card-border-color);
+    border-radius: 8px;
+    background: var(--bg-surface);
+    box-shadow: var(--panel-shadow);
+}
+
+.outcome-card-link-tooltip.is-open {
+    display: block;
+}
+
+.outcome-card-link-label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.outcome-card-link-input {
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid var(--card-border-color);
+    border-radius: 6px;
+    padding: 6px 8px;
+    margin-bottom: 8px;
+    background: var(--bg-surface);
+    color: inherit;
+}
+
+.outcome-card-link-button {
+    border: 1px solid var(--card-border-color);
+    border-radius: 6px;
+    padding: 4px 10px;
+    background: var(--bg-primary);
+    color: inherit;
+    cursor: pointer;
+}
+
+.outcome-card-link-preview {
+    display: inline-block;
+    margin-left: 10px;
+    font-size: 0.8rem;
+    text-decoration: underline;
 }
 

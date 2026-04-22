@@ -33,6 +33,29 @@
   box-shadow: var(--panel-shadow);
 }
 
+.outcomes-title-row {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.outcomes-title-row h1 {
+  margin: 0;
+}
+
+.outcomes-title-link {
+  color: var(--accent-color);
+  font-weight: 600;
+}
+
+.outcomes-title-link:hover {
+  text-decoration: underline;
+}
+
 .outcomes-input-actions {
   display: flex;
   flex-wrap: wrap;
@@ -56,6 +79,10 @@
   .outcomes-input-panel,
   .outcomes-confirmation-panel {
     width: 100%;
+  }
+
+  .outcomes-title-row {
+    justify-content: flex-start;
   }
 }
 

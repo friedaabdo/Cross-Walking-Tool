@@ -14,6 +14,7 @@ const STORAGE_KEYS = {
   certDraft: 'crosswalk.certDraft',
   syllDraft: 'crosswalk.syllDraft',
   leTitle: 'crosswalk.leTitle',
+  leLink: 'crosswalk.leLink',
   ccTitle: 'crosswalk.ccTitle',
   matchesByRow: 'crosswalk.matchesByRow',
   notesByRow: 'crosswalk.notesByRow',
@@ -39,6 +40,7 @@ function App() {
   const [certDraft, setCertDraft] = useState(() => getStoredValue(STORAGE_KEYS.certDraft, ''))
   const [syllDraft, setSyllDraft] = useState(() => getStoredValue(STORAGE_KEYS.syllDraft, ''))
   const [leTitle, setLeTitle] = useState(() => getStoredValue(STORAGE_KEYS.leTitle, ''))
+  const [learningExperienceLink, setLearningExperienceLink] = useState(() => getStoredValue(STORAGE_KEYS.leLink, ''))
   const [ccTitle, setccTitle] = useState(() => getStoredValue(STORAGE_KEYS.ccTitle, ''))
   const [matchesByRow, setMatchesByRow] = useState(() => getStoredValue(STORAGE_KEYS.matchesByRow, {}))
   const [notesByRow, setNotesByRow] = useState(() => getStoredValue(STORAGE_KEYS.notesByRow, {}))
@@ -48,6 +50,7 @@ function App() {
     certLines.length > 0 ||
     syllLines.length > 0 ||
     Boolean(leTitle.trim()) ||
+    Boolean(learningExperienceLink.trim()) ||
     Boolean(ccTitle.trim()) ||
     Object.keys(matchesByRow).length > 0 ||
     Object.keys(notesByRow).length > 0 ||
@@ -59,6 +62,7 @@ function App() {
     localStorage.setItem(STORAGE_KEYS.certDraft, JSON.stringify(certDraft))
     localStorage.setItem(STORAGE_KEYS.syllDraft, JSON.stringify(syllDraft))
     localStorage.setItem(STORAGE_KEYS.leTitle, JSON.stringify(leTitle))
+    localStorage.setItem(STORAGE_KEYS.leLink, JSON.stringify(learningExperienceLink))
     localStorage.setItem(STORAGE_KEYS.ccTitle, JSON.stringify(ccTitle))
     localStorage.setItem(STORAGE_KEYS.matchesByRow, JSON.stringify(matchesByRow))
     localStorage.setItem(STORAGE_KEYS.notesByRow, JSON.stringify(notesByRow))
@@ -69,6 +73,7 @@ function App() {
     certDraft,
     syllDraft,
     leTitle,
+    learningExperienceLink,
     ccTitle,
     matchesByRow,
     notesByRow,
@@ -81,6 +86,7 @@ function App() {
     setCertDraft('')
     setSyllDraft('')
     setLeTitle('')
+    setLearningExperienceLink('')
     setccTitle('')
     setMatchesByRow({})
     setNotesByRow({})
@@ -101,6 +107,8 @@ function App() {
         element={<Home
           learningExperienceTitle={leTitle}
           setLearningExperienceTitle={setLeTitle}
+          learningExperienceLink={learningExperienceLink}
+          setLearningExperienceLink={setLearningExperienceLink}
           cunyCourseTitle={ccTitle}
           setCunyCourseTitle={setccTitle}
           setCertLines={setCertLines}
@@ -130,6 +138,7 @@ function App() {
             draftValue={certDraft}
             setDraftValue={setCertDraft}
             leTitle={leTitle}
+            learningExperienceLink={learningExperienceLink}
             setLeTitle={setLeTitle}
           />
         }

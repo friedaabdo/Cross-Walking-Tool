@@ -5,7 +5,7 @@ function ConfirmationArea({ lines, title}) {
     return (
         <div id = "confirmation-area">
             <h1>Confirm {title} Outcomes</h1>
-            <OutcomeCard lines={lines} />
+            <OutcomeCard lines={lines} showTopRightPlusIcon={true} />
         </div>
     )
 }
