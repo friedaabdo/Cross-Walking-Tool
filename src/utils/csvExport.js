@@ -27,9 +27,11 @@ function downloadCrosswalkCsv({
   certOutcomeLinks,
   draggedOnceById,
   leTitle,
+  learningExperienceDescription,
   learningExperienceLink,
   matchesByRow,
   notesByRow,
+  cunyCourseDescription,
   syllabusFileName,
   syllabusFileUrl,
   syllOutcomeLinks,
@@ -64,8 +66,10 @@ function downloadCrosswalkCsv({
 
   const csvContent = [
     ["Meta", "Learning Experience URL", learningExperienceLink ?? ""],
+    ["Meta", "Learning Experience Description", learningExperienceDescription ?? ""],
     ["Meta", "Syllabus File Name", syllabusFileName ?? ""],
     ["Meta", "Syllabus File Data URL", syllabusFileUrl ?? ""],
+    ["Meta", "CUNY Course Description", cunyCourseDescription ?? ""],
     [],
     horizontalHeader,
     ...horizontalRows,

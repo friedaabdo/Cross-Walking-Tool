@@ -60,9 +60,11 @@ function parseCsvContent(csvContent) {
   }
 
   let rowIndex = 0;
+  let learningExperienceDescription = "";
   let learningExperienceLink = "";
   let syllabusFileName = "";
   let syllabusFileDataUrl = "";
+  let cunyCourseDescription = "";
 
   // Parse optional metadata rows at top of file.
   while (rowIndex < rows.length && rows[rowIndex]?.[0]?.trim() === "Meta") {
@@ -71,10 +73,14 @@ function parseCsvContent(csvContent) {
 
     if (key === "Learning Experience URL") {
       learningExperienceLink = value;
+    } else if (key === "Learning Experience Description") {
+      learningExperienceDescription = value;
     } else if (key === "Syllabus File Name") {
       syllabusFileName = value;
     } else if (key === "Syllabus File Data URL") {
       syllabusFileDataUrl = value;
+    } else if (key === "CUNY Course Description") {
+      cunyCourseDescription = value;
     }
 
     rowIndex++;
@@ -218,7 +224,9 @@ function parseCsvContent(csvContent) {
 
   return {
     leTitle,
+    learningExperienceDescription,
     ccTitle,
+    cunyCourseDescription,
     learningExperienceLink,
     syllabusFileName,
     syllabusFileDataUrl,

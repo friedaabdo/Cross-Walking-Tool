@@ -95,6 +95,8 @@ function OutcomesInput({
     ccTitle,
     syllabusFileUrl,
     syllabusFileName,
+    learningExperienceDescription,
+    cunyCourseDescription,
 }) {
     const isCertificatePage = pageName.toLowerCase() === 'learning experience'
     const lines = isCertificatePage ? certLines : syllLines
@@ -144,6 +146,16 @@ function OutcomesInput({
 
     return (
         <div id = "outcomes-div">
+           <p>Description:</p>
+           {/* if it is a certificate page show the learning experience description */}
+           {isCertificatePage && (
+               <p>{learningExperienceDescription}</p>
+           )}
+           {/* if it is a syllabus page show the cunycourse description */}
+           {!isCertificatePage && (
+               <p>{cunyCourseDescription}</p>
+           )}
+
             <div className="outcomes-layout">
                 <section className="outcomes-input-panel">
                     <div className="outcomes-title-row">

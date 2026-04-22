@@ -16,8 +16,10 @@ const STORAGE_KEYS = {
   certDraft: 'crosswalk.certDraft',
   syllDraft: 'crosswalk.syllDraft',
   leTitle: 'crosswalk.leTitle',
+  leDescription: 'crosswalk.leDescription',
   leLink: 'crosswalk.leLink',
   ccTitle: 'crosswalk.ccTitle',
+  ccDescription: 'crosswalk.ccDescription',
   matchesByRow: 'crosswalk.matchesByRow',
   notesByRow: 'crosswalk.notesByRow',
   draggedOnceById: 'crosswalk.draggedOnceById',
@@ -44,10 +46,12 @@ function App() {
   const [certDraft, setCertDraft] = useState(() => getStoredValue(STORAGE_KEYS.certDraft, ''))
   const [syllDraft, setSyllDraft] = useState(() => getStoredValue(STORAGE_KEYS.syllDraft, ''))
   const [leTitle, setLeTitle] = useState(() => getStoredValue(STORAGE_KEYS.leTitle, ''))
+  const [learningExperienceDescription, setLearningExperienceDescription] = useState(() => getStoredValue(STORAGE_KEYS.leDescription, ''))
   const [learningExperienceLink, setLearningExperienceLink] = useState(() => getStoredValue(STORAGE_KEYS.leLink, ''))
   const [syllabusFileUrl, setSyllabusFileUrl] = useState('')
   const [syllabusFileName, setSyllabusFileName] = useState('')
   const [ccTitle, setccTitle] = useState(() => getStoredValue(STORAGE_KEYS.ccTitle, ''))
+  const [cunyCourseDescription, setCunyCourseDescription] = useState(() => getStoredValue(STORAGE_KEYS.ccDescription, ''))
   const [matchesByRow, setMatchesByRow] = useState(() => getStoredValue(STORAGE_KEYS.matchesByRow, {}))
   const [notesByRow, setNotesByRow] = useState(() => getStoredValue(STORAGE_KEYS.notesByRow, {}))
   const [draggedOnceById, setDraggedOnceById] = useState(() => getStoredValue(STORAGE_KEYS.draggedOnceById, {}))
@@ -58,9 +62,11 @@ function App() {
     Object.keys(certOutcomeLinks).length > 0 ||
     Object.keys(syllOutcomeLinks).length > 0 ||
     Boolean(leTitle.trim()) ||
+    Boolean(learningExperienceDescription.trim()) ||
     Boolean(learningExperienceLink.trim()) ||
     Boolean(syllabusFileUrl) ||
     Boolean(ccTitle.trim()) ||
+    Boolean(cunyCourseDescription.trim()) ||
     Object.keys(matchesByRow).length > 0 ||
     Object.keys(notesByRow).length > 0 ||
     Object.keys(draggedOnceById).length > 0
@@ -73,8 +79,10 @@ function App() {
     localStorage.setItem(STORAGE_KEYS.certDraft, JSON.stringify(certDraft))
     localStorage.setItem(STORAGE_KEYS.syllDraft, JSON.stringify(syllDraft))
     localStorage.setItem(STORAGE_KEYS.leTitle, JSON.stringify(leTitle))
+    localStorage.setItem(STORAGE_KEYS.leDescription, JSON.stringify(learningExperienceDescription))
     localStorage.setItem(STORAGE_KEYS.leLink, JSON.stringify(learningExperienceLink))
     localStorage.setItem(STORAGE_KEYS.ccTitle, JSON.stringify(ccTitle))
+    localStorage.setItem(STORAGE_KEYS.ccDescription, JSON.stringify(cunyCourseDescription))
     localStorage.setItem(STORAGE_KEYS.matchesByRow, JSON.stringify(matchesByRow))
     localStorage.setItem(STORAGE_KEYS.notesByRow, JSON.stringify(notesByRow))
     localStorage.setItem(STORAGE_KEYS.draggedOnceById, JSON.stringify(draggedOnceById))
@@ -86,8 +94,10 @@ function App() {
     certDraft,
     syllDraft,
     leTitle,
+    learningExperienceDescription,
     learningExperienceLink,
     ccTitle,
+    cunyCourseDescription,
     matchesByRow,
     notesByRow,
     draggedOnceById,
@@ -101,10 +111,12 @@ function App() {
     setCertDraft('')
     setSyllDraft('')
     setLeTitle('')
+    setLearningExperienceDescription('')
     setLearningExperienceLink('')
     setSyllabusFileUrl('')
     setSyllabusFileName('')
     setccTitle('')
+    setCunyCourseDescription('')
     setMatchesByRow({})
     setNotesByRow({})
     setDraggedOnceById({})
@@ -124,6 +136,8 @@ function App() {
         element={<Home
           learningExperienceTitle={leTitle}
           setLearningExperienceTitle={setLeTitle}
+          learningExperienceDescription={learningExperienceDescription}
+          setLearningExperienceDescription={setLearningExperienceDescription}
           learningExperienceLink={learningExperienceLink}
           setLearningExperienceLink={setLearningExperienceLink}
           setSyllabusFileUrl={setSyllabusFileUrl}
@@ -131,6 +145,8 @@ function App() {
           setSyllabusFileName={setSyllabusFileName}
           cunyCourseTitle={ccTitle}
           setCunyCourseTitle={setccTitle}
+          cunyCourseDescription={cunyCourseDescription}
+          setCunyCourseDescription={setCunyCourseDescription}
           setCertLines={setCertLines}
           setSyllLines={setSyllLines}
           setCertOutcomeLinks={setCertOutcomeLinks}
@@ -164,6 +180,7 @@ function App() {
             leTitle={leTitle}
             learningExperienceLink={learningExperienceLink}
             setLeTitle={setLeTitle}
+            learningExperienceDescription={learningExperienceDescription}
           />
         }
       />
@@ -183,6 +200,8 @@ function App() {
             syllabusFileUrl={syllabusFileUrl}
             syllabusFileName={syllabusFileName}
             setCcTitle={setccTitle}
+            cunyCourseDescription={cunyCourseDescription}
+
           />
         }
       />
@@ -195,8 +214,10 @@ function App() {
             certOutcomeLinks={certOutcomeLinks}
             syllOutcomeLinks={syllOutcomeLinks}
             leTitle={leTitle}
+            learningExperienceDescription={learningExperienceDescription}
             learningExperienceLink={learningExperienceLink}
             ccTitle={ccTitle}
+            cunyCourseDescription={cunyCourseDescription}
             syllabusFileUrl={syllabusFileUrl}
             syllabusFileName={syllabusFileName}
             matchesByRow={matchesByRow}

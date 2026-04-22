@@ -31,8 +31,10 @@ function CrossWalk({
   certOutcomeLinks,
   syllOutcomeLinks,
   leTitle, 
+  learningExperienceDescription,
   learningExperienceLink,
   ccTitle,
+  cunyCourseDescription,
   syllabusFileUrl,
   syllabusFileName,
   matchesByRow,
@@ -122,9 +124,11 @@ function CrossWalk({
       certOutcomeLinks,
       draggedOnceById,
       leTitle,
+      learningExperienceDescription,
       learningExperienceLink,
       matchesByRow,
       notesByRow,
+      cunyCourseDescription,
       syllabusFileName,
       syllabusFileUrl,
       syllOutcomeLinks,
@@ -142,6 +146,8 @@ function CrossWalk({
         <div id="horizontal-div">
         <div className="crosswalk-heading-row">
           <h2>{leTitle} Outcomes</h2>
+          
+          
           {hasLearningExperienceLink ? (
             <a
               className="crosswalk-title-link"

@@ -10,6 +10,8 @@ const MAX_SYLLABUS_FILE_SIZE_BYTES = 5 * 1024 * 1024;
 function Home({
     learningExperienceTitle,
     setLearningExperienceTitle,
+    learningExperienceDescription,
+    setLearningExperienceDescription,
     learningExperienceLink,
     setLearningExperienceLink,
     setSyllabusFileUrl,
@@ -17,6 +19,8 @@ function Home({
     setSyllabusFileName,
     cunyCourseTitle,
     setCunyCourseTitle,
+    cunyCourseDescription,
+    setCunyCourseDescription,
     setCertLines,
     setSyllLines,
     setCertOutcomeLinks,
@@ -46,8 +50,10 @@ function Home({
             
             // Populate all state
             setLeTitle(data.leTitle);
+            setLearningExperienceDescription(data.learningExperienceDescription ?? '');
             setLearningExperienceLink(data.learningExperienceLink ?? '');
             setccTitle(data.ccTitle);
+            setCunyCourseDescription(data.cunyCourseDescription ?? '');
             setCertLines(data.certLines);
             setSyllLines(data.syllLines);
             setCertOutcomeLinks(data.certOutcomeLinks ?? {});
@@ -128,7 +134,16 @@ function Home({
                 value={learningExperienceTitle}
                 onChange={(event) => setLearningExperienceTitle(event.target.value)}
             />
-            <p>Add the link to the main page of the learning experience:</p><InputLine
+            <p>Learning Experience Description:</p>
+            <textarea
+                className="home-description-textarea"
+                placeholder="Enter a description of the learning experience"
+                value={learningExperienceDescription}
+                onChange={(event) => setLearningExperienceDescription(event.target.value)}
+                rows={4}
+            />
+            <p>Add the link to the main page of the learning experience:
+                </p><InputLine
                 placeholder="Learning Experience Link"
                 value={learningExperienceLink}
                 onChange={(event) => setLearningExperienceLink(event.target.value)}
@@ -140,6 +155,15 @@ function Home({
                 placeholder="CUNY Course Title"
                 value={cunyCourseTitle}
                 onChange={(event) => setCunyCourseTitle(event.target.value)}
+            />
+
+            <p>CUNY Course Description:</p>
+            <textarea
+                className="home-description-textarea"
+                placeholder="Enter a description of the CUNY course"
+                value={cunyCourseDescription}
+                onChange={(event) => setCunyCourseDescription(event.target.value)}
+                rows={4}
             />
             <p>Attach the syllabus for the CUNY course:</p>
             
