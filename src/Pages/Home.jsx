@@ -8,6 +8,8 @@ import { importCrosswalkCsv } from '../utils/csvImport';
 function Home({
     learningExperienceTitle,
     setLearningExperienceTitle,
+    learningExperienceLink,
+    setLearningExperienceLink,
     cunyCourseTitle,
     setCunyCourseTitle,
     setCertLines,
@@ -77,18 +79,33 @@ function Home({
             <p>To get started, please input the titles for the learning experience and CUNY course.</p>
 
             <p>You can start from scratch by inputting the learning experience and syllabus outcomes in their respective pages.</p>
-            <InputLine
+            
+            <div className='main-data'> 
+                <h4>Learning Experience</h4>
+                <InputLine
                 placeholder="Learning Experience Title"
                 value={learningExperienceTitle}
                 onChange={(event) => setLearningExperienceTitle(event.target.value)}
             />
+            <p>Add the link to the main page of the learning experience:</p><InputLine
+                placeholder="Learning Experience Link"
+                value={learningExperienceLink}
+                onChange={(event) => setLearningExperienceLink(event.target.value)}
+            /></div>
+           
+            <div className='main-data'>
+                <h4>CUNY Course</h4>
             <InputLine
                 placeholder="CUNY Course Title"
                 value={cunyCourseTitle}
                 onChange={(event) => setCunyCourseTitle(event.target.value)}
             />
+            <p>Attach the syllabus for the CUNY course:</p>
+            <InputLine placeholder="Syllabus File" type="file" accept=".pdf,.doc,.docx" />
+
+            </div>
             <div id="home-actions">
-                <Button text="Go to Learning Experience Outcomes" onClick={() => navigate('/learning-experience')} />
+                <Button text="Add Learning Experience Outcomes" onClick={() => navigate('/learning-experience')} />
             </div>
 
             <div className="home-persistence-actions">

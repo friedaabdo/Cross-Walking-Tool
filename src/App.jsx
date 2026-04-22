@@ -6,6 +6,7 @@ const CertOutcomes = lazy(() => import('./Pages/OutcomesInput'))
 const SyllOutcomes = lazy(() => import('./Pages/OutcomesInput'))
 const CrossWalk = lazy(() => import('./Pages/CrossWalk'))
 const Home = lazy(() => import('./Pages/Home'))
+const Board = lazy(() => import('./Pages/Board'))
 
 const STORAGE_KEYS = {
   certLines: 'crosswalk.certLines',
@@ -114,6 +115,10 @@ function App() {
         />}>
         
       </Route>
+      <Route
+        path="/board"
+        element={<Board/>}
+      />
       <Route
         path="/learning-experience"
         element={
