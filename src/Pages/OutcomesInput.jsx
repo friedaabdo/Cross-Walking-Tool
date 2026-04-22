@@ -170,9 +170,7 @@ function OutcomesInput({
                                 title={syllabusFileName ? `Open ${syllabusFileName}` : 'Open uploaded syllabus file'}
                             >
                                 <FontAwesomeIcon icon={faFile} style={{ color: 'rgb(70, 147, 207)' }} />
-                                <span className="outcomes-title-file-name">
-                                    {syllabusFileName || 'Open uploaded syllabus file'}
-                                </span>
+                                
                             </a>
                         )}
                         {/*  */}

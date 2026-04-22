@@ -119,10 +119,15 @@ function CrossWalk({
       ccTitle,
       certById,
       certLines,
+      certOutcomeLinks,
       draggedOnceById,
       leTitle,
+      learningExperienceLink,
       matchesByRow,
       notesByRow,
+      syllabusFileName,
+      syllabusFileUrl,
+      syllOutcomeLinks,
       syllLines,
     });
   };

@@ -5,12 +5,13 @@ import { useNavigate } from 'react-router-dom';
 import { useRef, useState } from 'react';
 import { importCrosswalkCsv } from '../utils/csvImport';
 
+const MAX_SYLLABUS_FILE_SIZE_BYTES = 5 * 1024 * 1024;
+
 function Home({
     learningExperienceTitle,
     setLearningExperienceTitle,
     learningExperienceLink,
     setLearningExperienceLink,
-    syllabusFileUrl,
     setSyllabusFileUrl,
     syllabusFileName,
     setSyllabusFileName,
@@ -18,6 +19,8 @@ function Home({
     setCunyCourseTitle,
     setCertLines,
     setSyllLines,
+    setCertOutcomeLinks,
+    setSyllOutcomeLinks,
     setLeTitle,
     setccTitle,
     setMatchesByRow,
@@ -43,9 +46,14 @@ function Home({
             
             // Populate all state
             setLeTitle(data.leTitle);
+            setLearningExperienceLink(data.learningExperienceLink ?? '');
             setccTitle(data.ccTitle);
             setCertLines(data.certLines);
             setSyllLines(data.syllLines);
+            setCertOutcomeLinks(data.certOutcomeLinks ?? {});
+            setSyllOutcomeLinks(data.syllOutcomeLinks ?? {});
+            setSyllabusFileName(data.syllabusFileName ?? '');
+            setSyllabusFileUrl(data.syllabusFileDataUrl ?? '');
           
             setMatchesByRow(data.matchesByRow);
             setNotesByRow(data.notesByRow);
@@ -82,13 +90,27 @@ function Home({
             return;
         }
 
-        if (syllabusFileUrl) {
-            URL.revokeObjectURL(syllabusFileUrl);
+        if (selectedFile.size > MAX_SYLLABUS_FILE_SIZE_BYTES) {
+            const maxSizeMb = MAX_SYLLABUS_FILE_SIZE_BYTES / (1024 * 1024);
+            setImportError(`Syllabus file is too large. Please upload a file smaller than ${maxSizeMb} MB.`);
+            event.target.value = '';
+            return;
         }
 
-        const nextFileUrl = URL.createObjectURL(selectedFile);
-        setSyllabusFileUrl(nextFileUrl);
-        setSyllabusFileName(selectedFile.name);
+        setImportError(null);
+
+        const fileReader = new FileReader();
+        fileReader.onload = () => {
+            const dataUrl = typeof fileReader.result === 'string' ? fileReader.result : '';
+            setSyllabusFileUrl(dataUrl);
+            setSyllabusFileName(selectedFile.name);
+        };
+
+        fileReader.onerror = () => {
+            setImportError('Failed to read uploaded syllabus file');
+        };
+
+        fileReader.readAsDataURL(selectedFile);
     };
 
     return (

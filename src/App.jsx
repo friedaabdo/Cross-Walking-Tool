@@ -102,9 +102,6 @@ function App() {
     setSyllDraft('')
     setLeTitle('')
     setLearningExperienceLink('')
-    if (syllabusFileUrl) {
-      URL.revokeObjectURL(syllabusFileUrl)
-    }
     setSyllabusFileUrl('')
     setSyllabusFileName('')
     setccTitle('')
@@ -129,7 +126,6 @@ function App() {
           setLearningExperienceTitle={setLeTitle}
           learningExperienceLink={learningExperienceLink}
           setLearningExperienceLink={setLearningExperienceLink}
-          syllabusFileUrl={syllabusFileUrl}
           setSyllabusFileUrl={setSyllabusFileUrl}
           syllabusFileName={syllabusFileName}
           setSyllabusFileName={setSyllabusFileName}
@@ -137,6 +133,8 @@ function App() {
           setCunyCourseTitle={setccTitle}
           setCertLines={setCertLines}
           setSyllLines={setSyllLines}
+          setCertOutcomeLinks={setCertOutcomeLinks}
+          setSyllOutcomeLinks={setSyllOutcomeLinks}
           setLeTitle={setLeTitle}
           setccTitle={setccTitle}
           setMatchesByRow={setMatchesByRow}

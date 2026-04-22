@@ -1,5 +1,7 @@
 import { normalizeToArray } from "./collections";
 
+const toLineKey = (line) => `line:${(line ?? "").trim()}`;
+
 const escapeCsvCell = (value) => {
   const text = String(value ?? "");
   return `"${text.replace(/"/g, '""')}"`;
@@ -22,26 +24,32 @@ function downloadCrosswalkCsv({
   ccTitle,
   certById,
   certLines,
+  certOutcomeLinks,
   draggedOnceById,
   leTitle,
+  learningExperienceLink,
   matchesByRow,
   notesByRow,
+  syllabusFileName,
+  syllabusFileUrl,
+  syllOutcomeLinks,
   syllLines,
 }) {
   const matchedIdSet = new Set(
     Object.values(matchesByRow).flatMap((value) => normalizeToArray(value))
   );
 
-  const horizontalHeader = [`${leTitle || "Learning Experience"} Outcome`, "Dragged", "Currently Matched"];
+  const horizontalHeader = [`${leTitle || "Learning Experience"} Outcome`, "Dragged", "Currently Matched", "Link"];
   const horizontalRows = certLines.map((line, index) => {
     const certId = `cert-${index}`;
     const dragged = draggedOnceById?.[certId] ? "Yes" : "No";
     const currentlyMatched = matchedIdSet.has(certId) ? "Yes" : "No";
+    const link = certOutcomeLinks?.[index] ?? certOutcomeLinks?.[toLineKey(line)] ?? "";
 
-    return [line, dragged, currentlyMatched];
+    return [line, dragged, currentlyMatched, link];
   });
 
-  const crosswalkHeader = [`${ccTitle || "Syllabus"} Outcome`, "Matches", "Notes"];
+  const crosswalkHeader = [`${ccTitle || "Syllabus"} Outcome`, "Matches", "Notes", "Link"];
 
   const rows = syllLines.map((line, index) => {
     const rowId = `drop-${index}`;
@@ -49,10 +57,16 @@ function downloadCrosswalkCsv({
       .map((matchedId) => certById[matchedId])
       .filter(Boolean);
 
-    return [line, matchedLines.join("\r\n"), notesByRow[rowId] ?? ""];
+    const link = syllOutcomeLinks?.[index] ?? syllOutcomeLinks?.[toLineKey(line)] ?? "";
+
+    return [line, matchedLines.join("\r\n"), notesByRow[rowId] ?? "", link];
   });
 
   const csvContent = [
+    ["Meta", "Learning Experience URL", learningExperienceLink ?? ""],
+    ["Meta", "Syllabus File Name", syllabusFileName ?? ""],
+    ["Meta", "Syllabus File Data URL", syllabusFileUrl ?? ""],
+    [],
     horizontalHeader,
     ...horizontalRows,
     [],

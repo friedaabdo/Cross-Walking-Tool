@@ -60,6 +60,30 @@ function parseCsvContent(csvContent) {
   }
 
   let rowIndex = 0;
+  let learningExperienceLink = "";
+  let syllabusFileName = "";
+  let syllabusFileDataUrl = "";
+
+  // Parse optional metadata rows at top of file.
+  while (rowIndex < rows.length && rows[rowIndex]?.[0]?.trim() === "Meta") {
+    const key = rows[rowIndex]?.[1]?.trim();
+    const value = rows[rowIndex]?.[2] ?? "";
+
+    if (key === "Learning Experience URL") {
+      learningExperienceLink = value;
+    } else if (key === "Syllabus File Name") {
+      syllabusFileName = value;
+    } else if (key === "Syllabus File Data URL") {
+      syllabusFileDataUrl = value;
+    }
+
+    rowIndex++;
+  }
+
+  // Skip optional empty spacer rows after metadata.
+  while (rowIndex < rows.length && rows[rowIndex].every((cell) => !cell.trim())) {
+    rowIndex++;
+  }
 
   // Parse horizontal section (Learning Experience outcomes)
   const horizontalHeader = rows[rowIndex];
@@ -73,6 +97,7 @@ function parseCsvContent(csvContent) {
   rowIndex++;
 
   const certLines = [];
+  const certOutcomeLinks = {};
   const draggedOnceById = {};
 
   // Parse horizontal data rows until we find an empty row or the crosswalk header
@@ -93,11 +118,17 @@ function parseCsvContent(csvContent) {
 
     const outcomeText = row[0]?.trim() || "";
     const dragged = row[1]?.trim() || "No";
+    const link = row[3]?.trim() || "";
 
     if (outcomeText) {
-      const certId = `cert-${certLines.length}`;
+      const certIndex = certLines.length;
+      const certId = `cert-${certIndex}`;
       certLines.push(outcomeText);
       draggedOnceById[certId] = dragged === "Yes";
+      if (link) {
+        certOutcomeLinks[certIndex] = link;
+        certOutcomeLinks[`line:${outcomeText}`] = link;
+      }
     }
 
     rowIndex++;
@@ -129,6 +160,7 @@ function parseCsvContent(csvContent) {
   rowIndex++;
 
   const syllLines = [];
+  const syllOutcomeLinks = {};
   const matchesByRow = {};
   const notesByRow = {};
 
@@ -145,9 +177,11 @@ function parseCsvContent(csvContent) {
     const outcomeText = row[0]?.trim() || "";
     const matchesText = row[1]?.trim() || "";
     const notesText = row[2]?.trim() || "";
+    const link = row[3]?.trim() || "";
 
     if (outcomeText) {
-      const rowId = `drop-${syllLines.length}`;
+      const syllIndex = syllLines.length;
+      const rowId = `drop-${syllIndex}`;
       syllLines.push(outcomeText);
 
       // Parse matches (can be multiple, separated by newlines)
@@ -172,6 +206,11 @@ function parseCsvContent(csvContent) {
       if (notesText) {
         notesByRow[rowId] = notesText;
       }
+
+      if (link) {
+        syllOutcomeLinks[syllIndex] = link;
+        syllOutcomeLinks[`line:${outcomeText}`] = link;
+      }
     }
 
     rowIndex++;
@@ -180,8 +219,13 @@ function parseCsvContent(csvContent) {
   return {
     leTitle,
     ccTitle,
+    learningExperienceLink,
+    syllabusFileName,
+    syllabusFileDataUrl,
     certLines,
     syllLines,
+    certOutcomeLinks,
+    syllOutcomeLinks,
     matchesByRow,
     notesByRow,
     draggedOnceById,
