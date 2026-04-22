@@ -1,7 +1,7 @@
 // create a react page with a text box input and submit button.
 import './OutcomesInput.css'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faLink } from '@fortawesome/free-solid-svg-icons'
+import { faFile, faLink } from '@fortawesome/free-solid-svg-icons'
 import Textarea from '../Components/textarea'
 import ConfirmationArea from '../Components/confirmationArea'
 import Button from '../Components/button'
@@ -84,6 +84,8 @@ function OutcomesInput({
     pageName,
     certLines,
     setCertLines,
+    outcomeLinks,
+    setOutcomeLinks,
     syllLines,
     setSyllLines,
     draftValue,
@@ -91,6 +93,8 @@ function OutcomesInput({
     leTitle,
     learningExperienceLink,
     ccTitle,
+    syllabusFileUrl,
+    syllabusFileName,
 }) {
     const isCertificatePage = pageName.toLowerCase() === 'learning experience'
     const lines = isCertificatePage ? certLines : syllLines
@@ -98,6 +102,7 @@ function OutcomesInput({
     const title = isCertificatePage ? leTitle : ccTitle
     const hasLearningExperienceLink = isCertificatePage && Boolean((learningExperienceLink || '').trim())
     const resolvedLearningExperienceLink = normalizeExternalUrl(learningExperienceLink)
+    const hasSyllabusFile = !isCertificatePage && Boolean(syllabusFileUrl)
     const hasSubmitted = lines.length > 0
     const inputValue = draftValue || lines.join('\n')
 
@@ -155,6 +160,22 @@ function OutcomesInput({
                                 <FontAwesomeIcon icon={faLink} style={{ color: 'rgb(70, 147, 207)' }} />
                             </a>
                         )}
+                        {hasSyllabusFile && (
+                            <a
+                                className="outcomes-title-link"
+                                href={syllabusFileUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                                aria-label="Open uploaded syllabus file"
+                                title={syllabusFileName ? `Open ${syllabusFileName}` : 'Open uploaded syllabus file'}
+                            >
+                                <FontAwesomeIcon icon={faFile} style={{ color: 'rgb(70, 147, 207)' }} />
+                                <span className="outcomes-title-file-name">
+                                    {syllabusFileName || 'Open uploaded syllabus file'}
+                                </span>
+                            </a>
+                        )}
+                        {/*  */}
                     </div>
                     <Textarea pageName={pageName} value={inputValue} onChange={handleInputChange} />
                     <div className="outcomes-input-actions">
@@ -165,7 +186,13 @@ function OutcomesInput({
 
                 {hasSubmitted && (
                     <section className="outcomes-confirmation-panel">
-                        <ConfirmationArea pageName={pageName} title={title} lines={lines} />
+                        <ConfirmationArea
+                            pageName={pageName}
+                            title={title}
+                            lines={lines}
+                            outcomeLinks={outcomeLinks}
+                            setOutcomeLinks={setOutcomeLinks}
+                        />
                         <Button onClick={handleConfirmNavigation} text={`Confirm ${title} Outcomes`} />
                     </section>
                 )}

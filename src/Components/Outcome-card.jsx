@@ -18,9 +18,17 @@ const normalizeExternalUrl = (url) => {
   return `https://${trimmedUrl}`;
 };
 
-function OutcomeCard({ lines, className, containerClassName, showTopRightPlusIcon = false }) {
+const toLineKey = (line) => `line:${(line || "").trim()}`;
+
+function OutcomeCard({
+  lines,
+  className,
+  containerClassName,
+  showTopRightPlusIcon = false,
+  outcomeLinks,
+  setOutcomeLinks,
+}) {
   const [linkDraftByCard, setLinkDraftByCard] = useState({});
-  const [savedLinkByCard, setSavedLinkByCard] = useState({});
   const [openTooltipCardKey, setOpenTooltipCardKey] = useState(null);
 
   const handleDraftChange = (cardKey, value) => {
@@ -30,19 +38,23 @@ function OutcomeCard({ lines, className, containerClassName, showTopRightPlusIco
     }));
   };
 
-  const handleSaveLink = (cardKey) => {
-    const normalizedLink = normalizeExternalUrl(linkDraftByCard[cardKey]);
+  const handleSaveLink = (cardIndex, line) => {
+    const normalizedLink = normalizeExternalUrl(linkDraftByCard[cardIndex]);
     if (!normalizedLink) {
       return;
     }
 
-    setSavedLinkByCard((previous) => ({
-      ...previous,
-      [cardKey]: normalizedLink,
-    }));
+    if (setOutcomeLinks) {
+      setOutcomeLinks((previous) => ({
+        ...previous,
+        [cardIndex]: normalizedLink,
+        [toLineKey(line)]: normalizedLink,
+      }));
+    }
+
     setLinkDraftByCard((previous) => ({
       ...previous,
-      [cardKey]: normalizedLink,
+      [cardIndex]: normalizedLink,
     }));
   };
 
@@ -51,8 +63,9 @@ function OutcomeCard({ lines, className, containerClassName, showTopRightPlusIco
       {lines.map((line, index) => {
         const cardKey = `${line}-${index}`;
         const { bullets, statement } = splitOutcomeText(line);
-        const draftLink = linkDraftByCard[cardKey] ?? "";
-        const hasSavedLink = Boolean(savedLinkByCard[cardKey]);
+        const savedLink = outcomeLinks?.[index] ?? outcomeLinks?.[toLineKey(line)] ?? "";
+        const draftLink = linkDraftByCard[index] ?? savedLink;
+        const hasSavedLink = Boolean(savedLink);
 
         return (
           <div key={cardKey} className={`outcome-card-item outcome-rich-content ${className ?? ""}`}>
@@ -82,19 +95,19 @@ function OutcomeCard({ lines, className, containerClassName, showTopRightPlusIco
                     type="url"
                     placeholder="https://example.com"
                     value={draftLink}
-                    onChange={(event) => handleDraftChange(cardKey, event.target.value)}
+                    onChange={(event) => handleDraftChange(index, event.target.value)}
                   />
                   <button
                     className="outcome-card-link-button"
                     type="button"
-                    onClick={() => handleSaveLink(cardKey)}
+                    onClick={() => handleSaveLink(index, line)}
                   >
                     Add
                   </button>
                   {hasSavedLink ? (
                     <a
                       className="outcome-card-link-preview"
-                      href={savedLinkByCard[cardKey]}
+                      href={savedLink}
                       target="_blank"
                       rel="noreferrer"
                     >

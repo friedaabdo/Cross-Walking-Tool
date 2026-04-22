@@ -11,6 +11,8 @@ const Board = lazy(() => import('./Pages/Board'))
 const STORAGE_KEYS = {
   certLines: 'crosswalk.certLines',
   syllLines: 'crosswalk.syllLines',
+  certOutcomeLinks: 'crosswalk.certOutcomeLinks',
+  syllOutcomeLinks: 'crosswalk.syllOutcomeLinks',
   certDraft: 'crosswalk.certDraft',
   syllDraft: 'crosswalk.syllDraft',
   leTitle: 'crosswalk.leTitle',
@@ -37,10 +39,14 @@ function getStoredValue(key, fallbackValue) {
 function App() {
   const [certLines, setCertLines] = useState(() => getStoredValue(STORAGE_KEYS.certLines, []))
   const [syllLines, setSyllLines] = useState(() => getStoredValue(STORAGE_KEYS.syllLines, []))
+  const [certOutcomeLinks, setCertOutcomeLinks] = useState(() => getStoredValue(STORAGE_KEYS.certOutcomeLinks, {}))
+  const [syllOutcomeLinks, setSyllOutcomeLinks] = useState(() => getStoredValue(STORAGE_KEYS.syllOutcomeLinks, {}))
   const [certDraft, setCertDraft] = useState(() => getStoredValue(STORAGE_KEYS.certDraft, ''))
   const [syllDraft, setSyllDraft] = useState(() => getStoredValue(STORAGE_KEYS.syllDraft, ''))
   const [leTitle, setLeTitle] = useState(() => getStoredValue(STORAGE_KEYS.leTitle, ''))
   const [learningExperienceLink, setLearningExperienceLink] = useState(() => getStoredValue(STORAGE_KEYS.leLink, ''))
+  const [syllabusFileUrl, setSyllabusFileUrl] = useState('')
+  const [syllabusFileName, setSyllabusFileName] = useState('')
   const [ccTitle, setccTitle] = useState(() => getStoredValue(STORAGE_KEYS.ccTitle, ''))
   const [matchesByRow, setMatchesByRow] = useState(() => getStoredValue(STORAGE_KEYS.matchesByRow, {}))
   const [notesByRow, setNotesByRow] = useState(() => getStoredValue(STORAGE_KEYS.notesByRow, {}))
@@ -49,8 +55,11 @@ function App() {
   const hasSavedProgress =
     certLines.length > 0 ||
     syllLines.length > 0 ||
+    Object.keys(certOutcomeLinks).length > 0 ||
+    Object.keys(syllOutcomeLinks).length > 0 ||
     Boolean(leTitle.trim()) ||
     Boolean(learningExperienceLink.trim()) ||
+    Boolean(syllabusFileUrl) ||
     Boolean(ccTitle.trim()) ||
     Object.keys(matchesByRow).length > 0 ||
     Object.keys(notesByRow).length > 0 ||
@@ -59,6 +68,8 @@ function App() {
   useEffect(() => {
     localStorage.setItem(STORAGE_KEYS.certLines, JSON.stringify(certLines))
     localStorage.setItem(STORAGE_KEYS.syllLines, JSON.stringify(syllLines))
+    localStorage.setItem(STORAGE_KEYS.certOutcomeLinks, JSON.stringify(certOutcomeLinks))
+    localStorage.setItem(STORAGE_KEYS.syllOutcomeLinks, JSON.stringify(syllOutcomeLinks))
     localStorage.setItem(STORAGE_KEYS.certDraft, JSON.stringify(certDraft))
     localStorage.setItem(STORAGE_KEYS.syllDraft, JSON.stringify(syllDraft))
     localStorage.setItem(STORAGE_KEYS.leTitle, JSON.stringify(leTitle))
@@ -70,6 +81,8 @@ function App() {
   }, [
     certLines,
     syllLines,
+    certOutcomeLinks,
+    syllOutcomeLinks,
     certDraft,
     syllDraft,
     leTitle,
@@ -83,10 +96,17 @@ function App() {
   const clearSavedProgress = () => {
     setCertLines([])
     setSyllLines([])
+    setCertOutcomeLinks({})
+    setSyllOutcomeLinks({})
     setCertDraft('')
     setSyllDraft('')
     setLeTitle('')
     setLearningExperienceLink('')
+    if (syllabusFileUrl) {
+      URL.revokeObjectURL(syllabusFileUrl)
+    }
+    setSyllabusFileUrl('')
+    setSyllabusFileName('')
     setccTitle('')
     setMatchesByRow({})
     setNotesByRow({})
@@ -109,6 +129,10 @@ function App() {
           setLearningExperienceTitle={setLeTitle}
           learningExperienceLink={learningExperienceLink}
           setLearningExperienceLink={setLearningExperienceLink}
+          syllabusFileUrl={syllabusFileUrl}
+          setSyllabusFileUrl={setSyllabusFileUrl}
+          syllabusFileName={syllabusFileName}
+          setSyllabusFileName={setSyllabusFileName}
           cunyCourseTitle={ccTitle}
           setCunyCourseTitle={setccTitle}
           setCertLines={setCertLines}
@@ -135,6 +159,8 @@ function App() {
             pageName="Learning Experience"
             certLines={certLines}
             setCertLines={setCertLines}
+            outcomeLinks={certOutcomeLinks}
+            setOutcomeLinks={setCertOutcomeLinks}
             draftValue={certDraft}
             setDraftValue={setCertDraft}
             leTitle={leTitle}
@@ -151,9 +177,13 @@ function App() {
             pageName="Syllabus"
             syllLines={syllLines}
             setSyllLines={setSyllLines}
+            outcomeLinks={syllOutcomeLinks}
+            setOutcomeLinks={setSyllOutcomeLinks}
             draftValue={syllDraft}
             setDraftValue={setSyllDraft}
             ccTitle={ccTitle}
+            syllabusFileUrl={syllabusFileUrl}
+            syllabusFileName={syllabusFileName}
             setCcTitle={setccTitle}
           />
         }
@@ -164,8 +194,13 @@ function App() {
           <CrossWalk
             certLines={certLines}
             syllLines={syllLines}
+            certOutcomeLinks={certOutcomeLinks}
+            syllOutcomeLinks={syllOutcomeLinks}
             leTitle={leTitle}
+            learningExperienceLink={learningExperienceLink}
             ccTitle={ccTitle}
+            syllabusFileUrl={syllabusFileUrl}
+            syllabusFileName={syllabusFileName}
             matchesByRow={matchesByRow}
             setMatchesByRow={setMatchesByRow}
             notesByRow={notesByRow}

@@ -1,12 +1,14 @@
 import { useDraggable } from "@dnd-kit/react";
 import { useEffect, useRef, useState } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faLink } from "@fortawesome/free-solid-svg-icons";
 import { splitOutcomeText } from "../utils/outcomeText";
 import "./Draggable-card.css";
 import "./outcome-rich.css";
 
 const COLLAPSED_CARD_HEIGHT = 150;
 
-function DraggableCard({ id, className, line }) {
+function DraggableCard({ id, className, line, linkUrl }) {
     const { ref, attributes, listeners } = useDraggable({ id });
     const wrapperRef = useRef(null);
     const cardRef = useRef(null);
@@ -84,6 +86,20 @@ function DraggableCard({ id, className, line }) {
                 {...attributes}
                 {...listeners}
             >
+                {linkUrl ? (
+                    <a
+                        className="draggable-card-link-icon"
+                        href={linkUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        aria-label="Open linked outcome"
+                        title="Open linked outcome"
+                        onMouseDown={(event) => event.stopPropagation()}
+                        onPointerDown={(event) => event.stopPropagation()}
+                    >
+                        <FontAwesomeIcon icon={faLink} style={{ color: "rgb(70, 147, 207)" }} />
+                    </a>
+                ) : null}
                 <div className="draggable-card-content outcome-rich-content">
                     {statement ? <span className="outcome-rich-statement">{statement}</span> : null}
                     {bullets.length > 0 ? (

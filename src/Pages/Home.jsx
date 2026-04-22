@@ -10,6 +10,10 @@ function Home({
     setLearningExperienceTitle,
     learningExperienceLink,
     setLearningExperienceLink,
+    syllabusFileUrl,
+    setSyllabusFileUrl,
+    syllabusFileName,
+    setSyllabusFileName,
     cunyCourseTitle,
     setCunyCourseTitle,
     setCertLines,
@@ -72,6 +76,21 @@ function Home({
         }
     };
 
+    const handleSyllabusFileChange = (event) => {
+        const selectedFile = event.target.files?.[0];
+        if (!selectedFile) {
+            return;
+        }
+
+        if (syllabusFileUrl) {
+            URL.revokeObjectURL(syllabusFileUrl);
+        }
+
+        const nextFileUrl = URL.createObjectURL(selectedFile);
+        setSyllabusFileUrl(nextFileUrl);
+        setSyllabusFileName(selectedFile.name);
+    };
+
     return (
         <div id="home-div">
             <h1>Welcome to the Cross Walking Tool</h1>
@@ -101,7 +120,14 @@ function Home({
                 onChange={(event) => setCunyCourseTitle(event.target.value)}
             />
             <p>Attach the syllabus for the CUNY course:</p>
-            <InputLine placeholder="Syllabus File" type="file" accept=".pdf,.doc,.docx" />
+            
+            <InputLine
+                placeholder="Syllabus File"
+                type="file"
+                accept=".pdf,.doc,.docx"
+                onChange={handleSyllabusFileChange}
+            />
+            {syllabusFileName ? <p>Uploaded: {syllabusFileName}</p> : null}
 
             </div>
             <div id="home-actions">

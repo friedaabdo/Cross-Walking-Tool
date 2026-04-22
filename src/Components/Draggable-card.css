@@ -67,13 +67,14 @@
     width: 100%;
 }
 
-.draggable-card-item svg {
+.draggable-card-link-icon {
     position: absolute;
-    top: 4px;
-    right: 4px;
-    flex-shrink: 0;
-    margin-bottom: 14px;
-    font-size: small;
+    top: 6px;
+    right: 6px;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .draggable-card-item:active {

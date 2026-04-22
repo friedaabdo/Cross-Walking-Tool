@@ -48,8 +48,19 @@
 }
 
 .outcomes-title-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   color: var(--accent-color);
   font-weight: 600;
+}
+
+.outcomes-title-file-name {
+  max-width: 260px;
+  font-size: 0.9rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .outcomes-title-link:hover {

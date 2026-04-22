@@ -7,12 +7,34 @@ import downloadCrosswalkCsv from "../utils/csvExport";
 import { normalizeToArray } from "../utils/collections";
 import { useNavigate } from "react-router-dom";
 import Button from "../Components/button";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faFile, faLink } from "@fortawesome/free-solid-svg-icons";
+
+const normalizeExternalUrl = (url) => {
+  const trimmedUrl = (url || "").trim();
+  if (!trimmedUrl) {
+    return "";
+  }
+
+  if (/^[a-zA-Z][a-zA-Z\d+.-]*:/.test(trimmedUrl) || trimmedUrl.startsWith("//")) {
+    return trimmedUrl;
+  }
+
+  return `https://${trimmedUrl}`;
+};
+
+const toLineKey = (line) => `line:${(line || "").trim()}`;
 
 function CrossWalk({ 
   certLines, 
   syllLines, 
+  certOutcomeLinks,
+  syllOutcomeLinks,
   leTitle, 
+  learningExperienceLink,
   ccTitle,
+  syllabusFileUrl,
+  syllabusFileName,
   matchesByRow,
   setMatchesByRow,
   notesByRow,
@@ -21,6 +43,9 @@ function CrossWalk({
   setDraggedOnceById,
 }) {
   const navigate = useNavigate();
+  const hasLearningExperienceLink = Boolean((learningExperienceLink || "").trim());
+  const resolvedLearningExperienceLink = normalizeExternalUrl(learningExperienceLink);
+  const hasSyllabusFile = Boolean(syllabusFileUrl);
   const getMatchesForRow = (rowId) => normalizeToArray(matchesByRow[rowId]);
 
   const handleDragEnd = (event) => {
@@ -110,10 +135,27 @@ function CrossWalk({
     <DragDropProvider onDragEnd={handleDragEnd}>
       <div id="crosswalk-div">
         <div id="horizontal-div">
-        <h2>{leTitle} Outcomes</h2>
+        <div className="crosswalk-heading-row">
+          <h2>{leTitle} Outcomes</h2>
+          {hasLearningExperienceLink ? (
+            <a
+              className="crosswalk-title-link"
+              href={resolvedLearningExperienceLink}
+              target="_blank"
+              rel="noreferrer"
+              aria-label="Open learning experience link"
+              title="Open learning experience"
+            >
+              <FontAwesomeIcon icon={faLink} style={{ color: "rgb(70, 147, 207)" }} />
+            </a>
+          ) : null}
+        </div>
         <div id="crosswalk-cert-div" onWheelCapture={handleCertWheel}>
           {certLines.map((line, index) => {
             const certId = `cert-${index}`;
+            const certLink = normalizeExternalUrl(
+              certOutcomeLinks?.[index] ?? certOutcomeLinks?.[toLineKey(line)]
+            );
             const draggedClass = draggedOnceById[certId]
               ? "crosswalk-cert-card-dragged"
               : "";
@@ -124,6 +166,7 @@ function CrossWalk({
                 id={certId}
                 className={`crosswalk-cert-card ${draggedClass}`}
                 line={line}
+                linkUrl={certLink}
               />
             );
           })}
@@ -133,12 +176,29 @@ function CrossWalk({
      
 
       <div id="columns-div">
-        <h2 className="grid-heading">{ccTitle} Outcomes</h2>
+        <div className="grid-heading crosswalk-heading-row">
+          <h2>{ccTitle} Outcomes</h2>
+          {hasSyllabusFile ? (
+            <a
+              className="crosswalk-title-link"
+              href={syllabusFileUrl}
+              target="_blank"
+              rel="noreferrer"
+              aria-label="Open uploaded syllabus file"
+              title={syllabusFileName ? `Open ${syllabusFileName}` : "Open uploaded syllabus file"}
+            >
+              <FontAwesomeIcon icon={faFile} style={{ color: "rgb(70, 147, 207)" }} />
+            </a>
+          ) : null}
+        </div>
         <h2 className="grid-heading">Matches</h2>
         <h2 className="grid-heading">Notes</h2>
 
         {syllLines.map((line, index) => {
           const rowId = `drop-${index}`;
+          const syllLink = normalizeExternalUrl(
+            syllOutcomeLinks?.[index] ?? syllOutcomeLinks?.[toLineKey(line)]
+          );
           const matchedIds = getMatchesForRow(rowId);
           const matchedLines = matchedIds
             .map((matchedId) => certById[matchedId])
@@ -150,6 +210,8 @@ function CrossWalk({
                 line={line}
                 matchedIds={matchedIds}
                 matchedLines={matchedLines}
+                certOutcomeLinks={certOutcomeLinks}
+                syllabusLinkUrl={syllLink}
                 note={notesByRow[rowId] ?? ""}
                 onNoteChange={handleNotesChange}
                 onRemoveMatch={handleRemoveMatch}
