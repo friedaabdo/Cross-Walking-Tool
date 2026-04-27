@@ -122,19 +122,54 @@ function Home({
     return (
         <div id="home-div">
             <h1>Welcome to the Cross Walking Tool</h1>
-            <p>This tool is designed to help you cross walk learning outcomes from a learning experience to a syllabus.</p>
-            <p>To get started, please input the titles for the learning experience and CUNY course.</p>
+            <p>This tool is designed to help you find similarities between learning experiences and CUNY courses. In the next steps you will be able to import your data and visualize the relationships between different learning outcomes.</p>
+            <p>You can start from scratch by inputting the learning experience and syllabus outcomes in their respective pages. Or if you have a .csv file you have been working on, import it here:</p>
+<input
+                ref={fileInputRef}
+                type="file"
+                accept=".csv"
+                onChange={handleFileSelect}
+                style={{ display: 'none' }}
+            />
+            <Button 
+                text={isImporting ? "Importing..." : "Import CSV"} 
+                onClick={handleImportButtonClick}
+                disabled={isImporting}
+            />
+            {importError && <p style={{ color: 'red' }}>{importError}</p>}
+             <p>Note: Importing a CSV file will overwrite any current progress in this browser.</p>
+             <p>If you have previously entered data but haven't exported it, you can resume your progress by clicking the "Resume Saved Progress" button below. Your progress is auto-saved on this browser.</p>
+             <div className="home-persistence-actions">
+                <Button
+                    text="Resume Saved Progress"
+                    onClick={() => navigate('/crosswalk')}
+                    disabled={!hasSavedProgress}
+                />
+                <Button
+                    text="Clear Saved Progress"
+                    onClick={handleClearSavedProgress}
+                    disabled={!hasSavedProgress}
+                />
+            </div>
+            
+            <p className="home-save-hint">
+                {hasSavedProgress
+                    ? 'Progress is auto-saved on this browser.'
+                    : 'No saved progress found on this browser yet.'}
+            </p>
+             <hr />
+            <p>To get started, please input some metadata for the courses you want to crosswalk.</p>
 
-            <p>You can start from scratch by inputting the learning experience and syllabus outcomes in their respective pages.</p>
             
             <div className='main-data'> 
                 <h4>Learning Experience</h4>
+                <label htmlFor="learningExperienceTitle">Learning Experience Title:</label>
                 <InputLine
-                placeholder="Learning Experience Title"
+                placeholder="ex. CompTIA Security+"
                 value={learningExperienceTitle}
                 onChange={(event) => setLearningExperienceTitle(event.target.value)}
             />
-            <p>Learning Experience Description:</p>
+            <label htmlFor="learningExperienceDescription">Learning Experience Description:</label>
             <textarea
                 className="home-description-textarea"
                 placeholder="Enter a description of the learning experience"
@@ -142,22 +177,23 @@ function Home({
                 onChange={(event) => setLearningExperienceDescription(event.target.value)}
                 rows={4}
             />
-            <p>Add the link to the main page of the learning experience:
-                </p><InputLine
-                placeholder="Learning Experience Link"
+            <label htmlFor="learningExperienceLink">Learning Experience Link:</label>
+            <InputLine
+                placeholder="https://example.com/learning-experience"
                 value={learningExperienceLink}
                 onChange={(event) => setLearningExperienceLink(event.target.value)}
             /></div>
            
             <div className='main-data'>
                 <h4>CUNY Course</h4>
+                <label htmlFor="cunyCourseTitle">CUNY Course Title:</label>
             <InputLine
-                placeholder="CUNY Course Title"
+                placeholder="ex. Introduction to Computer Science"
                 value={cunyCourseTitle}
                 onChange={(event) => setCunyCourseTitle(event.target.value)}
             />
 
-            <p>CUNY Course Description:</p>
+            <label htmlFor="cunyCourseDescription">CUNY Course Description:</label>
             <textarea
                 className="home-description-textarea"
                 placeholder="Enter a description of the CUNY course"
@@ -176,42 +212,12 @@ function Home({
             {syllabusFileName ? <p>Uploaded: {syllabusFileName}</p> : null}
 
             </div>
+            <p>Next, you can input the individual learning outcomes for each course by clicking the button below.</p>
             <div id="home-actions">
-                <Button text="Add Learning Experience Outcomes" onClick={() => navigate('/learning-experience')} />
+                <Button text="Add Outcomes" onClick={() => navigate('/learning-experience')} />
             </div>
 
-            <div className="home-persistence-actions">
-                <Button
-                    text="Resume Saved Progress"
-                    onClick={() => navigate('/crosswalk')}
-                    disabled={!hasSavedProgress}
-                />
-                <Button
-                    text="Clear Saved Progress"
-                    onClick={handleClearSavedProgress}
-                    disabled={!hasSavedProgress}
-                />
-            </div>
-
-            <p>Or, if you have a .csv file, import it here:</p>
-            <input
-                ref={fileInputRef}
-                type="file"
-                accept=".csv"
-                onChange={handleFileSelect}
-                style={{ display: 'none' }}
-            />
-            <Button 
-                text={isImporting ? "Importing..." : "Import CSV"} 
-                onClick={handleImportButtonClick}
-                disabled={isImporting}
-            />
-            {importError && <p style={{ color: 'red' }}>{importError}</p>}
-            <p className="home-save-hint">
-                {hasSavedProgress
-                    ? 'Progress is auto-saved on this browser.'
-                    : 'No saved progress found on this browser yet.'}
-            </p>
+            
         </div>
     );
 }

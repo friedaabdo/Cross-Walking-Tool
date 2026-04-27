@@ -141,7 +141,12 @@ function CrossWalk({
   };
 
   return (
+    
     <DragDropProvider onDragEnd={handleDragEnd}>
+      <p>Here you can drag and drop the cards to match learning experience outcomes to CUNY course outcomes. You may add notes, remove matches, and go back to edit outcomes if needed.</p>
+      <p>If you navigate away from or close this page, your progress will be saved by the browser unless you choose to clear it in the home page.</p>
+      <p>You may also export the crosswalk as a CSV file below at any time and it will save your progress if you choose to work on your crosswalk on a different device.</p>
+      <p>If you want to leave any feedback or report any bugs, please click <a href="https://docs.google.com/forms/d/e/1FAIpQLSdh2duwP_A12Wl-CFYIq1GqYRRUTbv9UeBTVfYXu8bBEScf5Q/viewform?usp=dialog" target="_blank" rel="noreferrer">here</a> and fill out the form. Thank you!</p>
       <div id="crosswalk-div">
         <div id="horizontal-div">
         <div className="crosswalk-heading-row">

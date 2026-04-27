@@ -155,6 +155,10 @@ function OutcomesInput({
            {!isCertificatePage && (
                <p>{cunyCourseDescription}</p>
            )}
+           <p>
+            Please input the learning outcomes for the {title ? 'learning experience' : 'CUNY course'} below. Add each outcome on a new line. If an outcome contains bullet points, use the bullet point icon to add them directly under the outcome associated with them. </p>
+            <p>After submitting, you may review and edit the outcomes again in the text box and when you are done just hit submit again and your changes will be reflected. You may also add links to individual outcomes cards before confirming.
+           </p>
 
             <div className="outcomes-layout">
                 <section className="outcomes-input-panel">

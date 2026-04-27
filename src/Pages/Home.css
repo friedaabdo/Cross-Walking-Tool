@@ -37,3 +37,9 @@
 	resize: vertical;
 	min-height: 96px;
 }
+.main-data {
+	display: flex;
+	flex-direction: column;
+	justify-content: left;
+
+}
