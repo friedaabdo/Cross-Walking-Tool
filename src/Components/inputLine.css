@@ -2,6 +2,9 @@
 .input-line {
     margin: 10px 0;
 }
+/* placeholder needs to be lighter and less prominent than the actual input text, so that users can easily distinguish between the two. This can be achieved by using a lighter color for the placeholder text, such as a light gray, while keeping the input text color darker for better readability. Additionally, using a smaller font size for the placeholder can also help to differentiate it from the actual input. */
+
+
 .input-line input::placeholder {
-    color: var(--placeholder-color);
+    color: var(--text-muted);
 }

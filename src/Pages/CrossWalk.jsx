@@ -143,14 +143,24 @@ function CrossWalk({
   return (
     
     <DragDropProvider onDragEnd={handleDragEnd}>
-      <p>Here you can drag and drop the cards to match learning experience outcomes to CUNY course outcomes. You may add notes, remove matches, and go back to edit outcomes if needed.</p>
-      <p>If you navigate away from or close this page, your progress will be saved by the browser unless you choose to clear it in the home page.</p>
-      <p>You may also export the crosswalk as a CSV file below at any time and it will save your progress if you choose to work on your crosswalk on a different device.</p>
-      <p>If you want to leave any feedback or report any bugs, please click <a href="https://docs.google.com/forms/d/e/1FAIpQLSdh2duwP_A12Wl-CFYIq1GqYRRUTbv9UeBTVfYXu8bBEScf5Q/viewform?usp=dialog" target="_blank" rel="noreferrer">here</a> and fill out the form. Thank you!</p>
+      <h1>Now you're ready to crosswalk!</h1>
+      <p>Here you can drag-and-drop individual items from the horizontal Learning Experience Outcomes menu to the “Matches” column, alongside the appropriate Course Learning Outcomes item.</p>
+      <p>Once a Learning Experience Outcome is matched to a Course Learning Outcome, it will turn blue to help you keep track. The same Learning Experience Outcome can be matched against multiple Course Learning Outcomes if appropriate.</p>
+      <p>You can add notes and remove matches as needed, and you can always go back to edit the items if you want. </p>
+      <p>Note: 
+        <ul>
+          <li>If you navigate away from or close this page, your progress will be saved by the browser unless you choose to clear it in the home page.
+          </li>
+          <li>You may also export the crosswalk as a CSV file below at any time and it will save your progress if you choose to work on your crosswalk on a different device.
+          </li>
+        </ul>
+
+</p>
+      <p>This is a brand-new tool, still in development! We appreciate you checking it out, and we welcome your comments to help us improve. If you want to leave any feedback or report any bugs, please click <a href="https://docs.google.com/forms/d/e/1FAIpQLSdh2duwP_A12Wl-CFYIq1GqYRRUTbv9UeBTVfYXu8bBEScf5Q/viewform?usp=dialog" target="_blank" rel="noreferrer">here</a> and fill out the form. Thank you!</p>
       <div id="crosswalk-div">
         <div id="horizontal-div">
         <div className="crosswalk-heading-row">
-          <h2>{leTitle} Outcomes</h2>
+          <h2>{leTitle || "Learning Experience"} Outcomes</h2>
           
           
           {hasLearningExperienceLink ? (
@@ -193,7 +203,7 @@ function CrossWalk({
 
       <div id="columns-div">
         <div className="grid-heading crosswalk-heading-row">
-          <h2>{ccTitle} Outcomes</h2>
+          <h2>{ccTitle} Learning Objectives</h2>
           {hasSyllabusFile ? (
             <a
               className="crosswalk-title-link"

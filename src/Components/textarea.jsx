@@ -26,7 +26,7 @@ function Textarea({ pageName, value, onChange }) {
 
     const quill = new Quill(containerRef.current, {
       theme: "snow",
-      placeholder: `Enter ${pageName} info. Each field on a new line.`,
+      placeholder: `Enter ${pageName} info. Each item on a new line.`,
       modules: {
         toolbar: toolbarRef.current,
       },
@@ -68,7 +68,7 @@ function Textarea({ pageName, value, onChange }) {
     <div className="textarea-quill-shell">
       <div ref={toolbarRef} className="textarea-quill-toolbar">
         <span className="ql-formats">
-          {/* <button className="ql-bold" /> */}
+          <button className="ql-bold" />
           {/* <button className="ql-italic" />
           <button className="ql-underline" /> */}
         </span>

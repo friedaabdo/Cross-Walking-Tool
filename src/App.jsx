@@ -128,7 +128,7 @@ function App() {
 
   return (
     <div className="App">
-  <h1>Cross Walking Tool</h1>
+  {/* <h1>CUNY CPL Evaluation Cross Walking Tool</h1> */}
     <BrowserRouter>
     <Suspense fallback={<p>Loading page...</p>}>
     <Routes>

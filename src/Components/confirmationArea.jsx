@@ -1,10 +1,10 @@
 import './confirmationArea.css'
 import OutcomeCard from './Outcome-card'
 
-function ConfirmationArea({ lines, title, outcomeLinks, setOutcomeLinks }) {
+function ConfirmationArea({ lines,  outcomeLinks, setOutcomeLinks }) {
     return (
         <div id = "confirmation-area">
-            <h1>Confirm {title} Outcomes</h1>
+            <h3>How does everything look?</h3>
             <OutcomeCard
                 lines={lines}
                 showTopRightPlusIcon={true}
