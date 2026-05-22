@@ -1,4 +1,5 @@
 import { normalizeToArray } from "./collections";
+import { encodeOutcomeForCsv } from "./outcomeText";
 
 const toLineKey = (line) => `line:${(line ?? "").trim()}`;
 
@@ -48,7 +49,7 @@ function downloadCrosswalkCsv({
     const currentlyMatched = matchedIdSet.has(certId) ? "Yes" : "No";
     const link = certOutcomeLinks?.[index] ?? certOutcomeLinks?.[toLineKey(line)] ?? "";
 
-    return [line, dragged, currentlyMatched, link];
+    return [encodeOutcomeForCsv(line), dragged, currentlyMatched, link];
   });
 
   const crosswalkHeader = [`${ccTitle || "Syllabus"} Outcome`, "Matches", "Notes", "Link"];
@@ -61,7 +62,13 @@ function downloadCrosswalkCsv({
 
     const link = syllOutcomeLinks?.[index] ?? syllOutcomeLinks?.[toLineKey(line)] ?? "";
 
-    return [line, matchedLines.join("\r\n"), notesByRow[rowId] ?? "", link];
+    const encodedMatches = matchedLines.map((matchedLine) => encodeOutcomeForCsv(matchedLine));
+    return [
+      encodeOutcomeForCsv(line),
+      encodedMatches.join("\r\n"),
+      notesByRow[rowId] ?? "",
+      link,
+    ];
   });
 
   const csvContent = [

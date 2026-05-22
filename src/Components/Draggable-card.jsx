@@ -2,7 +2,7 @@ import { useDraggable } from "@dnd-kit/react";
 import { useEffect, useRef, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faLink } from "@fortawesome/free-solid-svg-icons";
-import { splitOutcomeText } from "../utils/outcomeText";
+import { splitOutcomeDisplayParts } from "../utils/outcomeText";
 import "./Draggable-card.css";
 import "./outcome-rich.css";
 
@@ -16,7 +16,7 @@ function DraggableCard({ id, className, line, linkUrl }) {
     const [isExpanded, setIsExpanded] = useState(false);
     const [expandedRect, setExpandedRect] = useState({ left: 0, top: 0, width: 0 });
 
-    const { bullets, statement } = splitOutcomeText(line);
+    const { bullets, heading, statementBody } = splitOutcomeDisplayParts(line);
 
     useEffect(() => {
         if (!cardRef.current) {
@@ -101,7 +101,12 @@ function DraggableCard({ id, className, line, linkUrl }) {
                     </a>
                 ) : null}
                 <div className="draggable-card-content outcome-rich-content">
-                    {statement ? <span className="outcome-rich-statement">{statement}</span> : null}
+                    {heading ? (
+                        <div className="outcome-rich-heading">
+                            <strong>{heading}</strong>
+                        </div>
+                    ) : null}
+                    {statementBody ? <span className="outcome-rich-statement">{statementBody}</span> : null}
                     {bullets.length > 0 ? (
                         <ul className="outcome-rich-bullets">
                             {bullets.map((bullet, index) => (

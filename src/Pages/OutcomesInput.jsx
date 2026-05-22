@@ -40,7 +40,10 @@ const parseInputToOutcomeLines = (value) => {
   container.innerHTML = value;
 
   const lines = [];
-  let currentLine = "";
+  let currentLine = ""; // content of the card being built
+  let currentHeading = ""; // active heading text
+  let baseCardCreated = false; // whether we've created the first card under current heading
+  const HEADING_TOKEN = "||HEADING||";
 
   const pushCurrentLine = () => {
     const trimmed = currentLine.trim();
@@ -53,6 +56,25 @@ const parseInputToOutcomeLines = (value) => {
   Array.from(container.children).forEach((node) => {
     const tag = node.tagName.toLowerCase();
 
+    // detect bold/heading nodes: explicit tags, header tags, or fully-bold wrapped content
+    const isBoldTag = tag === "b" || tag === "strong" || /^h[1-6]$/.test(tag);
+    const innerBold =
+      node.querySelector &&
+      node.querySelector("b, strong, span[style*='font-weight: bold'], span[style*='font-weight:700'], span[style*='font-weight: 700']");
+    const nodeText = node.textContent?.trim() ?? "";
+    const innerBoldText = innerBold?.textContent?.trim() ?? "";
+    const isHeadingNode = isBoldTag || (innerBoldText && nodeText === innerBoldText);
+
+    if (isHeadingNode) {
+      // flush any existing card
+      pushCurrentLine();
+      // start a new heading context
+      currentHeading = node.textContent?.trim() ?? "";
+      baseCardCreated = false;
+      currentLine = "";
+      return;
+    }
+
     if (tag === "ul" || tag === "ol") {
       const bullets = Array.from(node.querySelectorAll("li"))
         .map((li) => li.textContent?.trim() ?? "")
@@ -62,8 +84,18 @@ const parseInputToOutcomeLines = (value) => {
         return;
       }
 
+      // If there's an active currentLine (card in progress), append bullets to it
       const bulletText = bullets.map((item) => `- ${item}`).join("\n");
-      currentLine = currentLine ? `${currentLine}\n${bulletText}` : bulletText;
+      if (currentLine) {
+        currentLine = `${currentLine}\n${bulletText}`;
+      } else if (currentHeading) {
+        // start a new card with the heading and bullets (mark heading token)
+        currentLine = `${HEADING_TOKEN}${currentHeading}\n${bulletText}`;
+        baseCardCreated = true;
+      } else {
+        // no heading context: start a plain bullets card
+        currentLine = bulletText;
+      }
       return;
     }
 
@@ -72,10 +104,27 @@ const parseInputToOutcomeLines = (value) => {
       return;
     }
 
+    // Non-bullet block handling
+    if (currentHeading && !baseCardCreated) {
+      // first card under heading: include heading + this block (mark heading token)
+      currentLine = `${HEADING_TOKEN}${currentHeading}\n${blockText}`;
+      baseCardCreated = true;
+      return;
+    }
+
+    if (currentHeading && baseCardCreated) {
+      // subsequent non-bullet under same heading: finalize previous card,
+      // then start a new card for this block (allow bullets to attach later)
+      pushCurrentLine();
+      currentLine = `${HEADING_TOKEN}${currentHeading}\n${blockText}`;
+      baseCardCreated = true;
+      return;
+    }
+
+    // No active heading context: each block becomes its own card
     if (currentLine) {
       pushCurrentLine();
     }
-
     currentLine = blockText;
   });
 

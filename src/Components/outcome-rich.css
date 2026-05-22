@@ -10,6 +10,10 @@
     white-space: pre-wrap;
 }
 
+.outcome-rich-heading {
+    margin: 0 0 var(--space-1) 0;
+}
+
 .outcome-rich-bullets {
     margin: var(--space-2) 0 0 0;
     padding-left: var(--bullet-indent);

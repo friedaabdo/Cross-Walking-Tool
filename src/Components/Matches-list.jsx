@@ -1,6 +1,6 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleXmark, faLink } from "@fortawesome/free-solid-svg-icons";
-import { splitOutcomeText } from "../utils/outcomeText";
+import { splitOutcomeDisplayParts } from "../utils/outcomeText";
 import "./outcome-rich.css";
 
 const normalizeExternalUrl = (url) => {
@@ -31,7 +31,7 @@ function MatchesList({ matchedIds, matchedLines, certOutcomeLinks, onRemove }) {
         const matchedLink = normalizeExternalUrl(
           certOutcomeLinks?.[certIndex] ?? certOutcomeLinks?.[toLineKey(matchedLine)]
         );
-        const { bullets, statement } = splitOutcomeText(matchedLine);
+        const { bullets, heading, statementBody } = splitOutcomeDisplayParts(matchedLine);
 
         return (
           <div
@@ -57,7 +57,12 @@ function MatchesList({ matchedIds, matchedLines, certOutcomeLinks, onRemove }) {
               onClick={() => onRemove(matchedId)}
             />
             <div className="outcome-rich-content">
-              {statement ? <span className="outcome-rich-statement">{statement}</span> : null}
+              {heading ? (
+                <div className="outcome-rich-heading">
+                  <strong>{heading}</strong>
+                </div>
+              ) : null}
+              {statementBody ? <span className="outcome-rich-statement">{statementBody}</span> : null}
               {bullets.length > 0 ? (
                 <ul className="outcome-rich-bullets">
                   {bullets.map((bullet, index) => (

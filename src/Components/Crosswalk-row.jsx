@@ -2,7 +2,7 @@ import DroppableArea from "./Droppable-area";
 import MatchesList from "./Matches-list";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faLink } from "@fortawesome/free-solid-svg-icons";
-import { splitOutcomeText } from "../utils/outcomeText";
+import { splitOutcomeDisplayParts } from "../utils/outcomeText";
 import "./outcome-rich.css";
 
 function CrosswalkRow({
@@ -16,7 +16,7 @@ function CrosswalkRow({
   onRemoveMatch,
   rowId,
 }) {
-  const { bullets, statement } = splitOutcomeText(line);
+  const { bullets, heading, statementBody } = splitOutcomeDisplayParts(line);
 
   return (
     <>
@@ -33,7 +33,12 @@ function CrosswalkRow({
             <FontAwesomeIcon icon={faLink} style={{ color: "rgb(70, 147, 207)" }} />
           </a>
         ) : null}
-        {statement ? <span className="outcome-rich-statement">{statement}</span> : null}
+        {heading ? (
+          <div className="outcome-rich-heading">
+            <strong>{heading}</strong>
+          </div>
+        ) : null}
+        {statementBody ? <span className="outcome-rich-statement">{statementBody}</span> : null}
         {bullets.length > 0 ? (
           <ul className="outcome-rich-bullets">
             {bullets.map((bullet, index) => (

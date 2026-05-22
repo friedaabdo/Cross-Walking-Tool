@@ -3,7 +3,7 @@ import "./outcome-rich.css";
 import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faLink } from "@fortawesome/free-solid-svg-icons";
-import { splitOutcomeText } from "../utils/outcomeText";
+import { splitOutcomeDisplayParts } from "../utils/outcomeText";
 
 const normalizeExternalUrl = (url) => {
   const trimmedUrl = (url || "").trim();
@@ -62,7 +62,7 @@ function OutcomeCard({
     <div className={containerClassName}>
       {lines.map((line, index) => {
         const cardKey = `${line}-${index}`;
-        const { bullets, statement } = splitOutcomeText(line);
+        const { bullets, heading, statementBody } = splitOutcomeDisplayParts(line);
         const savedLink = outcomeLinks?.[index] ?? outcomeLinks?.[toLineKey(line)] ?? "";
         const draftLink = linkDraftByCard[index] ?? savedLink;
         const hasSavedLink = Boolean(savedLink);
@@ -117,7 +117,12 @@ function OutcomeCard({
                 </div>
               </div>
             ) : null}
-            {statement ? <span className="outcome-rich-statement">{statement}</span> : null}
+            {heading ? (
+              <div className="outcome-rich-heading">
+                <strong>{heading}</strong>
+              </div>
+            ) : null}
+            {statementBody ? <span className="outcome-rich-statement">{statementBody}</span> : null}
             {bullets.length > 0 ? (
               <ul className="outcome-rich-bullets">
                 {bullets.map((bullet, bulletIndex) => (

@@ -3,6 +3,8 @@
  * Reverses the structure created by csvExport.js
  */
 
+import { decodeOutcomeFromCsv } from "./outcomeText";
+
 // Robust CSV parser that handles quoted cells containing newlines
 function parseCsvRows(csvContent) {
   const rows = [];
@@ -122,7 +124,7 @@ function parseCsvContent(csvContent) {
       break;
     }
 
-    const outcomeText = row[0]?.trim() || "";
+    const outcomeText = decodeOutcomeFromCsv(row[0]?.trim() || "");
     const dragged = row[1]?.trim() || "No";
     const link = row[3]?.trim() || "";
 
@@ -180,7 +182,7 @@ function parseCsvContent(csvContent) {
       continue;
     }
 
-    const outcomeText = row[0]?.trim() || "";
+    const outcomeText = decodeOutcomeFromCsv(row[0]?.trim() || "");
     const matchesText = row[1]?.trim() || "";
     const notesText = row[2]?.trim() || "";
     const link = row[3]?.trim() || "";
@@ -193,7 +195,7 @@ function parseCsvContent(csvContent) {
       // Parse matches (can be multiple, separated by newlines)
       const matchedOutcomes = matchesText
         .split(/\r\n|\r|\n/)
-        .map((m) => m.trim())
+        .map((m) => decodeOutcomeFromCsv(m.trim()))
         .filter(Boolean);
 
       // Map matched outcomes back to certIds
