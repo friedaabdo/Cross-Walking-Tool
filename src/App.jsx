@@ -2,6 +2,8 @@ import { lazy, Suspense, useEffect, useState } from 'react'
 import {BrowserRouter, Routes, Route} from 'react-router-dom'
 import './App.css'
 
+import Nav from './Components/Nav.jsx'
+import Create_Template from './Pages/Create_Template.jsx'
 const CertOutcomes = lazy(() => import('./Pages/OutcomesInput'))
 const SyllOutcomes = lazy(() => import('./Pages/OutcomesInput'))
 const CrossWalk = lazy(() => import('./Pages/CrossWalk'))
@@ -130,11 +132,12 @@ function App() {
     <div className="App">
   {/* <h1>CUNY CPL Evaluation Cross Walking Tool</h1> */}
     <BrowserRouter>
-    <Suspense fallback={<p>Loading page...</p>}>
-    <Routes>
-      <Route path="/"
-        element={<Home
-          learningExperienceTitle={leTitle}
+      <Nav />
+      <Suspense fallback={<p>Loading page...</p>}>
+        <Routes>
+          <Route path="/"
+            element={<Home
+              learningExperienceTitle={leTitle}
           setLearningExperienceTitle={setLeTitle}
           learningExperienceDescription={learningExperienceDescription}
           setLearningExperienceDescription={setLearningExperienceDescription}
@@ -164,6 +167,10 @@ function App() {
       <Route
         path="/board"
         element={<Board/>}
+      />
+       <Route
+        path="/create-template"
+        element={<Create_Template/>}
       />
       <Route
         path="/learning-experience"

@@ -1,4 +1,7 @@
-// create a react page with a text box input and submit button.
+// OutcomesInput page
+// - Renders a textarea for entering learning outcomes or syllabus lines
+// - Parses and normalizes input (plain text, bullets, or pasted HTML)
+// - Shows a confirmation panel with parsed lines and allows navigation
 import "./OutcomesInput.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFile, faLink } from "@fortawesome/free-solid-svg-icons";
@@ -7,6 +10,7 @@ import ConfirmationArea from "../Components/confirmationArea";
 import Button from "../Components/button";
 import { useNavigate } from "react-router-dom";
 
+// Ensure external links have a valid scheme. If no scheme present, assume https://
 const normalizeExternalUrl = (url) => {
   const trimmedUrl = (url || "").trim();
   if (!trimmedUrl) {
@@ -24,6 +28,8 @@ const normalizeExternalUrl = (url) => {
   return `https://${trimmedUrl}`;
 };
 
+// Parse the textarea input into an array of outcome lines.
+// Supports plain newline-separated text or pasted HTML (lists, paragraphs).
 const parseInputToOutcomeLines = (value) => {
   if (!value) {
     return [];
@@ -42,6 +48,7 @@ const parseInputToOutcomeLines = (value) => {
   const lines = [];
   let currentLine = "";
 
+  // Helper to push the currently accumulated line into the output array
   const pushCurrentLine = () => {
     const trimmed = currentLine.trim();
     if (trimmed) {
@@ -83,6 +90,7 @@ const parseInputToOutcomeLines = (value) => {
   return lines;
 };
 
+// The main page component. Props are passed from the top-level App state.
 function OutcomesInput({
   pageName,
   certLines,
@@ -101,30 +109,34 @@ function OutcomesInput({
   learningExperienceDescription,
   cunyCourseDescription,
 }) {
+  // Determine whether this is the Learning Experience (certificate) page or Syllabus page
   const isCertificatePage = pageName.toLowerCase() === "learning experience";
+
+  // Choose which lines and setters to use based on page type
   const lines = isCertificatePage ? certLines : syllLines;
   const setLines = isCertificatePage ? setCertLines : setSyllLines;
-  const title = isCertificatePage ? leTitle || "Learning Experience" : ccTitle || "CUNY Course";
-  const hasLearningExperienceLink =
-    isCertificatePage && Boolean((learningExperienceLink || "").trim());
-  const resolvedLearningExperienceLink = normalizeExternalUrl(
-    learningExperienceLink,
-  );
-  const hasSyllabusFile = !isCertificatePage && Boolean(syllabusFileUrl);
-  const hasSubmitted = lines.length > 0;
-  const inputValue = draftValue || lines.join("\n");
 
+  // Compute UI strings and flags
+  const title = isCertificatePage ? leTitle || "Learning Experience" : ccTitle || "CUNY Course";
+  const hasLearningExperienceLink = isCertificatePage && Boolean((learningExperienceLink || "").trim());
+  const resolvedLearningExperienceLink = normalizeExternalUrl(learningExperienceLink);
+  const hasSyllabusFile = !isCertificatePage && Boolean(syllabusFileUrl);
+  const hasSubmitted = lines.length > 0; // true when there are parsed outcome lines
+  const inputValue = draftValue || lines.join("\n"); // textarea value (draft or serialized lines)
+
+  // Update the draft textarea value (does not overwrite saved lines until Submit)
   const handleInputChange = (value) => {
     setDraftValue(value);
   };
 
+  // Parse the input and save lines to the appropriate state (cert or syllabus)
   const handleSubmit = () => {
-    
     const submittedLines = parseInputToOutcomeLines(inputValue);
     setLines(submittedLines);
   };
 
   const navigate = useNavigate();
+  // Navigation helpers used after confirming or stepping through pages
   const navigateToSyllabus = () => {
     navigate("/syllabus");
   };
@@ -132,6 +144,7 @@ function OutcomesInput({
     navigate("/crosswalk");
   };
 
+  // When user confirms outcomes, go to the next logical page
   const handleConfirmNavigation = () => {
     if (isCertificatePage) {
       navigateToSyllabus();
@@ -141,6 +154,7 @@ function OutcomesInput({
     navigateToCrosswalk();
   };
 
+  // Back button behavior depends on current page
   const handleBackNavigation = () => {
     if (isCertificatePage) {
       navigate("/");
@@ -153,9 +167,8 @@ function OutcomesInput({
   return (
     <div id="outcomes-div">
       <p>Description:</p>
-      {/* if it is a certificate page show the learning experience description */}
+      {/* Show the appropriate description text for the selected page type */}
       {isCertificatePage && <p>{learningExperienceDescription}</p>}
-      {/* if it is a syllabus page show the cunycourse description */}
       {!isCertificatePage && <p>{cunyCourseDescription}</p>}
       <p>
         In the box below, input a list of content covered by the credential or training program. This could be learning outcomes, competencies, key topics, or other specific details. 
@@ -168,16 +181,15 @@ function OutcomesInput({
         </ul>
       </p>
       {hasSubmitted && (
-
         <p id='review-note'>
           Review the box on the right to see how the items will appear on the crosswalk. <br />Use the box on the left to make edits. Hit “Submit” see your changes reflected on the right. <br />Once everything looks good, click “Confirm Outcomes” to move to the next page. 
         </p>
-        
       )}
 
       <div className="outcomes-layout">
         <section className="outcomes-input-panel">
           <div className="outcomes-title-row">
+            {/* Page title and optional links (learning experience URL or uploaded syllabus) */}
             <h1>{title} Outcomes, Competencies, Key Topics</h1>
             {hasLearningExperienceLink && (
               <a
@@ -215,6 +227,7 @@ function OutcomesInput({
             )}
             {/*  */}
           </div>
+          {/* Main textarea component where users enter/paste outcomes */}
           <Textarea
             pageName={title}
             value={inputValue}
@@ -222,12 +235,14 @@ function OutcomesInput({
           />
           <p>Once you’ve added all the information, hit submit and on the next page, you will be able to review and edit how the items you’ve entered will appear on the crosswalk. 
 </p>
+          {/* Action buttons: go back or submit parsed lines */}
           <div className="outcomes-input-actions">
             <Button onClick={handleBackNavigation} text="Back" />
             <Button onClick={handleSubmit} text="Submit" />
           </div>
         </section>
 
+        {/* Confirmation panel appears after submit and shows parsed lines */}
         {hasSubmitted && (
           <section className="outcomes-confirmation-panel">
             <ConfirmationArea
