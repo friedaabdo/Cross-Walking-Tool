@@ -1,21 +1,34 @@
 import "./Create_Template.css";
-import { useState } from "react";
 import axios from "axios";
 import InputLine from "../Components/InputLine";
 import Textarea from "../Components/textarea";
+import OutcomeCard from "../Components/Outcome-card";
+import { parseInputToOutcomeSections } from "../utils/outcomeText";
 
-function Create_Template() {
-  const [values, setValues] = useState({
-    learningExperienceTitle: "",
-    learningExperienceDescription: "",
-    learningExperienceLink: "",
-  });
+function Create_Template({
+  learningExperienceTitle,
+  setLearningExperienceTitle,
+  learningExperienceDescription,
+  setLearningExperienceDescription,
+  learningExperienceLink,
+  setLearningExperienceLink,
+  outcomes,
+  setOutcomes,
+  outcomesDraft,
+  setOutcomesDraft,
+}) {
+  const handleParseOutcomes = () => {
+    const parsedOutcomes = parseInputToOutcomeSections(outcomesDraft);
+    setOutcomes(parsedOutcomes);
+  };
+
   const handleSubmit = (event) => {
     event.preventDefault();
     const payload = {
-      title: values.learningExperienceTitle,
-      description: values.learningExperienceDescription,
-      link: values.learningExperienceLink,
+      title: learningExperienceTitle,
+      description: learningExperienceDescription,
+      link: learningExperienceLink,
+      outcomes: outcomes,
     };
 
     axios
@@ -27,11 +40,7 @@ function Create_Template() {
         console.error(err);
       });
   };
-  const {
-    learningExperienceTitle,
-    learningExperienceDescription,
-    learningExperienceLink,
-  } = values;
+
   return (
     <div id="create-template">
       <h1>Create Template Page</h1>
@@ -45,10 +54,7 @@ function Create_Template() {
           placeholder="ex. CompTIA Security+"
           value={learningExperienceTitle}
           onChange={(event) =>
-            setValues({
-              ...values,
-              learningExperienceTitle: event.target.value,
-            })
+            setLearningExperienceTitle(event.target.value)
           }
         />
         <label htmlFor="learningExperienceDescription">
@@ -59,28 +65,38 @@ function Create_Template() {
           placeholder="Enter a description of the learning experience"
           value={learningExperienceDescription}
           onChange={(event) =>
-            setValues({
-              ...values,
-              learningExperienceDescription: event.target.value,
-            })
+            setLearningExperienceDescription(event.target.value)
           }
           rows={4}
         />
         <label htmlFor="learningExperienceLink">
+          import { parseInputToOutcomeSections } from "../utils/outcomeText";
           Learning Experience Link:
         </label>
         <InputLine
           placeholder="https://example.com/learning-experience"
           value={learningExperienceLink}
           onChange={(event) =>
-            setValues({ ...values, learningExperienceLink: event.target.value })
+            setLearningExperienceLink(event.target.value)
           }
         />
       </div>
       <button onClick={handleSubmit}>Next</button>
 
-      <Textarea value={inputValue}
-            onChange={handleInputChange}/>
+      <div className="outcomes-input">
+        <h4>Learning Outcomes</h4>
+              const parsedOutcomes = parseInputToOutcomeSections(outcomesDraft);
+        <Textarea
+          pageName="Learning Outcomes"
+          value={outcomesDraft}
+          onChange={setOutcomesDraft}
+        />
+        <button onClick={handleParseOutcomes}>Parse Outcomes</button>
+      </div>
+
+      <div className="outcomes-display">
+        <OutcomeCard sections={outcomes} />
+      </div>
     </div>
   );
 }

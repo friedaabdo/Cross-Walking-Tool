@@ -20,6 +20,8 @@ const STORAGE_KEYS = {
   leTitle: 'crosswalk.leTitle',
   leDescription: 'crosswalk.leDescription',
   leLink: 'crosswalk.leLink',
+  outcomes: 'crosswalk.outcomes',
+  outcomesDraft: 'crosswalk.outcomesDraft',
   ccTitle: 'crosswalk.ccTitle',
   ccDescription: 'crosswalk.ccDescription',
   matchesByRow: 'crosswalk.matchesByRow',
@@ -50,6 +52,8 @@ function App() {
   const [leTitle, setLeTitle] = useState(() => getStoredValue(STORAGE_KEYS.leTitle, ''))
   const [learningExperienceDescription, setLearningExperienceDescription] = useState(() => getStoredValue(STORAGE_KEYS.leDescription, ''))
   const [learningExperienceLink, setLearningExperienceLink] = useState(() => getStoredValue(STORAGE_KEYS.leLink, ''))
+  const [outcomes, setOutcomes] = useState(() => getStoredValue(STORAGE_KEYS.outcomes, []))
+  const [outcomesDraft, setOutcomesDraft] = useState(() => getStoredValue(STORAGE_KEYS.outcomesDraft, ''))
   const [syllabusFileUrl, setSyllabusFileUrl] = useState('')
   const [syllabusFileName, setSyllabusFileName] = useState('')
   const [ccTitle, setccTitle] = useState(() => getStoredValue(STORAGE_KEYS.ccTitle, ''))
@@ -66,6 +70,8 @@ function App() {
     Boolean(leTitle.trim()) ||
     Boolean(learningExperienceDescription.trim()) ||
     Boolean(learningExperienceLink.trim()) ||
+    outcomes.length > 0 ||
+    Boolean(outcomesDraft.trim()) ||
     Boolean(syllabusFileUrl) ||
     Boolean(ccTitle.trim()) ||
     Boolean(cunyCourseDescription.trim()) ||
@@ -83,6 +89,8 @@ function App() {
     localStorage.setItem(STORAGE_KEYS.leTitle, JSON.stringify(leTitle))
     localStorage.setItem(STORAGE_KEYS.leDescription, JSON.stringify(learningExperienceDescription))
     localStorage.setItem(STORAGE_KEYS.leLink, JSON.stringify(learningExperienceLink))
+    localStorage.setItem(STORAGE_KEYS.outcomes, JSON.stringify(outcomes))
+    localStorage.setItem(STORAGE_KEYS.outcomesDraft, JSON.stringify(outcomesDraft))
     localStorage.setItem(STORAGE_KEYS.ccTitle, JSON.stringify(ccTitle))
     localStorage.setItem(STORAGE_KEYS.ccDescription, JSON.stringify(cunyCourseDescription))
     localStorage.setItem(STORAGE_KEYS.matchesByRow, JSON.stringify(matchesByRow))
@@ -98,6 +106,8 @@ function App() {
     leTitle,
     learningExperienceDescription,
     learningExperienceLink,
+    outcomes,
+    outcomesDraft,
     ccTitle,
     cunyCourseDescription,
     matchesByRow,
@@ -115,6 +125,8 @@ function App() {
     setLeTitle('')
     setLearningExperienceDescription('')
     setLearningExperienceLink('')
+    setOutcomes([])
+    setOutcomesDraft('')
     setSyllabusFileUrl('')
     setSyllabusFileName('')
     setccTitle('')
@@ -170,7 +182,18 @@ function App() {
       />
        <Route
         path="/create-template"
-        element={<Create_Template/>}
+        element={<Create_Template
+          learningExperienceTitle={leTitle}
+          setLearningExperienceTitle={setLeTitle}
+          learningExperienceDescription={learningExperienceDescription}
+          setLearningExperienceDescription={setLearningExperienceDescription}
+          learningExperienceLink={learningExperienceLink}
+          setLearningExperienceLink={setLearningExperienceLink}
+          outcomes={outcomes}
+          setOutcomes={setOutcomes}
+          outcomesDraft={outcomesDraft}
+          setOutcomesDraft={setOutcomesDraft}
+        />}
       />
       <Route
         path="/learning-experience"

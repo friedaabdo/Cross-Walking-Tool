@@ -22,6 +22,7 @@ const toLineKey = (line) => `line:${(line || "").trim()}`;
 
 function OutcomeCard({
   lines,
+  sections,
   className,
   containerClassName,
   showTopRightPlusIcon = false,
@@ -58,32 +59,46 @@ function OutcomeCard({
     }));
   };
 
+  const normalizedSections = (sections ?? lines.map((line) => ({ header: "", lines: [line] }))).map(
+    (section) =>
+      typeof section === "string"
+        ? { header: "", lines: [section] }
+        : {
+            header: section?.header ?? "",
+            lines: Array.isArray(section?.lines)
+              ? section.lines
+              : section?.line
+                ? [section.line]
+                : [],
+          },
+  );
+
   return (
     <div className={containerClassName}>
-      {lines.map((line, index) => {
-        const cardKey = `${line}-${index}`;
-        const { bullets, statement } = splitOutcomeText(line);
-        const savedLink = outcomeLinks?.[index] ?? outcomeLinks?.[toLineKey(line)] ?? "";
+      {normalizedSections.map((section, index) => {
+        const sectionKey = `${section.header || section.lines.join("|")}-${index}`;
+        const savedLine = section.header || section.lines.join("\n");
+        const savedLink = outcomeLinks?.[index] ?? outcomeLinks?.[toLineKey(savedLine)] ?? "";
         const draftLink = linkDraftByCard[index] ?? savedLink;
         const hasSavedLink = Boolean(savedLink);
 
         return (
-          <div key={cardKey} className={`outcome-card-item outcome-rich-content ${className ?? ""}`}>
+          <div key={sectionKey} className={`outcome-card-item outcome-rich-content ${className ?? ""}`}>
             {showTopRightPlusIcon ? (
               <div className="outcome-card-top-right-control">
                 <button
                   type="button"
                   className="outcome-card-top-right-icon"
                   onClick={() =>
-                    setOpenTooltipCardKey((previous) => (previous === cardKey ? null : cardKey))
+                    setOpenTooltipCardKey((previous) => (previous === sectionKey ? null : sectionKey))
                   }
                   aria-label="Add outcome link"
-                  aria-expanded={openTooltipCardKey === cardKey}
+                  aria-expanded={openTooltipCardKey === sectionKey}
                 >
                   <FontAwesomeIcon icon={faLink} style={{ color: "rgb(70, 147, 207)" }} />
                 </button>
                 <div
-                  className={`outcome-card-link-tooltip ${openTooltipCardKey === cardKey ? "is-open" : ""}`}
+                  className={`outcome-card-link-tooltip ${openTooltipCardKey === sectionKey ? "is-open" : ""}`}
                   role="tooltip"
                 >
                   <label className="outcome-card-link-label" htmlFor={`outcome-link-${index}`}>
@@ -100,7 +115,7 @@ function OutcomeCard({
                   <button
                     className="outcome-card-link-button"
                     type="button"
-                    onClick={() => handleSaveLink(index, line)}
+                    onClick={() => handleSaveLink(index, savedLine)}
                   >
                     Add
                   </button>
@@ -117,14 +132,27 @@ function OutcomeCard({
                 </div>
               </div>
             ) : null}
-            {statement ? <span className="outcome-rich-statement">{statement}</span> : null}
-            {bullets.length > 0 ? (
-              <ul className="outcome-rich-bullets">
-                {bullets.map((bullet, bulletIndex) => (
-                  <li key={`outcome-${index}-bullet-${bulletIndex}`}>{bullet}</li>
-                ))}
-              </ul>
+
+            {section.header ? (
+              <span className="outcome-rich-header">{section.header}</span>
             ) : null}
+
+            {section.lines.map((line, lineIndex) => {
+              const { bullets, statement } = splitOutcomeText(line);
+
+              return (
+                <div key={`section-${index}-line-${lineIndex}`} className="outcome-rich-line-group">
+                  {statement ? <span className="outcome-rich-statement">{statement}</span> : null}
+                  {bullets.length > 0 ? (
+                    <ul className="outcome-rich-bullets">
+                      {bullets.map((bullet, bulletIndex) => (
+                        <li key={`outcome-${index}-bullet-${lineIndex}-${bulletIndex}`}>{bullet}</li>
+                      ))}
+                    </ul>
+                  ) : null}
+                </div>
+              );
+            })}
           </div>
         );
       })}
