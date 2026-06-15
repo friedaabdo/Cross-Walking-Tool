@@ -3,19 +3,19 @@ import { query } from "../db.js";
 
 const router = Router();
 
-// router.get("/", async (_req, res) => {
-//   try {
-//     const result = await query(
-//       `SELECT experience_id AS id, user_id, title, description, link, last_edited AS created_at, last_edited AS updated_at
-//        FROM Learning_Experience
-//        ORDER BY last_edited DESC`
-//     );
+router.get("/", async (_req, res) => {
+  try {
+    const result = await query(
+      `SELECT experience_id AS id, user_id, title, description, link, last_edited AS created_at, last_edited AS updated_at
+       FROM Learning_Experience
+       ORDER BY last_edited DESC`
+    );
 
-//     res.json(result.rows);
-//   } catch {
-//     res.status(500).json({ error: "Failed to fetch learning experiences" });
-//   }
-// });
+    res.json(result.rows);
+  } catch {
+    res.status(500).json({ error: "Failed to fetch learning experiences" });
+  }
+});
 
 router.post("/create-template", async (req, res) => {
   const { title, description = "", link = "", outcomes = [], userId = null } = req.body ?? {};
@@ -27,9 +27,9 @@ router.post("/create-template", async (req, res) => {
   try {
     // Insert the learning experience
     const experienceResult = await query(
-      `INSERT INTO Learning_Experience (user_id, title, description, link)
-       VALUES (?, ?, ?, ?)`,
-      [userId, String(title).trim(), String(description), String(link)]
+      `INSERT INTO Learning_Experience (user_id, title, description, link, is_template)
+       VALUES (?, ?, ?, ?, ?)`,
+      [userId, String(title).trim(), String(description), String(link), 1]
     );
 
     const experienceId = experienceResult.insertId;

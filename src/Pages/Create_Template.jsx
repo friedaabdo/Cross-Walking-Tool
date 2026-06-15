@@ -28,6 +28,7 @@ function Create_Template({
       title: learningExperienceTitle,
       description: learningExperienceDescription,
       link: learningExperienceLink,
+      is_template: true,
     };
 
     const buildOutcomesPayload = (sections) => {
@@ -124,7 +125,7 @@ function Create_Template({
           }
         />
       </div>
-      <button onClick={handleSubmit}>Next</button>
+      
 
       <div className="outcomes-input">
         <h4>Learning Outcomes</h4>
@@ -139,6 +140,7 @@ function Create_Template({
       <div className="outcomes-display">
         <OutcomeCard sections={outcomes} />
       </div>
+      <button onClick={handleSubmit}>Create Template</button>
     </div>
   );
 }

@@ -9,6 +9,8 @@ import Textarea from "../Components/textarea";
 import ConfirmationArea from "../Components/confirmationArea";
 import Button from "../Components/button";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { parseInputToOutcomeSections } from "../utils/outcomeText";
 
 // Ensure external links have a valid scheme. If no scheme present, assume https://
 const normalizeExternalUrl = (url) => {
@@ -28,67 +30,7 @@ const normalizeExternalUrl = (url) => {
   return `https://${trimmedUrl}`;
 };
 
-// Parse the textarea input into an array of outcome lines.
-// Supports plain newline-separated text or pasted HTML (lists, paragraphs).
-const parseInputToOutcomeLines = (value) => {
-  if (!value) {
-    return [];
-  }
-
-  if (!value.includes("<")) {
-    return value
-      .split("\n")
-      .map((line) => line.trim())
-      .filter((line) => line !== "");
-  }
-
-  const container = document.createElement("div");
-  container.innerHTML = value;
-
-  const lines = [];
-  let currentLine = "";
-
-  // Helper to push the currently accumulated line into the output array
-  const pushCurrentLine = () => {
-    const trimmed = currentLine.trim();
-    if (trimmed) {
-      lines.push(trimmed);
-    }
-    currentLine = "";
-  };
-
-  Array.from(container.children).forEach((node) => {
-    const tag = node.tagName.toLowerCase();
-
-    if (tag === "ul" || tag === "ol") {
-      const bullets = Array.from(node.querySelectorAll("li"))
-        .map((li) => li.textContent?.trim() ?? "")
-        .filter((item) => item !== "");
-
-      if (bullets.length === 0) {
-        return;
-      }
-
-      const bulletText = bullets.map((item) => `- ${item}`).join("\n");
-      currentLine = currentLine ? `${currentLine}\n${bulletText}` : bulletText;
-      return;
-    }
-
-    const blockText = node.textContent?.trim() ?? "";
-    if (!blockText) {
-      return;
-    }
-
-    if (currentLine) {
-      pushCurrentLine();
-    }
-
-    currentLine = blockText;
-  });
-
-  pushCurrentLine();
-  return lines;
-};
+// Parsing handled by shared utilities; see ../utils/outcomeText.js
 
 // The main page component. Props are passed from the top-level App state.
 function OutcomesInput({
@@ -124,6 +66,8 @@ function OutcomesInput({
   const hasSubmitted = lines.length > 0; // true when there are parsed outcome lines
   const inputValue = draftValue || lines.join("\n"); // textarea value (draft or serialized lines)
 
+  const [parsedSections, setParsedSections] = useState([]);
+
   // Update the draft textarea value (does not overwrite saved lines until Submit)
   const handleInputChange = (value) => {
     setDraftValue(value);
@@ -131,8 +75,34 @@ function OutcomesInput({
 
   // Parse the input and save lines to the appropriate state (cert or syllabus)
   const handleSubmit = () => {
-    const submittedLines = parseInputToOutcomeLines(inputValue);
-    setLines(submittedLines);
+    const sections = parseInputToOutcomeSections(inputValue);
+
+    // Build flat lines while keeping bullets attached to the prior non-bullet line
+    const items = [];
+    sections.forEach((sec) => {
+      let lastItem = null;
+      const linesArr = Array.isArray(sec?.lines) ? sec.lines : sec?.line ? [sec.line] : [];
+      linesArr.forEach((rawLine) => {
+        const line = String(rawLine ?? "").trim();
+        if (!line) return;
+        if (/^[-]\s+/.test(line)) {
+          if (lastItem) {
+            lastItem = (lastItem || "") + "\n" + line;
+            items[items.length - 1] = lastItem;
+          } else {
+            // bullet without prior main line -> save as standalone
+            items.push(line);
+            lastItem = line;
+          }
+        } else {
+          items.push(line);
+          lastItem = line;
+        }
+      });
+    });
+
+    setLines(items);
+    setParsedSections(sections);
   };
 
   const navigate = useNavigate();
@@ -249,6 +219,7 @@ function OutcomesInput({
               pageName={pageName}
               title={title}
               lines={lines}
+              sections={parsedSections}
               outcomeLinks={outcomeLinks}
               setOutcomeLinks={setOutcomeLinks}
             />

@@ -50,6 +50,8 @@ CREATE TABLE Learning_Experience (
     title VARCHAR(255) NOT NULL,
     description TEXT,
     link VARCHAR(255),
+    is_template BOOLEAN DEFAULT FALSE,
+    
     last_edited TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES Users(user_id)
 );
@@ -62,7 +64,7 @@ CREATE TABLE Outcome (
     outcome_text TEXT NOT NULL,
     category VARCHAR(100),
     FOREIGN KEY (course_id) REFERENCES CUNY_Course(course_id),
-    FOREIGN KEY (experience_id) REFERENCES Learning_Experience(experience_id)
+    FOREIGN KEY (experience_id) REFERENCES Learning_Experience(experience_id) ON DELETE CASCADE
 );
 
 -- 7. Create Tag table

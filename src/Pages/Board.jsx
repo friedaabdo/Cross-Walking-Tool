@@ -1,17 +1,15 @@
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 
 function Board() {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   return (
     <div className="board">
       <h1>Board Page</h1>
-      <p>This is the board page.</p>
-      {/* create a dummy content for the board page where it shows what crosswalks are being worked on. add a button on top to add a new crosswalk */}
-        {/* make button go to home page */}
-        <button className="add-crosswalk-button" onClick={() => navigate('/')}>
+
+        {/* <button className="add-crosswalk-button" onClick={() => navigate('/')}>
           Add New Crosswalk
-        </button>
+        </button> */}
         <div className="crosswalk-list">
             <h2>Working Crosswalks</h2>
           <div className="crosswalk-item" style={{ backgroundColor: '#f0f0f0', padding: '10px', marginBottom: '10px' }}>
