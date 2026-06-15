@@ -17,29 +17,47 @@ const router = Router();
 //   }
 // });
 
-// help me
 router.post("/create-template", async (req, res) => {
-  const { title, description = "", link = "", userId = null } = req.body ?? {};
+  const { title, description = "", link = "", outcomes = [], userId = null } = req.body ?? {};
 
   if (!title || !String(title).trim()) {
     return res.status(400).json({ error: "title is required" });
   }
 
   try {
-    const result = await query(
+    // Insert the learning experience
+    const experienceResult = await query(
       `INSERT INTO Learning_Experience (user_id, title, description, link)
        VALUES (?, ?, ?, ?)`,
       [userId, String(title).trim(), String(description), String(link)]
     );
 
+    const experienceId = experienceResult.insertId;
+
+    // Insert each outcome from the parsed sections
+    for (const section of outcomes) {
+      const header = section.header ?? "";
+      const lines = section.lines ?? [];
+
+      for (const line of lines) {
+        await query(
+          `INSERT INTO Outcome (experience_id, outcome_text, category)
+           VALUES (?, ?, ?)`,
+          [experienceId, String(line).trim(), String(header)]
+        );
+      }
+    }
+
     return res.status(201).json({
-      id: result.insertId,
+      id: experienceId,
       user_id: userId,
       title: String(title).trim(),
       description: String(description),
       link: String(link),
+      outcomesCount: outcomes.reduce((sum, sec) => sum + (sec.lines?.length ?? 0), 0),
     });
-  } catch {
+  } catch (err) {
+    console.error(err);
     return res.status(500).json({ error: "Failed to create learning experience" });
   }
 });

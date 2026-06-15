@@ -28,13 +28,57 @@ function Create_Template({
       title: learningExperienceTitle,
       description: learningExperienceDescription,
       link: learningExperienceLink,
-      outcomes: outcomes,
+    };
+
+    const buildOutcomesPayload = (sections) => {
+      const items = [];
+      (sections || []).forEach((sec) => {
+        const header = sec?.header ?? "";
+        const lines = Array.isArray(sec?.lines) ? sec.lines : sec?.line ? [sec.line] : [];
+
+        let lastItem = null;
+        lines.forEach((rawLine) => {
+          const line = String(rawLine ?? "").trim();
+          if (!line) return;
+
+          if (/^[-]\s+/.test(line)) {
+            // bullet: attach to previous non-bullet outcome if present
+            if (lastItem) {
+              lastItem.outcomeText = `${lastItem.outcomeText}\n${line}`;
+            } else {
+              // bullet without a prior main line: create standalone bullet outcome
+              const item = { outcomeText: line, category: String(header).trim() || null };
+              items.push(item);
+              lastItem = item;
+            }
+          } else {
+            // new main line -> create a new outcome
+            const item = { outcomeText: line, category: String(header).trim() || null };
+            items.push(item);
+            lastItem = item;
+          }
+        });
+      });
+      return items;
     };
 
     axios
       .post("/api/learning-experiences/create-template", payload)
       .then((res) => {
-        console.log(res.data);
+        const experienceId = res.data?.id;
+        if (!experienceId) {
+          throw new Error("Missing experience id from create-template response");
+        }
+
+        const outcomesPayload = buildOutcomesPayload(outcomes);
+
+        return axios.post("/api/outcomes/bulk-replace", {
+          experienceId,
+          outcomes: outcomesPayload,
+        });
+      })
+      .then((res) => {
+        console.log("Saved experience and outcomes", res.data);
       })
       .catch((err) => {
         console.error(err);
@@ -70,7 +114,6 @@ function Create_Template({
           rows={4}
         />
         <label htmlFor="learningExperienceLink">
-          import { parseInputToOutcomeSections } from "../utils/outcomeText";
           Learning Experience Link:
         </label>
         <InputLine
@@ -85,7 +128,6 @@ function Create_Template({
 
       <div className="outcomes-input">
         <h4>Learning Outcomes</h4>
-              const parsedOutcomes = parseInputToOutcomeSections(outcomesDraft);
         <Textarea
           pageName="Learning Outcomes"
           value={outcomesDraft}
