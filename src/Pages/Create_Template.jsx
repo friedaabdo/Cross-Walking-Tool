@@ -4,6 +4,7 @@ import InputLine from "../Components/InputLine";
 import Textarea from "../Components/textarea";
 import OutcomeCard from "../Components/Outcome-card";
 import { parseInputToOutcomeSections } from "../utils/outcomeText";
+import { useNavigate } from "react-router-dom";
 
 function Create_Template({
   learningExperienceTitle,
@@ -22,7 +23,10 @@ function Create_Template({
     setOutcomes(parsedOutcomes);
   };
 
+  const navigate = useNavigate();
+
   const handleSubmit = (event) => {
+    //clear all input fields after submission and navigate to the board page
     event.preventDefault();
     const payload = {
       title: learningExperienceTitle,
@@ -35,7 +39,11 @@ function Create_Template({
       const items = [];
       (sections || []).forEach((sec) => {
         const header = sec?.header ?? "";
-        const lines = Array.isArray(sec?.lines) ? sec.lines : sec?.line ? [sec.line] : [];
+        const lines = Array.isArray(sec?.lines)
+          ? sec.lines
+          : sec?.line
+            ? [sec.line]
+            : [];
 
         let lastItem = null;
         lines.forEach((rawLine) => {
@@ -48,13 +56,19 @@ function Create_Template({
               lastItem.outcomeText = `${lastItem.outcomeText}\n${line}`;
             } else {
               // bullet without a prior main line: create standalone bullet outcome
-              const item = { outcomeText: line, category: String(header).trim() || null };
+              const item = {
+                outcomeText: line,
+                category: String(header).trim() || null,
+              };
               items.push(item);
               lastItem = item;
             }
           } else {
             // new main line -> create a new outcome
-            const item = { outcomeText: line, category: String(header).trim() || null };
+            const item = {
+              outcomeText: line,
+              category: String(header).trim() || null,
+            };
             items.push(item);
             lastItem = item;
           }
@@ -68,7 +82,9 @@ function Create_Template({
       .then((res) => {
         const experienceId = res.data?.id;
         if (!experienceId) {
-          throw new Error("Missing experience id from create-template response");
+          throw new Error(
+            "Missing experience id from create-template response",
+          );
         }
 
         const outcomesPayload = buildOutcomesPayload(outcomes);
@@ -80,6 +96,13 @@ function Create_Template({
       })
       .then((res) => {
         console.log("Saved experience and outcomes", res.data);
+        setLearningExperienceTitle("");
+        setLearningExperienceDescription("");
+        setLearningExperienceLink("");
+        setOutcomes([]);
+        setOutcomesDraft("");
+
+        navigate("/board");
       })
       .catch((err) => {
         console.error(err);
@@ -98,9 +121,7 @@ function Create_Template({
         <InputLine
           placeholder="ex. CompTIA Security+"
           value={learningExperienceTitle}
-          onChange={(event) =>
-            setLearningExperienceTitle(event.target.value)
-          }
+          onChange={(event) => setLearningExperienceTitle(event.target.value)}
         />
         <label htmlFor="learningExperienceDescription">
           Learning Experience Description:
@@ -120,12 +141,9 @@ function Create_Template({
         <InputLine
           placeholder="https://example.com/learning-experience"
           value={learningExperienceLink}
-          onChange={(event) =>
-            setLearningExperienceLink(event.target.value)
-          }
+          onChange={(event) => setLearningExperienceLink(event.target.value)}
         />
       </div>
-      
 
       <div className="outcomes-input">
         <h4>Learning Outcomes</h4>
