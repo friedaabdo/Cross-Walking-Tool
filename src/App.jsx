@@ -46,6 +46,8 @@ function getStoredValue(key, fallbackValue) {
 function CrossWalkRoute({
   certLines,
   syllLines,
+  setCertLines,
+  setSyllLines,
   certOutcomeLinks,
   syllOutcomeLinks,
   leTitle,
@@ -66,6 +68,63 @@ function CrossWalkRoute({
   const crosswalkCourseId = queryParams.get('courseId')
   const crosswalkExperienceId = queryParams.get('experienceId')
   const crosswalkMatchId = queryParams.get('matchId')
+
+  useEffect(() => {
+    if (!crosswalkCourseId || !crosswalkExperienceId) {
+      setCertLines([])
+      setSyllLines([])
+      return
+    }
+
+    let cancelled = false
+
+    const loadCrosswalkOutcomes = async () => {
+      try {
+        const [courseResponse, experienceResponse] = await Promise.all([
+          fetch(`/api/outcomes?courseId=${crosswalkCourseId}`),
+          fetch(`/api/outcomes?experienceId=${crosswalkExperienceId}`),
+        ])
+
+        if (!courseResponse.ok) {
+          throw new Error("Failed to load course outcomes")
+        }
+
+        if (!experienceResponse.ok) {
+          throw new Error("Failed to load learning experience outcomes")
+        }
+
+        const [courseOutcomes, experienceOutcomes] = await Promise.all([
+          courseResponse.json(),
+          experienceResponse.json(),
+        ])
+
+        if (cancelled) {
+          return
+        }
+
+        setSyllLines(
+          (courseOutcomes || [])
+            .map((item) => item?.outcome_text ?? item?.outcomeText ?? "")
+            .filter((line) => Boolean(String(line).trim()))
+        )
+        setCertLines(
+          (experienceOutcomes || [])
+            .map((item) => item?.outcome_text ?? item?.outcomeText ?? "")
+            .filter((line) => Boolean(String(line).trim()))
+        )
+      } catch (error) {
+        if (!cancelled) {
+          console.error("Failed to load crosswalk outcomes:", error)
+        }
+      }
+    }
+
+    loadCrosswalkOutcomes()
+
+    return () => {
+      cancelled = true
+    }
+  }, [crosswalkCourseId, crosswalkExperienceId, setCertLines, setSyllLines])
 
   return (
     <CrossWalk
@@ -312,6 +371,8 @@ function App() {
             certOutcomeLinks={certOutcomeLinks}
             syllOutcomeLinks={syllOutcomeLinks}
             leTitle={leTitle}
+            setCertLines={setCertLines}
+            setSyllLines={setSyllLines}
             learningExperienceDescription={learningExperienceDescription}
             learningExperienceLink={learningExperienceLink}
             ccTitle={ccTitle}
