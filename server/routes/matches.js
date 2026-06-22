@@ -36,5 +36,17 @@ router.post("/", async (req, res) => {
   }
 });
 
+router.get("/", async (req, res) => {
+  try {
+    const result = await query(
+        `SELECT match_id, course_id, experience_id FROM Matches`
+      );
+    res.json(result);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch matches" });
+  }
+});
+
 export default router;
 

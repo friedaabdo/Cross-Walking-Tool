@@ -63,6 +63,7 @@ CREATE TABLE Outcome (
     experience_id INT,
     outcome_text TEXT NOT NULL,
     category VARCHAR(100),
+    matched BOOLEAN DEFAULT FALSE,
     FOREIGN KEY (course_id) REFERENCES CUNY_Course(course_id),
     FOREIGN KEY (experience_id) REFERENCES Learning_Experience(experience_id) ON DELETE CASCADE
 );
@@ -103,7 +104,6 @@ CREATE TABLE Match_Outcome_Details (
     match_id INT,
     cuny_outcome_id INT,
     experience_outcome_id INT,
-    matched BOOLEAN DEFAULT FALSE,
     notes TEXT,
     FOREIGN KEY (match_id) REFERENCES Matches(match_id),
     FOREIGN KEY (cuny_outcome_id) REFERENCES Outcome(outcome_id),

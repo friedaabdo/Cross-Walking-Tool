@@ -1,7 +1,7 @@
 import DraggableCard from "../Components/Draggable-card";
 import "./CrossWalk.css";
 import { DragDropProvider } from "@dnd-kit/react";
-import { Fragment, useMemo } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import CrosswalkRow from "../Components/Crosswalk-row";
 import downloadCrosswalkCsv from "../utils/csvExport";
 import { normalizeToArray } from "../utils/collections";
@@ -43,15 +43,67 @@ function CrossWalk({
   setNotesByRow,
   draggedOnceById,
   setDraggedOnceById,
-  // courseId,
-  // experienceId,
-  // matchId,
+  courseId,
+  experienceId,
+  matchId,
 }) {
   const navigate = useNavigate();
+  const [courseOutcomeRows, setCourseOutcomeRows] = useState([]);
+  const [experienceOutcomeRows, setExperienceOutcomeRows] = useState([]);
+  const [saveStatus, setSaveStatus] = useState("");
   const hasLearningExperienceLink = Boolean((learningExperienceLink || "").trim());
   const resolvedLearningExperienceLink = normalizeExternalUrl(learningExperienceLink);
   const hasSyllabusFile = Boolean(syllabusFileUrl);
   const getMatchesForRow = (rowId) => normalizeToArray(matchesByRow[rowId]);
+
+  useEffect(() => {
+    if (!courseId || !experienceId) {
+      setCourseOutcomeRows([]);
+      setExperienceOutcomeRows([]);
+      return;
+    }
+
+    let cancelled = false;
+
+    const loadOutcomeRows = async () => {
+      try {
+        const [courseResponse, experienceResponse] = await Promise.all([
+          fetch(`/api/outcomes?courseId=${courseId}`),
+          fetch(`/api/outcomes?experienceId=${experienceId}`),
+        ]);
+
+        if (!courseResponse.ok) {
+          throw new Error("Failed to load course outcomes");
+        }
+
+        if (!experienceResponse.ok) {
+          throw new Error("Failed to load learning experience outcomes");
+        }
+
+        const [courseRows, experienceRows] = await Promise.all([
+          courseResponse.json(),
+          experienceResponse.json(),
+        ]);
+
+        if (cancelled) {
+          return;
+        }
+
+        setCourseOutcomeRows(Array.isArray(courseRows) ? courseRows : []);
+        setExperienceOutcomeRows(Array.isArray(experienceRows) ? experienceRows : []);
+      } catch (error) {
+        if (!cancelled) {
+          console.error("Failed to load outcome rows for crosswalk save:", error);
+        }
+      }
+    };
+
+    loadOutcomeRows();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [courseId, experienceId]);
 
   const handleDragEnd = (event) => {
     if (event.canceled) {
@@ -141,6 +193,61 @@ function CrossWalk({
 
   const handleBackNavigation = () => {
     navigate('/syllabus');
+  };
+
+  const handleSave = async () => {
+    if (!matchId) {
+      setSaveStatus("Missing match id.");
+      return;
+    }
+
+    const detailRows = [];
+
+    syllLines.forEach((_, rowIndex) => {
+      const rowId = `drop-${rowIndex}`;
+      const notes = notesByRow[rowId] ?? "";
+      const cunyOutcomeId = courseOutcomeRows[rowIndex]?.id;
+      const matchedIds = getMatchesForRow(rowId);
+
+      matchedIds.forEach((matchedId) => {
+        const experienceIndex = Number(String(matchedId).replace("cert-", ""));
+        const experienceOutcomeId = experienceOutcomeRows[experienceIndex]?.id;
+
+        if (!cunyOutcomeId || !experienceOutcomeId) {
+          return;
+        }
+
+        detailRows.push({
+          cuny_outcome_id: cunyOutcomeId,
+          experience_outcome_id: experienceOutcomeId,
+          notes,
+        });
+      });
+    });
+
+    try {
+      setSaveStatus("Saving...");
+
+      const apiBase = import.meta.env.VITE_API_BASE || "http://localhost:4000";
+      const response = await fetch(`${apiBase}/api/match-details/bulk-replace`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          match_id: matchId,
+          details: detailRows,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorBody = await response.json().catch(() => ({}));
+        throw new Error(errorBody?.error || "Failed to save match details");
+      }
+
+      setSaveStatus("Saved.");
+    } catch (error) {
+      console.error("Error saving match details:", error);
+      setSaveStatus("Save failed.");
+    }
   };
 
   return (
@@ -253,8 +360,10 @@ function CrossWalk({
     </div>
      <div id="columns-actions">
         <Button text="Back" onClick={handleBackNavigation} />
+        <Button text="Save" onClick={handleSave} />
         <Button text="Export CSV" onClick={handleExportCsv} />
       </div>
+      {saveStatus ? <p>{saveStatus}</p> : null}
     </DragDropProvider>
   );
 }
