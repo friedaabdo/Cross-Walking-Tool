@@ -1,9 +1,10 @@
 import { lazy, Suspense, useEffect, useState } from 'react'
-import {BrowserRouter, Routes, Route} from 'react-router-dom'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import './App.css'
 
 import Nav from './Components/Nav.jsx'
 import Create_Template from './Pages/Create_Template.jsx'
+import Add_Equiv from './Pages/Add_Equiv.jsx'
 const CertOutcomes = lazy(() => import('./Pages/OutcomesInput'))
 const SyllOutcomes = lazy(() => import('./Pages/OutcomesInput'))
 const CrossWalk = lazy(() => import('./Pages/CrossWalk'))
@@ -40,6 +41,56 @@ function getStoredValue(key, fallbackValue) {
   } catch {
     return fallbackValue
   }
+}
+
+function CrossWalkRoute({
+  certLines,
+  syllLines,
+  certOutcomeLinks,
+  syllOutcomeLinks,
+  leTitle,
+  learningExperienceDescription,
+  learningExperienceLink,
+  ccTitle,
+  cunyCourseDescription,
+  syllabusFileUrl,
+  syllabusFileName,
+  matchesByRow,
+  setMatchesByRow,
+  notesByRow,
+  setNotesByRow,
+  draggedOnceById,
+  setDraggedOnceById,
+}) {
+  const queryParams = new URLSearchParams(window.location.search)
+  const crosswalkCourseId = queryParams.get('courseId')
+  const crosswalkExperienceId = queryParams.get('experienceId')
+  const crosswalkMatchId = queryParams.get('matchId')
+
+  return (
+    <CrossWalk
+      certLines={certLines}
+      syllLines={syllLines}
+      certOutcomeLinks={certOutcomeLinks}
+      syllOutcomeLinks={syllOutcomeLinks}
+      leTitle={leTitle}
+      learningExperienceDescription={learningExperienceDescription}
+      learningExperienceLink={learningExperienceLink}
+      ccTitle={ccTitle}
+      cunyCourseDescription={cunyCourseDescription}
+      syllabusFileUrl={syllabusFileUrl}
+      syllabusFileName={syllabusFileName}
+      matchesByRow={matchesByRow}
+      setMatchesByRow={setMatchesByRow}
+      notesByRow={notesByRow}
+      setNotesByRow={setNotesByRow}
+      draggedOnceById={draggedOnceById}
+      setDraggedOnceById={setDraggedOnceById}
+      courseId={crosswalkCourseId}
+      experienceId={crosswalkExperienceId}
+      matchId={crosswalkMatchId}
+    />
+  )
 }
 
 function App() {
@@ -196,6 +247,23 @@ function App() {
         />}
       />
       <Route
+        path="/add-equivalency"
+        element={<Add_Equiv
+          cunyCourseTitle={ccTitle}
+          setCunyCourseTitle={setccTitle}
+          cunyCourseDescription={cunyCourseDescription}
+          setCunyCourseDescription={setCunyCourseDescription}
+          syllabusFileUrl={syllabusFileUrl}
+          setSyllabusFileUrl={setSyllabusFileUrl}
+          syllabusFileName={syllabusFileName}
+          setSyllabusFileName={setSyllabusFileName}
+          outcomes={outcomes}
+          setOutcomes={setOutcomes}
+          outcomesDraft={outcomesDraft}
+          setOutcomesDraft={setOutcomesDraft}
+        />}
+      />
+      <Route
         path="/learning-experience"
         element={
           <CertOutcomes
@@ -238,7 +306,7 @@ function App() {
       <Route
         path="/crosswalk"
         element={
-          <CrossWalk
+          <CrossWalkRoute
             certLines={certLines}
             syllLines={syllLines}
             certOutcomeLinks={certOutcomeLinks}

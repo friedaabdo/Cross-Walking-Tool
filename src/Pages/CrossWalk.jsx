@@ -43,6 +43,9 @@ function CrossWalk({
   setNotesByRow,
   draggedOnceById,
   setDraggedOnceById,
+  courseId,
+  experienceId,
+  matchId,
 }) {
   const navigate = useNavigate();
   const hasLearningExperienceLink = Boolean((learningExperienceLink || "").trim());

@@ -33,6 +33,47 @@ const normalizeOutcomes = (outcomes) => {
     .filter((item) => item.outcomeText.length > 0);
 };
 
+const replaceOutcomes = async ({ courseId = null, experienceId = null, outcomes }) => {
+  const connection = await pool.getConnection();
+
+  try {
+    await connection.beginTransaction();
+
+    await connection.execute(
+      `DELETE FROM Outcome
+       WHERE (? IS NULL OR course_id = ?)
+         AND (? IS NULL OR experience_id = ?)`,
+      [courseId, courseId, experienceId, experienceId]
+    );
+
+    for (const item of outcomes) {
+      await connection.execute(
+        `INSERT INTO Outcome (course_id, experience_id, outcome_text, category)
+         VALUES (?, ?, ?, ?)`,
+        [courseId, experienceId, item.outcomeText, item.category || null]
+      );
+    }
+
+    await connection.commit();
+
+    const result = await connection.execute(
+      `SELECT outcome_id AS id, course_id, experience_id, outcome_text, category
+       FROM Outcome
+       WHERE (? IS NULL OR course_id = ?)
+         AND (? IS NULL OR experience_id = ?)
+       ORDER BY outcome_id ASC`,
+      [courseId, courseId, experienceId, experienceId]
+    );
+
+    return result[0];
+  } catch (error) {
+    await connection.rollback();
+    throw error;
+  } finally {
+    connection.release();
+  }
+};
+
 router.get("/", async (req, res) => {
   const { courseId, experienceId } = getOutcomeParent(req.query);
 
@@ -72,42 +113,31 @@ router.post("/bulk-replace", async (req, res) => {
     return res.status(400).json({ error: "outcomes must be an array" });
   }
 
-  const connection = await pool.getConnection();
   try {
-    await connection.beginTransaction();
-
-    await connection.execute(
-      `DELETE FROM Outcome
-       WHERE (? IS NULL OR course_id = ?)
-         AND (? IS NULL OR experience_id = ?)`,
-      [courseId, courseId, experienceId, experienceId]
-    );
-
-    for (const item of outcomes) {
-      await connection.execute(
-        `INSERT INTO Outcome (course_id, experience_id, outcome_text, category)
-         VALUES (?, ?, ?, ?)`,
-        [courseId, experienceId, item.outcomeText, item.category || null]
-      );
-    }
-
-    await connection.commit();
-
-    const result = await connection.execute(
-      `SELECT outcome_id AS id, course_id, experience_id, outcome_text, category
-       FROM Outcome
-       WHERE (? IS NULL OR course_id = ?)
-         AND (? IS NULL OR experience_id = ?)
-       ORDER BY outcome_id ASC`,
-      [courseId, courseId, experienceId, experienceId]
-    );
-
-    return res.status(201).json(result[0]);
+    const result = await replaceOutcomes({ courseId, experienceId, outcomes });
+    return res.status(201).json(result);
   } catch {
-    await connection.rollback();
     return res.status(500).json({ error: "Failed to save outcomes" });
-  } finally {
-    connection.release();
+  }
+});
+
+router.post("/course", async (req, res) => {
+  const courseId = parsePositiveInt(req.body?.courseId);
+  const outcomes = normalizeOutcomes(req.body?.outcomes);
+
+  if (!courseId) {
+    return res.status(400).json({ error: "courseId is required" });
+  }
+
+  if (!outcomes) {
+    return res.status(400).json({ error: "outcomes must be an array" });
+  }
+
+  try {
+    const result = await replaceOutcomes({ courseId, outcomes });
+    return res.status(201).json(result);
+  } catch {
+    return res.status(500).json({ error: "Failed to save course outcomes" });
   }
 });
 

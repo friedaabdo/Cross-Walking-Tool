@@ -40,19 +40,14 @@ function Board() {
         {error && <p style={{ color: "red" }}>{error}</p>}
         {!loading && !error && templates.length === 0 && <p>No templates found.</p>}
 
-        {/* {!loading && !error && templates.map((t) => (
-          <div key={t.id} className="template-item" style={{ backgroundColor: '#f9f9f9', padding: '10px', marginBottom: '8px' }}>
-            <h3>{t.title}</h3>
-            {t.description && <p>{t.description}</p>}
-            <small>Created: {t.created_at ?? t.updated_at}</small>
-          </div> */}
           
         {!loading && !error && templates.map((t) => (
           <Template
-            key={t.id}
+            key={t.experience_id}
             title={t.title}
             description={t.description}
             link={t.link}
+            experience_id={t.experience_id}
           />
         ))}
       </section>

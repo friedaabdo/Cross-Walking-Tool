@@ -6,7 +6,7 @@ const router = Router();
 router.get("/", async (_req, res) => {
   try {
     const result = await query(
-      `SELECT course_id AS id, department_id, user_id, title, description, syllabus_file_names AS syllabus_file_name, syllabus_file_url, last_edited AS created_at, last_edited AS updated_at
+      `SELECT course_id AS courseId, department_id, user_id, title, description, syllabus_file_names AS syllabus_file_name, syllabus_file_url, last_edited AS created_at, last_edited AS updated_at
        FROM CUNY_Course
        ORDER BY last_edited DESC`
     );
@@ -47,6 +47,7 @@ router.post("/", async (req, res) => {
 
     return res.status(201).json({
       id: result.insertId,
+      courseId: result.insertId,
       department_id: departmentId,
       user_id: userId,
       title: String(title).trim(),
@@ -56,6 +57,53 @@ router.post("/", async (req, res) => {
     });
   } catch {
     return res.status(500).json({ error: "Failed to create CUNY course" });
+  }
+});
+
+router.put("/:courseId", async (req, res) => {
+  const courseId = req.params?.courseId;
+  const {
+    title = "",
+    description = "",
+    syllabusFileName = "",
+    syllabusFileUrl = "",
+    departmentId = null,
+    userId = null,
+  } = req.body ?? {};
+
+  if (!courseId) {
+    return res.status(400).json({ error: "course id is required" });
+  }
+
+  try {
+    await query(
+      `UPDATE CUNY_Course
+       SET department_id = ?, user_id = ?, title = ?, description = ?, syllabus_file_names = ?, syllabus_file_url = ?
+       WHERE course_id = ?`,
+      [
+        departmentId,
+        userId,
+        String(title).trim(),
+        String(description),
+        String(syllabusFileName),
+        String(syllabusFileUrl),
+        courseId,
+      ]
+    );
+
+    return res.json({
+      courseId: Number(courseId),
+      department_id: departmentId,
+      user_id: userId,
+      title: String(title).trim(),
+      description: String(description),
+      syllabus_file_name: String(syllabusFileName),
+      syllabus_file_url: String(syllabusFileUrl),
+      message: "CUNY course updated successfully",
+    });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: "Failed to update CUNY course" });
   }
 });
 

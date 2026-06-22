@@ -6,7 +6,7 @@ const router = Router();
 router.get("/", async (_req, res) => {
   try {
     const result = await query(
-      `SELECT experience_id AS id, user_id, title, description, link, last_edited AS created_at, last_edited AS updated_at
+      `SELECT experience_id AS experience_id, user_id, title, description, link, last_edited AS created_at, last_edited AS updated_at
        FROM Learning_Experience
        ORDER BY last_edited DESC`
     );
@@ -21,14 +21,17 @@ router.get("/", async (_req, res) => {
 router.get("/templates", async (_req, res) => {
   try {
     const result = await query(
-      `SELECT experience_id AS id, user_id, title, description, link, last_edited AS created_at, last_edited AS updated_at
+      // return `id` for consistency with other endpoints
+
+      `SELECT experience_id AS experience_id, user_id, title, description, link, last_edited AS created_at, last_edited AS updated_at
        FROM Learning_Experience
        WHERE is_template = 1
        ORDER BY last_edited DESC`
     );
 
     res.json(result.rows);
-  } catch {
+  } catch (err) {
+    console.error(err);
     res.status(500).json({ error: "Failed to fetch template learning experiences" });
   }
 });

@@ -5,6 +5,7 @@ import { query } from "./db.js";
 import learningExperiencesRouter from "./routes/learningExperiences.js";
 import cunyCoursesRouter from "./routes/cunyCourses.js";
 import outcomesRouter from "./routes/outcomes.js";
+import matchesRouter from "./routes/matches.js";
 
 dotenv.config();
 
@@ -22,9 +23,11 @@ app.get("/api/health", async (_req, res) => {
     res.status(500).json({ ok: false, error: "Database connection failed" });
   }
 });
+
 app.use("/api/learning-experiences", learningExperiencesRouter);
 app.use("/api/cuny-courses", cunyCoursesRouter);
 app.use("/api/outcomes", outcomesRouter);
+app.use("/api/matches", matchesRouter);
 
 app.listen(PORT, () => {
   console.log(`API server listening on http://localhost:${PORT}`);
