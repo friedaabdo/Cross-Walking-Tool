@@ -10,6 +10,7 @@ const SyllOutcomes = lazy(() => import('./Pages/OutcomesInput'))
 const CrossWalk = lazy(() => import('./Pages/CrossWalk'))
 const Home = lazy(() => import('./Pages/Home'))
 const Board = lazy(() => import('./Pages/Board'))
+const View_equiv = lazy(() => import('./Pages/View_equiv'))
 
 const STORAGE_KEYS = {
   certLines: 'crosswalk.certLines',
@@ -41,6 +42,12 @@ function getStoredValue(key, fallbackValue) {
   } catch {
     return fallbackValue
   }
+}
+
+function clearStoredKeys(keys) {
+  keys.forEach((key) => {
+    localStorage.removeItem(key)
+  })
 }
 
 function CrossWalkRoute({
@@ -245,16 +252,62 @@ function App() {
     setNotesByRow({})
     setDraggedOnceById({})
 
-    Object.values(STORAGE_KEYS).forEach((key) => {
-      localStorage.removeItem(key)
-    })
+    clearStoredKeys(Object.values(STORAGE_KEYS))
+  }
+
+  const clearAddEquivDraft = () => {
+    setccTitle('')
+    setCunyCourseDescription('')
+    setSyllabusFileUrl('')
+    setSyllabusFileName('')
+    setOutcomes([])
+    setOutcomesDraft('')
+
+    clearStoredKeys([
+      STORAGE_KEYS.ccTitle,
+      STORAGE_KEYS.ccDescription,
+      STORAGE_KEYS.outcomes,
+      STORAGE_KEYS.outcomesDraft,
+    ])
+  }
+
+  const clearCreateTemplateDraft = () => {
+    setLeTitle('')
+    setLearningExperienceDescription('')
+    setLearningExperienceLink('')
+    setOutcomes([])
+    setOutcomesDraft('')
+
+    clearStoredKeys([
+      STORAGE_KEYS.leTitle,
+      STORAGE_KEYS.leDescription,
+      STORAGE_KEYS.leLink,
+      STORAGE_KEYS.outcomes,
+      STORAGE_KEYS.outcomesDraft,
+    ])
+  }
+
+  const clearCrosswalkDraft = () => {
+    setMatchesByRow({})
+    setNotesByRow({})
+    setDraggedOnceById({})
+    setCertLines([])
+    setSyllLines([])
+
+    clearStoredKeys([
+      STORAGE_KEYS.matchesByRow,
+      STORAGE_KEYS.notesByRow,
+      STORAGE_KEYS.draggedOnceById,
+      STORAGE_KEYS.certLines,
+      STORAGE_KEYS.syllLines,
+    ])
   }
 
   return (
     <div className="App">
   {/* <h1>CUNY CPL Evaluation Cross Walking Tool</h1> */}
     <BrowserRouter>
-      <Nav />
+      <Nav clearCreateTemplateDraft={clearCreateTemplateDraft} />
       <Suspense fallback={<p>Loading page...</p>}>
         <Routes>
           <Route path="/"
@@ -288,7 +341,7 @@ function App() {
       </Route>
       <Route
         path="/board"
-        element={<Board/>}
+        element={<Board clearAddEquivDraft={clearAddEquivDraft} />}
       />
        <Route
         path="/create-template"
@@ -320,7 +373,12 @@ function App() {
           setOutcomes={setOutcomes}
           outcomesDraft={outcomesDraft}
           setOutcomesDraft={setOutcomesDraft}
+          clearCrosswalkDraft={clearCrosswalkDraft}
         />}
+      />
+      <Route
+        path="/equivalency/:experienceId"
+        element={<View_equiv />}
       />
       <Route
         path="/learning-experience"

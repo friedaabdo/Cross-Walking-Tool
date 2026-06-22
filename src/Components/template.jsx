@@ -3,20 +3,7 @@
 import "./template.css";
 import Button from "./button.jsx";
 
-function Template({ title, description, link, experience_id }) {
-  return (
-    <div className="template">
-      <h2>{title}</h2>
-      
-      
-      <p>{description}</p>
-      <a href={link} target="_blank" rel="noopener noreferrer">
-        Learn More
-      </a>
-      <Button
-        className="use-template-button"
-        onClick={() => {
-          const createCourseAndMatch = async () => {
+   const createCourseAndMatch = async (experience_id) => {
             try {
               const courseResponse = await fetch("/api/cuny-courses", {
                 method: "POST",
@@ -57,7 +44,21 @@ function Template({ title, description, link, experience_id }) {
             }
           };
 
-          createCourseAndMatch();
+function Template({ title, description, link, experience_id, clearAddEquivDraft }) {
+  return (
+    <div className="template">
+      <h2>{title}</h2>
+      
+      
+      <p>{description}</p>
+      <a href={link} target="_blank" rel="noopener noreferrer">
+        Learn More
+      </a>
+      <Button
+        className="use-template-button"
+        onClick={() => {
+          clearAddEquivDraft?.();
+          createCourseAndMatch(experience_id);
         }}
       text={"Add Possible Equivalencies"}>
         
@@ -65,9 +66,11 @@ function Template({ title, description, link, experience_id }) {
       </Button>
       <Button
         className="use-template-button"
-        onClick={() => alert(`You clicked to use the "${title}" template!`)}
+        onClick={() => {
+          const url = `/equivalency/${experience_id}`;
+          window.location.href = url;
+        }}
       text={"View Equivalencies"}>
-        
       </Button>
     </div>
   );

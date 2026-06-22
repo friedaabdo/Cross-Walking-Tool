@@ -41,10 +41,30 @@ router.get("/", async (req, res) => {
     const result = await query(
         `SELECT match_id, course_id, experience_id FROM Matches`
       );
-    res.json(result);
+    res.json(result.rows);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Failed to fetch matches" });
+  }
+});
+
+// GET: matches by experience_id (path param or query)
+router.get("/equivalency/:experience_id", async (req, res) => {
+  const experience_id = req.params.experience_id ?? req.query.experience_id;
+
+  if (!experience_id) {
+    return res.status(400).json({ error: "experience_id is required" });
+  }
+
+  try {
+    const result = await query(
+      `SELECT  course_id FROM Matches WHERE experience_id = ?`,
+      [experience_id]
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch matches for experience" });
   }
 });
 

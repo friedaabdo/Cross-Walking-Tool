@@ -19,6 +19,7 @@ function Add_Equiv({
   setOutcomes,
   outcomesDraft,
   setOutcomesDraft,
+  clearCrosswalkDraft,
 }) {
   const navigate = useNavigate();
   const location = useLocation();
@@ -95,6 +96,7 @@ function Add_Equiv({
         })
       )
       .then(() => {
+        clearCrosswalkDraft?.();
         navigate(`/crosswalk?courseId=${courseId}&experienceId=${experienceId}&matchId=${queryParams.get("matchId") ?? ""}`);
       })
       .catch((err) => {

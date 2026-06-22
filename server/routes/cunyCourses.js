@@ -17,6 +17,28 @@ router.get("/", async (_req, res) => {
   }
 });
 
+// GET: CUNY course by ID
+router.get("/:courseId", async (req, res) => {
+  try {
+    const { courseId } = req.params;
+    const result = await query(
+      `SELECT course_id AS courseId, department_id, user_id, title, description, syllabus_file_names AS syllabus_file_name, syllabus_file_url, last_edited AS created_at, last_edited AS updated_at
+       FROM CUNY_Course
+       WHERE course_id = ?`,
+      [courseId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "CUNY course not found" });
+    }
+
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch CUNY course" });
+  }
+});
+
 router.post("/", async (req, res) => {
   const {
     title,

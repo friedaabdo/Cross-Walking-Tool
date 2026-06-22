@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import Template from "../Components/template.jsx";
 
-function Board() {
+function Board({ clearAddEquivDraft }) {
   const [templates, setTemplates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -17,6 +17,7 @@ function Board() {
       .then((data) => {
         if (!mounted) return;
         setTemplates(data || []);
+        console.log("Fetched templates data:", data);
         setLoading(false);
       })
       .catch((err) => {
@@ -48,6 +49,7 @@ function Board() {
             description={t.description}
             link={t.link}
             experience_id={t.experience_id}
+            clearAddEquivDraft={clearAddEquivDraft}
           />
         ))}
       </section>

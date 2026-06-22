@@ -35,6 +35,30 @@ router.get("/templates", async (_req, res) => {
     res.status(500).json({ error: "Failed to fetch template learning experiences" });
   }
 });
+
+
+router.get("/:experience_id", async (req, res) => {
+  try {
+    const experienceId = req.params.experience_id;
+    const experienceResult = await query(
+      `SELECT experience_id AS experience_id, user_id, title, description, link, last_edited AS created_at, last_edited AS updated_at
+       FROM Learning_Experience
+       WHERE experience_id = ?`,
+      [experienceId]
+    );
+
+    if (!experienceResult.rows.length) {
+      return res.status(404).json({ error: "Learning experience not found" });
+    }
+
+    return res.status(200).json(experienceResult.rows[0]);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: "Failed to fetch learning experience" });
+  }
+});
+
+
 router.post("/create-template", async (req, res) => {
   const { title, description = "", link = "", outcomes = [], userId = null } = req.body ?? {};
 
@@ -78,6 +102,10 @@ router.post("/create-template", async (req, res) => {
     console.error(err);
     return res.status(500).json({ error: "Failed to create learning experience" });
   }
+
+  
 });
+
+
 
 export default router;
