@@ -170,11 +170,20 @@ function CrossWalkRoute({
           const courseRowIndex = courseOutcomeRows.findIndex((row) => Number(row?.id) === Number(detail?.cuny_outcome_id))
           const experienceRowIndex = experienceOutcomeRows.findIndex((row) => Number(row?.id) === Number(detail?.experience_outcome_id))
 
-          if (courseRowIndex < 0 || experienceRowIndex < 0) {
+          if (courseRowIndex < 0) {
             return
           }
 
           const rowId = `drop-${courseRowIndex}`
+
+          if (experienceRowIndex < 0) {
+            if (detail?.notes && !nextNotesByRow[rowId]) {
+              nextNotesByRow[rowId] = detail.notes
+            }
+
+            return
+          }
+
           const matchedId = `cert-${experienceRowIndex}`
 
           nextMatchesByRow[rowId] = [...(nextMatchesByRow[rowId] ?? []), matchedId]

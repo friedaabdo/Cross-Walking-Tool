@@ -22,7 +22,7 @@ router.post("/bulk-replace", async (req, res) => {
             experienceOutcomeId: parsePositiveInt(item?.experience_outcome_id ?? item?.experienceOutcomeId),
             notes: String(item?.notes ?? ""),
         }))
-        .filter((item) => item.cunyOutcomeId && item.experienceOutcomeId);
+        .filter((item) => item.cunyOutcomeId && (item.experienceOutcomeId || item.notes.trim().length > 0));
 
     try {
         await query("DELETE FROM Match_Outcome_Details WHERE match_id = ?", [matchId]);

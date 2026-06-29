@@ -209,6 +209,18 @@ function CrossWalk({
       const cunyOutcomeId = courseOutcomeRows[rowIndex]?.id;
       const matchedIds = getMatchesForRow(rowId);
 
+      if (matchedIds.length === 0) {
+        if (cunyOutcomeId && String(notes).trim()) {
+          detailRows.push({
+            cuny_outcome_id: cunyOutcomeId,
+            experience_outcome_id: null,
+            notes,
+          });
+        }
+
+        return;
+      }
+
       matchedIds.forEach((matchedId) => {
         const experienceIndex = Number(String(matchedId).replace("cert-", ""));
         const experienceOutcomeId = experienceOutcomeRows[experienceIndex]?.id;
