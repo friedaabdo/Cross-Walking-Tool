@@ -71,6 +71,8 @@ function CrossWalkRoute({
   draggedOnceById,
   setDraggedOnceById,
 }) {
+  const [courseOutcomeRows, setCourseOutcomeRows] = useState([])
+  const [experienceOutcomeRows, setExperienceOutcomeRows] = useState([])
   const queryParams = new URLSearchParams(window.location.search)
   const crosswalkCourseId = queryParams.get('courseId')
   const crosswalkExperienceId = queryParams.get('experienceId')
@@ -109,13 +111,19 @@ function CrossWalkRoute({
           return
         }
 
+        const nextCourseOutcomeRows = Array.isArray(courseOutcomes) ? courseOutcomes : []
+        const nextExperienceOutcomeRows = Array.isArray(experienceOutcomes) ? experienceOutcomes : []
+
+        setCourseOutcomeRows(nextCourseOutcomeRows)
+        setExperienceOutcomeRows(nextExperienceOutcomeRows)
+
         setSyllLines(
-          (courseOutcomes || [])
+          nextCourseOutcomeRows
             .map((item) => item?.outcome_text ?? item?.outcomeText ?? "")
             .filter((line) => Boolean(String(line).trim()))
         )
         setCertLines(
-          (experienceOutcomes || [])
+          nextExperienceOutcomeRows
             .map((item) => item?.outcome_text ?? item?.outcomeText ?? "")
             .filter((line) => Boolean(String(line).trim()))
         )
@@ -132,6 +140,77 @@ function CrossWalkRoute({
       cancelled = true
     }
   }, [crosswalkCourseId, crosswalkExperienceId, setCertLines, setSyllLines])
+
+  useEffect(() => {
+    if (!crosswalkMatchId || courseOutcomeRows.length === 0 || experienceOutcomeRows.length === 0) {
+      return
+    }
+
+    let cancelled = false
+
+    const loadMatchDetails = async () => {
+      try {
+        const response = await fetch(`/api/match-details/${crosswalkMatchId}`)
+
+        if (!response.ok) {
+          throw new Error("Failed to load match details")
+        }
+
+        const detailRows = await response.json()
+
+        if (cancelled) {
+          return
+        }
+
+        const nextMatchesByRow = {}
+        const nextNotesByRow = {}
+        const nextDraggedOnceById = {}
+
+        detailRows.forEach((detail) => {
+          const courseRowIndex = courseOutcomeRows.findIndex((row) => Number(row?.id) === Number(detail?.cuny_outcome_id))
+          const experienceRowIndex = experienceOutcomeRows.findIndex((row) => Number(row?.id) === Number(detail?.experience_outcome_id))
+
+          if (courseRowIndex < 0 || experienceRowIndex < 0) {
+            return
+          }
+
+          const rowId = `drop-${courseRowIndex}`
+          const matchedId = `cert-${experienceRowIndex}`
+
+          nextMatchesByRow[rowId] = [...(nextMatchesByRow[rowId] ?? []), matchedId]
+          nextDraggedOnceById[matchedId] = true
+
+          if (detail?.notes && !nextNotesByRow[rowId]) {
+            nextNotesByRow[rowId] = detail.notes
+          }
+        })
+
+        setMatchesByRow(nextMatchesByRow)
+        setNotesByRow(nextNotesByRow)
+        setDraggedOnceById(nextDraggedOnceById)
+      } catch (error) {
+        if (!cancelled) {
+          console.error("Failed to load match details:", error)
+        }
+      }
+    }
+
+    setMatchesByRow({})
+    setNotesByRow({})
+    setDraggedOnceById({})
+    loadMatchDetails()
+
+    return () => {
+      cancelled = true
+    }
+  }, [
+    crosswalkMatchId,
+    courseOutcomeRows,
+    experienceOutcomeRows,
+    setDraggedOnceById,
+    setMatchesByRow,
+    setNotesByRow,
+  ])
 
   return (
     <CrossWalk

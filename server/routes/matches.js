@@ -58,7 +58,7 @@ router.get("/equivalency/:experience_id", async (req, res) => {
 
   try {
     const result = await query(
-      `SELECT  course_id FROM Matches WHERE experience_id = ?`,
+      `SELECT match_id, course_id FROM Matches WHERE experience_id = ?`,
       [experience_id]
     );
     res.json(result.rows);
