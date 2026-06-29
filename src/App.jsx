@@ -5,8 +5,7 @@ import './App.css'
 import Nav from './Components/Nav.jsx'
 import Create_Template from './Pages/Create_Template.jsx'
 import Add_Equiv from './Pages/Add_Equiv.jsx'
-const CertOutcomes = lazy(() => import('./Pages/OutcomesInput'))
-const SyllOutcomes = lazy(() => import('./Pages/OutcomesInput'))
+const OutcomesInput = lazy(() => import('./Pages/OutcomesInput'))
 const CrossWalk = lazy(() => import('./Pages/CrossWalk'))
 const Home = lazy(() => import('./Pages/Home'))
 const Board = lazy(() => import('./Pages/Board'))
@@ -471,7 +470,7 @@ function App() {
       <Route
         path="/learning-experience"
         element={
-          <CertOutcomes
+          <OutcomesInput
             key="learning-experience"
             pageName="Learning Experience"
             certLines={certLines}
@@ -490,7 +489,7 @@ function App() {
       <Route
         path="/syllabus"
         element={
-          <SyllOutcomes
+          <OutcomesInput
             key="syllabus"
             pageName="Syllabus"
             syllLines={syllLines}
