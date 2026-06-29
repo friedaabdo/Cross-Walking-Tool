@@ -38,7 +38,7 @@ function Board({ clearAddEquivDraft }) {
       <section className="templates-section">
         <h2>Templates</h2>
         {loading && <p>Loading templates…</p>}
-        {error && <p style={{ color: "red" }}>{error}</p>}
+        {error && <p className="board-error">{error}</p>}
         {!loading && !error && templates.length === 0 && <p>No templates found.</p>}
 
           

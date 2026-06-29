@@ -294,7 +294,7 @@ function CrossWalk({
               aria-label="Open learning experience link"
               title="Open learning experience"
             >
-              <FontAwesomeIcon icon={faLink} style={{ color: "rgb(70, 147, 207)" }} />
+              <FontAwesomeIcon icon={faLink} className="icon-primary" />
             </a>
           ) : null}
         </div>
@@ -335,7 +335,7 @@ function CrossWalk({
               aria-label="Open uploaded syllabus file"
               title={syllabusFileName ? `Open ${syllabusFileName}` : "Open uploaded syllabus file"}
             >
-              <FontAwesomeIcon icon={faFile} style={{ color: "rgb(70, 147, 207)" }} />
+              <FontAwesomeIcon icon={faFile} className="icon-primary" />
             </a>
           ) : null}
         </div>

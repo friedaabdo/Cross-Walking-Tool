@@ -136,6 +136,44 @@ function OutcomesInput({
 
   return (
     <div id="outcomes-div">
+      <div className="outcomes-title-row">
+            {/* Page title and optional links (learning experience URL or uploaded syllabus) */}
+            <h1>{isCertificatePage ? leTitle : ccTitle} Outcomes, Competencies, Key Topics</h1>
+            {hasLearningExperienceLink && (
+              <a
+                className="outcomes-title-link"
+                href={resolvedLearningExperienceLink}
+                target="_blank"
+                rel="noreferrer"
+                aria-label="Open learning experience link"
+                title="Open learning experience"
+              >
+                <FontAwesomeIcon
+                  icon={faLink}
+                  className="icon-primary"
+                />
+              </a>
+            )}
+            {hasSyllabusFile && (
+              <a
+                className="outcomes-title-link"
+                href={syllabusFileUrl}
+                target="_blank"
+                rel="noreferrer"
+                aria-label="Open uploaded syllabus file"
+                title={
+                  syllabusFileName
+                    ? `Open ${syllabusFileName}`
+                    : "Open uploaded syllabus file"
+                }
+              >
+                <FontAwesomeIcon
+                  icon={faFile}
+                  className="icon-primary"
+                />
+              </a>
+            )}
+          </div>
       <p>Description:</p>
       {/* Show the appropriate description text for the selected page type */}
       {isCertificatePage && <p>{learningExperienceDescription}</p>}
@@ -158,46 +196,8 @@ function OutcomesInput({
 
       <div className="outcomes-layout">
         <section className="outcomes-input-panel">
-          <div className="outcomes-title-row">
-            {/* Page title and optional links (learning experience URL or uploaded syllabus) */}
-            <h1>{title} Outcomes, Competencies, Key Topics</h1>
-            {hasLearningExperienceLink && (
-              <a
-                className="outcomes-title-link"
-                href={resolvedLearningExperienceLink}
-                target="_blank"
-                rel="noreferrer"
-                aria-label="Open learning experience link"
-                title="Open learning experience"
-              >
-                <FontAwesomeIcon
-                  icon={faLink}
-                  style={{ color: "rgb(70, 147, 207)" }}
-                />
-              </a>
-            )}
-            {hasSyllabusFile && (
-              <a
-                className="outcomes-title-link"
-                href={syllabusFileUrl}
-                target="_blank"
-                rel="noreferrer"
-                aria-label="Open uploaded syllabus file"
-                title={
-                  syllabusFileName
-                    ? `Open ${syllabusFileName}`
-                    : "Open uploaded syllabus file"
-                }
-              >
-                <FontAwesomeIcon
-                  icon={faFile}
-                  style={{ color: "rgb(70, 147, 207)" }}
-                />
-              </a>
-            )}
-            {/*  */}
-          </div>
-          {/* Main textarea component where users enter/paste outcomes */}
+        
+          <h2>Add and Edit Outcomes</h2>
           <Textarea
             pageName={title}
             value={inputValue}
@@ -208,7 +208,7 @@ function OutcomesInput({
           {/* Action buttons: go back or submit parsed lines */}
           <div className="outcomes-input-actions">
             <Button onClick={handleBackNavigation} text="Back" />
-            <Button onClick={handleSubmit} text="Submit" />
+            <Button onClick={handleSubmit} text="Check Formatting" />
           </div>
         </section>
 
@@ -225,7 +225,7 @@ function OutcomesInput({
             />
             <Button
               onClick={handleConfirmNavigation}
-              text={`Confirm ${title} Outcomes`}
+              text={`I like how this looks!`}
             />
           </section>
         )}

@@ -12,23 +12,23 @@
 
 .outcome-rich-header {
     display: block;
-    margin-bottom: var(--space-2);
+    /* margin-bottom: var(--space-2); */
     font-weight: 700;
     color: var(--text-primary);
     white-space: pre-wrap;
 }
 
-.outcome-rich-line-group + .outcome-rich-line-group {
+/* .outcome-rich-line-group + .outcome-rich-line-group {
     margin-top: var(--space-2);
-}
+} */
 
 .outcome-rich-bullets {
-    margin: var(--space-2) 0 0 0;
-    padding-left: var(--bullet-indent);
+    /* margin: var(--space-2) 0 0 0; */
+    /* padding-left: var(--bullet-indent); */
     list-style: disc;
 }
 
 .outcome-rich-bullets li {
     margin: 2px 0;
-    padding-left: 2px;
+    /* padding-left: 2px; */
 }

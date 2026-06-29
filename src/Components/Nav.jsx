@@ -4,8 +4,6 @@ import "./Nav.css";
 function Nav({ clearCreateTemplateDraft }) {
   return (
     <nav id="nav">
-        {/* a nav bar with buttons like home, create template, login */}
-      {/* <h1>Cross-Walking Tool</h1> */}
 
           <Link to="/">Home</Link>
             <Link

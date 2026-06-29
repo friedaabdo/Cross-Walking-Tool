@@ -3,13 +3,42 @@
     font-weight: 400;
     padding: var(--space-3);
     position: relative;
-    border: 1px solid var(--card-border-color);
+    border: 1px solid rgba(31, 92, 255, 0.18);
     border-radius: 12px;
     min-height: var(--card-min-height);
     box-sizing: border-box;
     margin: 5px;
     white-space: pre-wrap;
     background: var(--bg-surface);
+}
+
+#confirmation-area .outcome-card-item {
+     /* height: var(--card-collapsed-height); */
+     min-height: var(--card-min-height);
+     max-height: var(--card-collapsed-height);
+     overflow: hidden;
+}
+
+#confirmation-area .outcome-card-item.has-overflow::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 72px;
+    pointer-events: none;
+    z-index: 0;
+    background: linear-gradient(
+        to bottom,
+        rgba(255, 255, 255, 0),
+        rgba(255, 255, 255, 0.96) 82%
+    );
+}
+
+#confirmation-area .outcome-card-top-right-control,
+#confirmation-area .outcome-rich-content {
+    position: relative;
+    z-index: 1;
 }
 
 .outcome-card-top-right-icon {
@@ -26,10 +55,10 @@
 }
 
 .outcome-card-top-right-control {
-    position: relative;
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
+    position: absolute;
+    top: 4px;
+    /* right: 0px; */
+    z-index: 0;
     line-height: 1;
     margin-bottom: 2px;
     z-index: 2;
@@ -42,7 +71,7 @@
     display: none;
     width: 240px;
     padding: 10px;
-    border: 1px solid var(--card-border-color);
+    border: 1px solid rgba(255, 183, 27, 0.28);
     border-radius: 8px;
     background: var(--bg-surface);
     box-shadow: var(--panel-shadow);
@@ -62,7 +91,7 @@
 .outcome-card-link-input {
     width: 100%;
     box-sizing: border-box;
-    border: 1px solid var(--card-border-color);
+    border: 1px solid rgba(31, 92, 255, 0.20);
     border-radius: 6px;
     padding: 6px 8px;
     margin-bottom: 8px;
@@ -85,4 +114,3 @@
     font-size: 0.8rem;
     text-decoration: underline;
 }
-

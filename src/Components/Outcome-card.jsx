@@ -24,7 +24,6 @@ function OutcomeCard({
   lines,
   sections,
   className,
-  containerClassName,
   showTopRightPlusIcon = false,
   outcomeLinks,
   setOutcomeLinks,
@@ -74,7 +73,7 @@ function OutcomeCard({
   );
 
   return (
-    <div className={containerClassName}>
+    <>
       {normalizedSections.map((section, index) => {
         const sectionKey = `${section.header || section.lines.join("|")}-${index}`;
         const savedLine = section.header || section.lines.join("\n");
@@ -95,7 +94,7 @@ function OutcomeCard({
                   aria-label="Add outcome link"
                   aria-expanded={openTooltipCardKey === sectionKey}
                 >
-                  <FontAwesomeIcon icon={faLink} style={{ color: "rgb(70, 147, 207)" }} />
+                  <FontAwesomeIcon icon={faLink} className="icon-primary" />
                 </button>
                 <div
                   className={`outcome-card-link-tooltip ${openTooltipCardKey === sectionKey ? "is-open" : ""}`}
@@ -156,7 +155,7 @@ function OutcomeCard({
           </div>
         );
       })}
-    </div>
+    </>
   );
 }
 

@@ -261,14 +261,14 @@ function Home({
           type="file"
           accept=".csv"
           onChange={handleFileSelect}
-          style={{ display: "none" }}
+          className="home-hidden-file-input"
         />
         <Button
           text={isImporting ? "Importing..." : "Import CSV"}
           onClick={handleImportButtonClick}
           disabled={isImporting}
         />
-        {importError && <p style={{ color: "red" }}>{importError}</p>}
+        {importError && <p className="home-import-error">{importError}</p>}
 
         <p>
           Note: Importing a CSV file will overwrite any current progress in this

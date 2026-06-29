@@ -1,5 +1,8 @@
 .textarea-quill-shell {
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 
 .textarea-quill-toolbar {
@@ -16,11 +19,23 @@
   background: var(--bg-surface);
   border-bottom-left-radius: 12px;
   border-bottom-right-radius: 12px;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  /* overflow-x: hidden; */
+}
+
+.textarea-quill-editor {
+  display: flex;
+  flex: 1;
+  min-height: 0;
 }
 
 .textarea-quill-editor .ql-editor {
-  min-height: 500px;
+  min-height: 0;
+  height: 100%;
   white-space: pre-wrap;
+  padding-right: 8px;
 }
 
 .textarea-quill-editor .ql-editor.ql-blank::before {
