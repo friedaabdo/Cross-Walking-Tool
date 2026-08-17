@@ -1,6 +1,8 @@
 import "./View_equiv.css";
 import React, { useState, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faLink } from "@fortawesome/free-solid-svg-icons";
 
 function View_equiv() {
   const { experienceId } = useParams();
@@ -130,22 +132,37 @@ function View_equiv() {
 
   return (
     <div>
+      <>
       <h1>{learningExperience?.title} Equivalencies</h1>
-
       <p>
-        This page will list the CUNY courses that have been marked as equivalent
-        to the learning experience.
-      </p>
+        {learningExperience?.link ? (
+          <a
+            href={learningExperience.link}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Open learning experience link"
+            title="Open learning experience link"
+          >
+            <FontAwesomeIcon icon={faLink} className="icon-primary" />
+          </a>
+        ) : null}
+      </p></>
+      
+      <p>{learningExperience?.description}</p>
+      <h2>Possible Equivalencies</h2>
+      {equivalencies.length === 0 && <p>No equivalencies found for this learning experience.</p>}
+     
       {equivalencies.map((eq) => {
         const course = courses[eq.course_id];
         if (!course) return <div key={eq.course_id}>Loading course...</div>;
 
         return (
-          <div key={course.courseId}>
+          <div key={course.courseId} className="equivalency-card">
             <Link to={buildCrosswalkPath(eq.course_id, eq.match_id)}>
-              <h2>{course.title}</h2>
+              <h4>{course.title}</h4>
             </Link>
             <p>{course.description}</p>
+            <p>{course.user ? `Created by: ${course.user}` : 'Created by: Unknown'}</p>
           </div>
         );
       })}

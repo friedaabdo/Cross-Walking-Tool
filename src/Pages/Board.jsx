@@ -33,7 +33,7 @@ function Board({ clearAddEquivDraft }) {
 
   return (
     <div className="board">
-      <h1>Board Page</h1>
+      <h1>Templates</h1>
 
       <section className="templates-section">
         <h2>Templates</h2>
@@ -49,6 +49,7 @@ function Board({ clearAddEquivDraft }) {
             description={t.description}
             link={t.link}
             experience_id={t.experience_id}
+            user={t.user}
             clearAddEquivDraft={clearAddEquivDraft}
           />
         ))}

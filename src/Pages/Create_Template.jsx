@@ -111,8 +111,7 @@ function Create_Template({
 
   return (
     <div id="create-template">
-      <h1>Create Template Page</h1>
-      <p>This is where users can create a new template.</p>
+      <h1>Create Template</h1>
       <div className="main-data">
         <h4>Learning Experience</h4>
         <label htmlFor="learningExperienceTitle">

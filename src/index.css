@@ -26,7 +26,7 @@
   --dove: #D8D7D6;
   --dove-light: #f2e9e0;
   --slate: #688197;
-  --slate-light: #b1c1d4;
+  --slate-light: #b5c8de;
   --charcoal: #383838;
   --pewter: #76777A;
   --ochre: #C89210;
@@ -134,7 +134,7 @@ input {
 
 input::placeholder,
 textarea::placeholder {
-  color: var(--slate);
+  color: var(--slate-light);
 }
 
 .icon-primary {
