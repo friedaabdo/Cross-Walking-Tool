@@ -534,8 +534,15 @@ function App() {
           />
         }
       />
-      <Route path="/create-outcomes"
-        element={<Create_Outcomes />}
+      <Route
+        path="/create-outcomes"
+        element={
+          <Create_Outcomes
+          outcomeType = "cunyCourse"
+            formData={{}}
+            onChange={() => {}}
+          />
+        }
       />
       <Route path="/*" element={<h1>404 Not Found</h1>} />
     </Routes>

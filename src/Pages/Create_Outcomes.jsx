@@ -1,11 +1,61 @@
-import { useState} from "react";
+import { useState, useEffect } from "react";
 
 import InputLine from "../Components/InputLine";
-import { handleFileUpload, MAX_SYLLABUS_FILE_SIZE_BYTES } from "../utils/fileHandler";
+import {
+  handleFileUpload,
+  MAX_SYLLABUS_FILE_SIZE_BYTES,
+} from "../utils/fileHandler";
 
+function Create_Outcomes({ outcomeType }) {
+  const [formData, setFormData] = useState({});
+  const handleFieldChange = (name, value) => {
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
 
+  const [campusList, setCampusList] = useState([]);
+  const [tagsList, setTagsList] = useState([]);
+  // const [loading, setLoading] = useState(true);
+  // const [error, setError] = useState(null);
 
-function Create_Outcomes({ outcomeType = "cunyCourse", formData, onChange }) {
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadData = async () => {
+      try {
+        const [campusesResponse, tagsResponse] = await Promise.all([
+          fetch("/api/campuses"),
+          fetch("/api/tags"),
+        ]);
+
+        if (!campusesResponse.ok) throw new Error("Failed to fetch campuses");
+        if (!tagsResponse.ok) throw new Error("Failed to fetch tags");
+
+        const [campuses, tags] = await Promise.all([
+          campusesResponse.json(),
+          tagsResponse.json(),
+        ]);
+
+        if (cancelled) return;
+
+        setCampusList(campuses);
+        setTagsList(tags);
+      } catch (error) {
+        console.error("Failed to load dropdown data:", error);
+      }
+    };
+
+    loadData();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  console.log("tasgsList", tagsList);
+
   const config = {
     learningExperience: {
       title: "Learning Experience",
@@ -29,7 +79,7 @@ function Create_Outcomes({ outcomeType = "cunyCourse", formData, onChange }) {
           placeholder: "https://www.comptia.org/en-us/certifications/security/",
         },
         { name: "tags", label: "Add Tags", type: "Select", placeholder: "" },
-      ]
+      ],
     },
     cunyCourse: {
       title: "CUNY Course",
@@ -58,37 +108,37 @@ function Create_Outcomes({ outcomeType = "cunyCourse", formData, onChange }) {
           type: "file",
           placeholder: "Attach Course Syllabus",
         },
-        { name: "tags", label: "Add Tags", type: "select", placeholder: "" },
+        { name: "tags", label: "Add Tags", type: "dblSelect", options: tagsList },
         {
           name: "campus",
           label: "Choose Campus",
           type: "select",
-          options: "",
+          options: campusList,
         },
         {
           name: "department",
           label: "Choose Department",
           type: "select",
           options: "",
-        }
-      ]
-    }
+        },
+      ],
+    },
   };
 
   const [importError, setImportError] = useState(null);
-  
+
   const currentConfig = config[outcomeType];
 
-const handleFileChange = async (event) => {
-  try {
-    const dataUrl = await handleFileUpload(event.target.files?.[0]);
-    setImportError(null);
-    onChange("syllabusFile", dataUrl);  // ← sends back to parent
-  } catch (error) {
-    setImportError(error.message);
-    event.target.value = "";
-  }
-};
+  const handleFileChange = async (event) => {
+    try {
+      const dataUrl = await handleFileUpload(event.target.files?.[0]);
+      setImportError(null);
+      handleFieldChange("syllabusFile", dataUrl);
+    } catch (error) {
+      setImportError(error.message);
+      event.target.value = "";
+    }
+  };
 
   const renderField = (field) => {
     switch (field.type) {
@@ -97,8 +147,8 @@ const handleFileChange = async (event) => {
           <InputLine
             type="text"
             placeholder={field.placeholder}
-            value={formData[field.name] || ""}
-            onChange={(e) => onChange(field.name, e.target.value)}
+            value={formData?.[field.name] ?? ""}
+            onChange={(e) => handleFieldChange(field.name, e.target.value)}
           />
         );
       case "url":
@@ -106,16 +156,17 @@ const handleFileChange = async (event) => {
           <InputLine
             type="url"
             placeholder={field.placeholder}
-            value={formData[field.name] || ""}
-            onChange={(e) => onChange(field.name, e.target.value)}
+            value={formData?.[field.name] ?? ""}
+            onChange={(e) => handleFieldChange(field.name, e.target.value)}
           />
         );
+
       case "textarea":
         return (
           <textarea
             placeholder={field.placeholder}
-            value={formData[field.name] || ""}
-            onChange={(e) => onChange(field.name, e.target.value)}
+            value={formData?.[field.name] ?? ""}
+            onChange={(e) => handleFieldChange(field.name, e.target.value)}
             rows={4}
           />
         );
@@ -134,20 +185,38 @@ const handleFileChange = async (event) => {
             {importError ? <p>{importError}</p> : null}
           </>
         );
-        case "select":
+      case "select":
         return (
           <select
-            value={field.name}
-            onChange={(e) => onChange(field.options, e.target.value)}
+            value={formData?.[field.name] ?? ""}
+            onChange={(e) => {
+              handleFieldChange(field.name, e.target.value);
+            }}
           >
-            <option value="">Select {field.label}</option>
+            <option value="">{field.label}</option>
             {(field.options || []).map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
+              <option key={option.school_id} value={option.school_name}>
+                {option.school_name}
               </option>
             ))}
           </select>
-        )
+        );
+      case "dblSelect":
+        return (
+          <select
+            value={formData?.[field.name] ?? ""}
+            onChange={(e) => {
+              handleFieldChange(field.name, e.target.value);
+            }}
+          >
+            <option value="">{field.label}</option>
+            {(field.options || []).map((option) => (
+              <option key={option.school_id} value={option.school_name}>
+                {option.school_name}
+              </option>
+            ))}
+          </select>
+        );
       default:
         return null;
     }
@@ -157,11 +226,12 @@ const handleFileChange = async (event) => {
     <div id="create-outcomes">
       <h3>Let's create a {currentConfig.title}</h3>
       <div className="main-data">
-        {/* {currentConfig.map(field => {
-            <label htmlFor={field.name}>
-          {field.title}
-        </label>
-        })} */}
+        {currentConfig.fields.map((field) => (
+          <div key={field.name} className="field-group">
+            <label htmlFor={field.name}>{field.label}</label>
+            {renderField(field)}
+          </div>
+        ))}
       </div>
     </div>
   );

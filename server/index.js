@@ -7,6 +7,9 @@ import cunyCoursesRouter from "./routes/cunyCourses.js";
 import outcomesRouter from "./routes/outcomes.js";
 import matchesRouter from "./routes/matches.js";
 import matchDetailsRouter from "./routes/matchDetails.js";
+import campusesRouter from "./routes/campuses.js";
+import departmentsRouter from "./routes/departments.js";
+import tagsRouter from "./routes/tags.js";
 
 dotenv.config();
 
@@ -30,6 +33,12 @@ app.use("/api/cuny-courses", cunyCoursesRouter);
 app.use("/api/outcomes", outcomesRouter);
 app.use("/api/matches", matchesRouter);
 app.use("/api/match-details", matchDetailsRouter);
+app.use("/api/campuses", campusesRouter);
+app.use("/api/departments", departmentsRouter);
+app.use("/api/tags", tagsRouter);
+
+
+
 
 // Temporary debug endpoint to list mounted routes (safe to remove later) ------
 
