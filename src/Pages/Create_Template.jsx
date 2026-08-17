@@ -113,7 +113,7 @@ function Create_Template({
     <div id="create-template">
       <h1>Create Template</h1>
       <div className="main-data">
-        <h4>Learning Experience</h4>
+     
         <label htmlFor="learningExperienceTitle">
           Learning Experience Title:
         </label>

@@ -34,6 +34,7 @@ CREATE TABLE CUNY_Course (
     course_id INT AUTO_INCREMENT PRIMARY KEY,
     department_id INT,
     user_id INT,
+    course_code VARCHAR(50) NOT NULL,
     title VARCHAR(255) NOT NULL,
     description TEXT,
     syllabus_file_names VARCHAR(255),
@@ -51,7 +52,6 @@ CREATE TABLE Learning_Experience (
     description TEXT,
     link VARCHAR(255),
     is_template BOOLEAN DEFAULT FALSE,
-    
     last_edited TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES Users(user_id)
 );

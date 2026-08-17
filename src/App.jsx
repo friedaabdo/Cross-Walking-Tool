@@ -5,6 +5,7 @@ import './App.css'
 import Nav from './Components/Nav.jsx'
 import Create_Template from './Pages/Create_Template.jsx'
 import Add_Equiv from './Pages/Add_Equiv.jsx'
+import Create_Outcomes from './Pages/Create_Outcomes.jsx'
 const OutcomesInput = lazy(() => import('./Pages/OutcomesInput'))
 const CrossWalk = lazy(() => import('./Pages/CrossWalk'))
 const Home = lazy(() => import('./Pages/Home'))
@@ -532,6 +533,9 @@ function App() {
             setDraggedOnceById={setDraggedOnceById}
           />
         }
+      />
+      <Route path="/create-outcomes"
+        element={<Create_Outcomes />}
       />
       <Route path="/*" element={<h1>404 Not Found</h1>} />
     </Routes>
