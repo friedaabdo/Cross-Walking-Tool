@@ -15,8 +15,11 @@ function Create_Outcomes({ outcomeType }) {
     }));
   };
 
+
   const [campusList, setCampusList] = useState([]);
   const [tagsList, setTagsList] = useState([]);
+  const [departmentsList, setDepartmentsList] = useState([]);
+  const [selectedCampusId, setSelectedCampusId] = useState(null);
   // const [loading, setLoading] = useState(true);
   // const [error, setError] = useState(null);
 
@@ -54,7 +57,34 @@ function Create_Outcomes({ outcomeType }) {
     };
   }, []);
 
-  console.log("tasgsList", tagsList);
+  const handleCampusChange = async (event) => {
+    const selectedCampus = event.target.value;
+
+      const campusName = campusList.find(
+    (campus) => String(campus.school_id) === String(selectedCampus)
+  )?.school_name;
+    setSelectedCampusId(selectedCampus);
+
+     handleFieldChange("campus", {
+    id: selectedCampus,
+    name: campusName,
+  });
+    
+    if (!selectedCampus) {
+      setDepartmentsList([]);
+      return;
+    }
+
+      fetch(`/api/departments/${selectedCampus}`)
+    .then((res) => res.json())
+    .then((data) => setDepartmentsList(data || []));
+  };
+    
+
+  console.log("campusList", campusList);
+  console.log("selectedCampusId", selectedCampusId);
+  console.log("tagsList", tagsList);
+  console.log("departmentsList", departmentsList);
 
   const config = {
     learningExperience: {
@@ -108,18 +138,27 @@ function Create_Outcomes({ outcomeType }) {
           type: "file",
           placeholder: "Attach Course Syllabus",
         },
-        { name: "tags", label: "Add Tags", type: "dblSelect", options: tagsList },
+        { name: "tags", 
+          label: "Add Tags", 
+          type: "multiSelect", 
+          options: tagsList },
         {
           name: "campus",
           label: "Choose Campus",
           type: "select",
+          handle: handleCampusChange, 
+          body_name: 'school_name', 
+          body_id: 'school_id',          
           options: campusList,
         },
         {
           name: "department",
           label: "Choose Department",
           type: "select",
-          options: "",
+          handle: handleFieldChange,
+          body_name: 'department_name',
+          body_id: 'department_id',
+          options: departmentsList,
         },
       ],
     },
@@ -185,42 +224,42 @@ function Create_Outcomes({ outcomeType }) {
             {importError ? <p>{importError}</p> : null}
           </>
         );
-      case "select":
+      case "select": {
+//THIS ALSO NEEDS TO BE REVISITED. THERE MUST BE A WAY TO BE ABLE TO USE THE FUNCTIONS FROM THE OBJECT ABOVE. OR SOMETHING IDK. I NEED SLEEP
+
+        const bodyName = field.body_name;
+        const bodyId = field.body_id;
+
         return (
           <select
             value={formData?.[field.name] ?? ""}
-            onChange={(e) => {
-              handleFieldChange(field.name, e.target.value);
+            onChange={() => {
+              field.handle(); // Call the field's change handler when an option is selected
             }}
           >
             <option value="">{field.label}</option>
             {(field.options || []).map((option) => (
-              <option key={option.school_id} value={option.school_name}>
-                {option.school_name}
+              <option key={option[bodyId]} value={option[bodyId]}>
+                {option[bodyName]}
               </option>
             ))}
           </select>
         );
-      case "dblSelect":
-        return (
-          <select
-            value={formData?.[field.name] ?? ""}
-            onChange={(e) => {
-              handleFieldChange(field.name, e.target.value);
-            }}
-          >
-            <option value="">{field.label}</option>
-            {(field.options || []).map((option) => (
-              <option key={option.school_id} value={option.school_name}>
-                {option.school_name}
-              </option>
-            ))}
-          </select>
-        );
+      }
+      case "multiSelect":
+  return (  
+    //THIS NEEDS TO BE REVISTED. AT LEAST ITS RENDERING BUTTONS FOR NOW. ONCLICK NEEDS TO BE FIXED. TAGS NEED THEIR OWN ONCLICK HANDLER TO ADD THE KEY(CATEGORY) AS A NEW KEY TO THE FORM DATA OBJECT. AND THEN WHEN YOU CLICK ON THE BUTTON, IT SHOWS THE ARRAY OF TAGS THAT IS ASSOCIATED WITH THAT CATEGORY. THEN WHEN YOU CLICK ON THE TAG, IT ADDS THAT TAG TO THE FORM DATA OBJECT AS AN ARRAY OF TAGS.
+  <>
+  {Object.keys(field.options).map((key) => (<button onClick={(e) => handleFieldChange(field.name, e.target.value)} key={key} value={key}>
+    {key}
+  </button> ) )}
+  </>
+  );
       default:
         return null;
     }
   };
+  console.log("formData", formData);
 
   return (
     <div id="create-outcomes">

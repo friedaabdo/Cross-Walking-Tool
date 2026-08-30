@@ -19,7 +19,8 @@ router.get("/:schoolid", async (req, res) => {
       ORDER BY department_name ASC
     `;
 
-    const [rows] = await query(sql, [schoolid]);
+    const result = await query(sql, [schoolid]);
+    const rows = result.rows; // Extract the rows from the result
 
     if (rows.length === 0) {
       return res.status(404).json({ error: "Departments not found" });
