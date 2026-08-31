@@ -1,20 +1,25 @@
 import { useState, useEffect } from "react";
 
 import InputLine from "../Components/InputLine";
+import Textarea from "../Components/textarea";
+import ConfirmationArea from "../Components/confirmationArea";
+import { parseInputToOutcomeSections } from "../utils/outcomeText";
 import {
   handleFileUpload,
   MAX_SYLLABUS_FILE_SIZE_BYTES,
 } from "../utils/fileHandler";
 
-function Create_Outcomes({ outcomeType }) {
+function Create_Outcomes({ formProps }) {
+  const { outcomeType, submitMainData } = formProps;
   const [formData, setFormData] = useState({});
+  const [outcomesDraft, setOutcomesDraft] = useState("");
+  const [currentStep, setCurrentStep] = useState("main");
   const handleFieldChange = (name, value) => {
     setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
   };
-
 
   const [campusList, setCampusList] = useState([]);
   const [tagsList, setTagsList] = useState([]);
@@ -60,26 +65,25 @@ function Create_Outcomes({ outcomeType }) {
   const handleCampusChange = async (event) => {
     const selectedCampus = event.target.value;
 
-      const campusName = campusList.find(
-    (campus) => String(campus.school_id) === String(selectedCampus)
-  )?.school_name;
+    const campusName = campusList.find(
+      (campus) => String(campus.school_id) === String(selectedCampus),
+    )?.school_name;
     setSelectedCampusId(selectedCampus);
 
-     handleFieldChange("campus", {
-    id: selectedCampus,
-    name: campusName,
-  });
-    
+    handleFieldChange("campus", {
+      id: selectedCampus,
+      name: campusName,
+    });
+
     if (!selectedCampus) {
       setDepartmentsList([]);
       return;
     }
 
-      fetch(`/api/departments/${selectedCampus}`)
-    .then((res) => res.json())
-    .then((data) => setDepartmentsList(data || []));
+    fetch(`/api/departments/${selectedCampus}`)
+      .then((res) => res.json())
+      .then((data) => setDepartmentsList(data || []));
   };
-    
 
   console.log("campusList", campusList);
   console.log("selectedCampusId", selectedCampusId);
@@ -108,7 +112,10 @@ function Create_Outcomes({ outcomeType }) {
           type: "url",
           placeholder: "https://www.comptia.org/en-us/certifications/security/",
         },
-        { name: "tags", label: "Add Tags", type: "Select", placeholder: "" },
+        {  name: "tags",
+          label: "Add Tags",
+          type: "multiSelect",
+          options: tagsList, },
       ],
     },
     cunyCourse: {
@@ -138,17 +145,19 @@ function Create_Outcomes({ outcomeType }) {
           type: "file",
           placeholder: "Attach Course Syllabus",
         },
-        { name: "tags", 
-          label: "Add Tags", 
-          type: "multiSelect", 
-          options: tagsList },
+        {
+          name: "tags",
+          label: "Add Tags",
+          type: "multiSelect",
+          options: tagsList,
+        },
         {
           name: "campus",
           label: "Choose Campus",
           type: "select",
-          handle: handleCampusChange, 
-          body_name: 'school_name', 
-          body_id: 'school_id',          
+          handle: handleCampusChange,
+          body_name: "school_name",
+          body_id: "school_id",
           options: campusList,
         },
         {
@@ -156,8 +165,8 @@ function Create_Outcomes({ outcomeType }) {
           label: "Choose Department",
           type: "select",
           handle: handleFieldChange,
-          body_name: 'department_name',
-          body_id: 'department_id',
+          body_name: "department_name",
+          body_id: "department_id",
           options: departmentsList,
         },
       ],
@@ -232,9 +241,28 @@ function Create_Outcomes({ outcomeType }) {
 
         return (
           <select
-            value={formData?.[field.name] ?? ""}
-            onChange={() => {
-              field.handle(); // Call the field's change handler when an option is selected
+            value={formData?.[field.name]?.id ?? ""}
+            onChange={(event) => {
+              const selectedValue = event.target.value;
+              const selectedOption = (field.options || []).find(
+                (option) => String(option[bodyId]) === String(selectedValue),
+              );
+
+              if (field.name === "campus") {
+                handleCampusChange(event);
+                return;
+              }
+
+              const nextValue = selectedOption
+                ? {
+                    id: selectedOption[bodyId],
+                    name: selectedOption[bodyName],
+                  }
+                : null;
+
+              if (typeof field.handle === "function") {
+                field.handle(field.name, nextValue);
+              }
             }}
           >
             <option value="">{field.label}</option>
@@ -247,31 +275,80 @@ function Create_Outcomes({ outcomeType }) {
         );
       }
       case "multiSelect":
-  return (  
-    //THIS NEEDS TO BE REVISTED. AT LEAST ITS RENDERING BUTTONS FOR NOW. ONCLICK NEEDS TO BE FIXED. TAGS NEED THEIR OWN ONCLICK HANDLER TO ADD THE KEY(CATEGORY) AS A NEW KEY TO THE FORM DATA OBJECT. AND THEN WHEN YOU CLICK ON THE BUTTON, IT SHOWS THE ARRAY OF TAGS THAT IS ASSOCIATED WITH THAT CATEGORY. THEN WHEN YOU CLICK ON THE TAG, IT ADDS THAT TAG TO THE FORM DATA OBJECT AS AN ARRAY OF TAGS.
-  <>
-  {Object.keys(field.options).map((key) => (<button onClick={(e) => handleFieldChange(field.name, e.target.value)} key={key} value={key}>
-    {key}
-  </button> ) )}
-  </>
-  );
+        return (
+          //THIS NEEDS TO BE REVISTED. AT LEAST ITS RENDERING BUTTONS FOR NOW. ONCLICK NEEDS TO BE FIXED. TAGS NEED THEIR OWN ONCLICK HANDLER TO ADD THE KEY(CATEGORY) AS A NEW KEY TO THE FORM DATA OBJECT. AND THEN WHEN YOU CLICK ON THE BUTTON, IT SHOWS THE ARRAY OF TAGS THAT IS ASSOCIATED WITH THAT CATEGORY. THEN WHEN YOU CLICK ON THE TAG, IT ADDS THAT TAG TO THE FORM DATA OBJECT AS AN ARRAY OF TAGS.
+          <>
+            {Object.keys(field.options).map((key) => (
+              <button
+                onClick={(e) => handleFieldChange(field.name, e.target.value)}
+                key={key}
+                value={key}
+              >
+                {key}
+              </button>
+            ))}
+          </>
+        );
       default:
         return null;
     }
   };
   console.log("formData", formData);
 
+  const handleParseOutcomes = () => {
+    const parsedOutcomes = parseInputToOutcomeSections(outcomesDraft);
+
+    setFormData((prev) => ({
+      ...prev,
+      outcomes: parsedOutcomes,
+    }));
+
+    return parsedOutcomes;
+  };
+
+  const handleSubmitMain = () => {
+    const title = String(formData.title ?? "").trim();
+
+    if (!title) {
+      alert("Please enter a title before continuing.");
+      return;
+    }
+    submitMainData(formData);
+    setCurrentStep("input-outcomes");
+  };
+
   return (
     <div id="create-outcomes">
-      <h3>Let's create a {currentConfig.title}</h3>
-      <div className="main-data">
-        {currentConfig.fields.map((field) => (
-          <div key={field.name} className="field-group">
-            <label htmlFor={field.name}>{field.label}</label>
-            {renderField(field)}
+
+      {currentStep === "main" && (
+        <>
+        <h3>Let's create a {currentConfig.title}</h3>
+          <div id="main-data">
+            {currentConfig.fields.map((field) => (
+              <div key={field.name} className="field-group">
+                <label htmlFor={field.name}>{field.label}</label>
+                {renderField(field)}
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
+          <button onClick={handleSubmitMain}>Next</button>
+        </>
+      )}
+
+      {currentStep === "input-outcomes" && (
+        <>
+          <div id="parsing-div">
+            <h3>{formData.title || "Outcome"} Outcomes, Competencies, Key Topics</h3>
+            <Textarea
+              pageName="outcomes"
+              value={outcomesDraft}
+              onChange={setOutcomesDraft}
+            />
+          </div>
+          <button onClick={() => setCurrentStep("main")}>Back</button>
+          <button onClick={handleParseOutcomes}>Parse Outcomes</button>
+        </>
+      )}
     </div>
   );
 }

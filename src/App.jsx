@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect, useState } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import './App.css'
+import axios from 'axios'
 
 import Nav from './Components/Nav.jsx'
 import Create_Template from './Pages/Create_Template.jsx'
@@ -11,6 +12,79 @@ const CrossWalk = lazy(() => import('./Pages/CrossWalk'))
 const Home = lazy(() => import('./Pages/Home'))
 const Board = lazy(() => import('./Pages/Board'))
 const View_equiv = lazy(() => import('./Pages/View_equiv'))
+
+
+
+const createLearningExperience = async (formData = {}) => {
+  const title = String(formData.title ?? '').trim()
+
+  if (!title) {
+    throw new Error('Title is required before creating a learning experience.')
+  }
+
+  const payload = {
+    title,
+    description: String(formData.description ?? ''),
+    link: String(formData.LElink ?? ''),
+    outcomes: [],
+    userId: null,
+  }
+
+  const response = await axios.post('/api/learning-experiences', payload)
+  console.log('Created learning experience:', response.data)
+  return response.data
+}
+
+const createCunyCourse = async (formData = {}) => {
+  const title = String(formData.title ?? '').trim()
+
+  if (!title) {
+    throw new Error('Title is required before creating a CUNY course.')
+  }
+
+  const payload = {
+    title,
+    description: String(formData.description ?? ''),
+    departmentId: formData.department?.id ?? null,
+    userId: null,
+    syllabusFileName: String(formData.syllabusFileName ?? ''),
+    syllabusFileUrl: String(formData.syllabusFile ?? ''),
+  }
+
+  const response = await axios.post('/api/cuny-courses', payload)
+  console.log('Created CUNY course:', response.data)
+  return response.data
+}
+
+const createLearningExperienceProps = {
+  outcomeType: 'learningExperience',
+  onChange: () => {},
+  submitMainData: createLearningExperience,
+  submitOutcomes: () => {},
+  submitTagMapping: () => {},
+  goToBoard: () => {},
+  isTemplate: false,
+}
+
+const createCunyCourseProps = {
+  outcomeType: 'cunyCourse',
+  formData: {},
+  onChange: () => {},
+  submitMainData: createCunyCourse,
+  submitOutcomes: () => {},
+  submitTagMapping: () => {},
+  goToTemplateCrosswalk: () => {},
+}
+
+const createCrosswalkProps = {
+  outcomeType: 'crosswalk',
+  formData: {},
+  onChange: () => {},
+  submitMainData: () => {},
+  submitOutcomes: () => {},
+  submitTagMapping: () => {},
+  goToCrosswalk: () => {},
+}
 
 const STORAGE_KEYS = {
   certLines: 'crosswalk.certLines',
@@ -431,7 +505,7 @@ function App() {
         path="/board"
         element={<Board clearAddEquivDraft={clearAddEquivDraft} />}
       />
-       <Route
+       {/* <Route
         path="/create-template"
         element={<Create_Template
           learningExperienceTitle={leTitle}
@@ -445,7 +519,7 @@ function App() {
           outcomesDraft={outcomesDraft}
           setOutcomesDraft={setOutcomesDraft}
         />}
-      />
+      /> */}
       <Route
         path="/add-equivalency"
         element={<Add_Equiv
@@ -534,13 +608,32 @@ function App() {
           />
         }
       />
+
+      {/* make 2 functions one to create a new cuny course and one to create a new learning experience. Each function will take in the form data and submit it to the appropriate endpoint. */}
+
+
+
       <Route
-        path="/create-outcomes"
+        path="/create-crosswalk"
         element={
           <Create_Outcomes
-          outcomeType = "cunyCourse"
-            formData={{}}
-            onChange={() => {}}
+          formProps={createCrosswalkProps}
+          />
+        }
+      />
+      <Route
+        path="/create-template"
+        element={
+          <Create_Outcomes
+          formProps={createLearningExperienceProps}
+          />
+        }
+      />
+      <Route
+        path="/create-equivalency"
+        element={
+          <Create_Outcomes
+          formProps={createCunyCourseProps}
           />
         }
       />

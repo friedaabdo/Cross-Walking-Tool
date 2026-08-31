@@ -59,6 +59,39 @@ router.get("/:experience_id", async (req, res) => {
 });
 
 
+router.post("/", async (req, res) => {
+  const { title, description = "", link = "", userId = null } = req.body ?? {};
+
+  if (!title || !String(title).trim()) {
+    return res.status(400).json({ error: "title is required" });
+  }
+
+  try {
+    const experienceResult = await query(
+      `INSERT INTO Learning_Experience (user_id, title, description, link, is_template)
+       VALUES (?, ?, ?, ?, ?)`,
+      [userId, String(title).trim(), String(description), String(link), 0]
+    );
+
+    const experienceId = experienceResult.insertId;
+
+    
+
+    return res.status(201).json({
+      id: experienceId,
+      user_id: userId,
+      title: String(title).trim(),
+      description: String(description),
+      link: String(link),
+      is_template: 0,
+      last_edited: new Date(),
+    });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: "Failed to create learning experience" });
+  }
+});
+
 router.post("/create-template", async (req, res) => {
   const { title, description = "", link = "", outcomes = [], userId = null } = req.body ?? {};
 
