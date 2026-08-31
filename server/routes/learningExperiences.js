@@ -60,22 +60,28 @@ router.get("/:experience_id", async (req, res) => {
 
 
 router.post("/", async (req, res) => {
-  const { title, description = "", link = "", userId = null } = req.body ?? {};
+  const {
+    title,
+    description = "",
+    link = "",
+    userId = null,
+    is_template = 0,
+  } = req.body ?? {};
 
   if (!title || !String(title).trim()) {
     return res.status(400).json({ error: "title is required" });
   }
 
+  const templateFlag = Number(Boolean(is_template));
+
   try {
     const experienceResult = await query(
       `INSERT INTO Learning_Experience (user_id, title, description, link, is_template)
        VALUES (?, ?, ?, ?, ?)`,
-      [userId, String(title).trim(), String(description), String(link), 0]
+      [userId, String(title).trim(), String(description), String(link), templateFlag]
     );
 
     const experienceId = experienceResult.insertId;
-
-    
 
     return res.status(201).json({
       id: experienceId,
@@ -83,7 +89,7 @@ router.post("/", async (req, res) => {
       title: String(title).trim(),
       description: String(description),
       link: String(link),
-      is_template: 0,
+      is_template: templateFlag,
       last_edited: new Date(),
     });
   } catch (err) {

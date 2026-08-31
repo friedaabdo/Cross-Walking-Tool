@@ -1,299 +1,15 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
-import InputLine from "../Components/InputLine";
-import Textarea from "../Components/textarea";
-import ConfirmationArea from "../Components/confirmationArea";
+import MainDatastep from "./MainDataStep";
+import ParseOutcomesStep from "./ParseOutcomesStep";
+import ReviewOutcomesStep from "./ReviewOutcomesStep";
 import { parseInputToOutcomeSections } from "../utils/outcomeText";
-import {
-  handleFileUpload,
-  MAX_SYLLABUS_FILE_SIZE_BYTES,
-} from "../utils/fileHandler";
 
 function Create_Outcomes({ formProps }) {
-  const { outcomeType, submitMainData } = formProps;
+  const { outcomeType, submitMainData, submitOutcomes, is_template, goToEnd } = formProps;
   const [formData, setFormData] = useState({});
   const [outcomesDraft, setOutcomesDraft] = useState("");
   const [currentStep, setCurrentStep] = useState("main");
-  const handleFieldChange = (name, value) => {
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const [campusList, setCampusList] = useState([]);
-  const [tagsList, setTagsList] = useState([]);
-  const [departmentsList, setDepartmentsList] = useState([]);
-  const [selectedCampusId, setSelectedCampusId] = useState(null);
-  // const [loading, setLoading] = useState(true);
-  // const [error, setError] = useState(null);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    const loadData = async () => {
-      try {
-        const [campusesResponse, tagsResponse] = await Promise.all([
-          fetch("/api/campuses"),
-          fetch("/api/tags"),
-        ]);
-
-        if (!campusesResponse.ok) throw new Error("Failed to fetch campuses");
-        if (!tagsResponse.ok) throw new Error("Failed to fetch tags");
-
-        const [campuses, tags] = await Promise.all([
-          campusesResponse.json(),
-          tagsResponse.json(),
-        ]);
-
-        if (cancelled) return;
-
-        setCampusList(campuses);
-        setTagsList(tags);
-      } catch (error) {
-        console.error("Failed to load dropdown data:", error);
-      }
-    };
-
-    loadData();
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  const handleCampusChange = async (event) => {
-    const selectedCampus = event.target.value;
-
-    const campusName = campusList.find(
-      (campus) => String(campus.school_id) === String(selectedCampus),
-    )?.school_name;
-    setSelectedCampusId(selectedCampus);
-
-    handleFieldChange("campus", {
-      id: selectedCampus,
-      name: campusName,
-    });
-
-    if (!selectedCampus) {
-      setDepartmentsList([]);
-      return;
-    }
-
-    fetch(`/api/departments/${selectedCampus}`)
-      .then((res) => res.json())
-      .then((data) => setDepartmentsList(data || []));
-  };
-
-  console.log("campusList", campusList);
-  console.log("selectedCampusId", selectedCampusId);
-  console.log("tagsList", tagsList);
-  console.log("departmentsList", departmentsList);
-
-  const config = {
-    learningExperience: {
-      title: "Learning Experience",
-      fields: [
-        {
-          name: "title",
-          label: "Title",
-          type: "text",
-          placeholder: "ex. CompTIA Security+",
-        },
-        {
-          name: "description",
-          label: "Description",
-          type: "textarea",
-          placeholder: "Add a description of the learning experience",
-        },
-        {
-          name: "LElink",
-          label: "URL",
-          type: "url",
-          placeholder: "https://www.comptia.org/en-us/certifications/security/",
-        },
-        {  name: "tags",
-          label: "Add Tags",
-          type: "multiSelect",
-          options: tagsList, },
-      ],
-    },
-    cunyCourse: {
-      title: "CUNY Course",
-      fields: [
-        {
-          name: "title",
-          label: "Title",
-          type: "text",
-          placeholder: "ex. Intro to CompSci",
-        },
-        {
-          name: "courseCode",
-          label: "Course Code",
-          type: "text",
-          placeholder: "ex. CS101",
-        },
-        {
-          name: "description",
-          label: "Description",
-          type: "textarea",
-          placeholder: "Add a description of the CUNY course",
-        },
-        {
-          name: "syllabus",
-          label: "Syllabus",
-          type: "file",
-          placeholder: "Attach Course Syllabus",
-        },
-        {
-          name: "tags",
-          label: "Add Tags",
-          type: "multiSelect",
-          options: tagsList,
-        },
-        {
-          name: "campus",
-          label: "Choose Campus",
-          type: "select",
-          handle: handleCampusChange,
-          body_name: "school_name",
-          body_id: "school_id",
-          options: campusList,
-        },
-        {
-          name: "department",
-          label: "Choose Department",
-          type: "select",
-          handle: handleFieldChange,
-          body_name: "department_name",
-          body_id: "department_id",
-          options: departmentsList,
-        },
-      ],
-    },
-  };
-
-  const [importError, setImportError] = useState(null);
-
-  const currentConfig = config[outcomeType];
-
-  const handleFileChange = async (event) => {
-    try {
-      const dataUrl = await handleFileUpload(event.target.files?.[0]);
-      setImportError(null);
-      handleFieldChange("syllabusFile", dataUrl);
-    } catch (error) {
-      setImportError(error.message);
-      event.target.value = "";
-    }
-  };
-
-  const renderField = (field) => {
-    switch (field.type) {
-      case "text":
-        return (
-          <InputLine
-            type="text"
-            placeholder={field.placeholder}
-            value={formData?.[field.name] ?? ""}
-            onChange={(e) => handleFieldChange(field.name, e.target.value)}
-          />
-        );
-      case "url":
-        return (
-          <InputLine
-            type="url"
-            placeholder={field.placeholder}
-            value={formData?.[field.name] ?? ""}
-            onChange={(e) => handleFieldChange(field.name, e.target.value)}
-          />
-        );
-
-      case "textarea":
-        return (
-          <textarea
-            placeholder={field.placeholder}
-            value={formData?.[field.name] ?? ""}
-            onChange={(e) => handleFieldChange(field.name, e.target.value)}
-            rows={4}
-          />
-        );
-      case "file":
-        return (
-          <>
-            <InputLine
-              type="file"
-              placeholder={field.placeholder}
-              accept=".pdf,.doc,.docx"
-              onChange={handleFileChange}
-            />
-            {formData.syllabusFileName ? (
-              <p>Uploaded: {formData.syllabusFileName}</p>
-            ) : null}
-            {importError ? <p>{importError}</p> : null}
-          </>
-        );
-      case "select": {
-//THIS ALSO NEEDS TO BE REVISITED. THERE MUST BE A WAY TO BE ABLE TO USE THE FUNCTIONS FROM THE OBJECT ABOVE. OR SOMETHING IDK. I NEED SLEEP
-
-        const bodyName = field.body_name;
-        const bodyId = field.body_id;
-
-        return (
-          <select
-            value={formData?.[field.name]?.id ?? ""}
-            onChange={(event) => {
-              const selectedValue = event.target.value;
-              const selectedOption = (field.options || []).find(
-                (option) => String(option[bodyId]) === String(selectedValue),
-              );
-
-              if (field.name === "campus") {
-                handleCampusChange(event);
-                return;
-              }
-
-              const nextValue = selectedOption
-                ? {
-                    id: selectedOption[bodyId],
-                    name: selectedOption[bodyName],
-                  }
-                : null;
-
-              if (typeof field.handle === "function") {
-                field.handle(field.name, nextValue);
-              }
-            }}
-          >
-            <option value="">{field.label}</option>
-            {(field.options || []).map((option) => (
-              <option key={option[bodyId]} value={option[bodyId]}>
-                {option[bodyName]}
-              </option>
-            ))}
-          </select>
-        );
-      }
-      case "multiSelect":
-        return (
-          //THIS NEEDS TO BE REVISTED. AT LEAST ITS RENDERING BUTTONS FOR NOW. ONCLICK NEEDS TO BE FIXED. TAGS NEED THEIR OWN ONCLICK HANDLER TO ADD THE KEY(CATEGORY) AS A NEW KEY TO THE FORM DATA OBJECT. AND THEN WHEN YOU CLICK ON THE BUTTON, IT SHOWS THE ARRAY OF TAGS THAT IS ASSOCIATED WITH THAT CATEGORY. THEN WHEN YOU CLICK ON THE TAG, IT ADDS THAT TAG TO THE FORM DATA OBJECT AS AN ARRAY OF TAGS.
-          <>
-            {Object.keys(field.options).map((key) => (
-              <button
-                onClick={(e) => handleFieldChange(field.name, e.target.value)}
-                key={key}
-                value={key}
-              >
-                {key}
-              </button>
-            ))}
-          </>
-        );
-      default:
-        return null;
-    }
-  };
-  console.log("formData", formData);
 
   const handleParseOutcomes = () => {
     const parsedOutcomes = parseInputToOutcomeSections(outcomesDraft);
@@ -302,52 +18,103 @@ function Create_Outcomes({ formProps }) {
       ...prev,
       outcomes: parsedOutcomes,
     }));
-
+    setCurrentStep("review-outcomes");
     return parsedOutcomes;
   };
 
-  const handleSubmitMain = () => {
+  const handleReviewNext = async () => {
+    try {
+      if (!submitOutcomes) {
+        setCurrentStep("main");
+        return;
+      }
+
+      await submitOutcomes(formData);
+      goToEnd();
+    } catch (error) {
+      alert(error?.message || "Failed to save outcomes.");
+    }
+  };
+
+  const handleSubmitMain = async () => {
     const title = String(formData.title ?? "").trim();
 
     if (!title) {
       alert("Please enter a title before continuing.");
       return;
     }
-    submitMainData(formData);
-    setCurrentStep("input-outcomes");
+
+    const nextFormData = {
+      ...formData,
+      is_template,
+      recordType: outcomeType,
+    };
+
+    setFormData(nextFormData);
+
+    try {
+      const createdRecord = await submitMainData?.(nextFormData);
+
+      if (createdRecord) {
+        const createdId = createdRecord.experience_id ?? createdRecord.course_id ?? createdRecord.id;
+        const isCunyCourse = outcomeType === "cunyCourse";
+
+        setFormData((prev) => ({
+          ...prev,
+          ...createdRecord,
+          recordType: outcomeType,
+          ...(createdId !== undefined
+            ? isCunyCourse
+              ? {
+                  course_id: createdId,
+                  experience_id: null,
+                }
+              : {
+                  experience_id: createdId,
+                  course_id: null,
+                }
+            : {}),
+        }));
+      }
+
+      setCurrentStep("parse-outcomes");
+    } catch (error) {
+      alert(error?.message || "Failed to create the record.");
+    }
   };
+
+
 
   return (
     <div id="create-outcomes">
-
       {currentStep === "main" && (
-        <>
-        <h3>Let's create a {currentConfig.title}</h3>
-          <div id="main-data">
-            {currentConfig.fields.map((field) => (
-              <div key={field.name} className="field-group">
-                <label htmlFor={field.name}>{field.label}</label>
-                {renderField(field)}
-              </div>
-            ))}
-          </div>
-          <button onClick={handleSubmitMain}>Next</button>
-        </>
+        <MainDatastep
+          formData={formData}
+          setFormData={setFormData}
+          onNext={handleSubmitMain}
+          outcomeType={outcomeType}
+        />
       )}
 
-      {currentStep === "input-outcomes" && (
-        <>
-          <div id="parsing-div">
-            <h3>{formData.title || "Outcome"} Outcomes, Competencies, Key Topics</h3>
-            <Textarea
-              pageName="outcomes"
-              value={outcomesDraft}
-              onChange={setOutcomesDraft}
-            />
-          </div>
-          <button onClick={() => setCurrentStep("main")}>Back</button>
-          <button onClick={handleParseOutcomes}>Parse Outcomes</button>
-        </>
+      {currentStep === "parse-outcomes" && (
+        <ParseOutcomesStep
+          formData={formData}
+          outcomesDraft={outcomesDraft}
+          setOutcomesDraft={setOutcomesDraft}
+          onParse={handleParseOutcomes}
+          onBack={() => setCurrentStep("main")}
+        />
+      )}
+
+      {currentStep === "review-outcomes" && (
+        <ReviewOutcomesStep
+          formData={formData}
+          setFormData={setFormData}
+          onBack={() => setCurrentStep("parse-outcomes")}
+          onNext={handleReviewNext}
+          outcomeLinks={formData.outcomes || []}
+       
+        />
       )}
     </div>
   );

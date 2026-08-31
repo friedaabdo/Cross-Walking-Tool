@@ -28,6 +28,7 @@ const createLearningExperience = async (formData = {}) => {
     link: String(formData.LElink ?? ''),
     outcomes: [],
     userId: null,
+    is_template: Boolean(formData.is_template) ? 1 : 0,
   }
 
   const response = await axios.post('/api/learning-experiences', payload)
@@ -56,14 +57,50 @@ const createCunyCourse = async (formData = {}) => {
   return response.data
 }
 
+const submitOutcomes = async (formData = {}) => {
+  const outcomes = Array.isArray(formData.outcomes) ? formData.outcomes : []
+
+  if (!outcomes.length) {
+    throw new Error('No outcomes to submit.')
+  }
+
+  const normalizedOutcomes = outcomes.flatMap((section) => {
+    const lines = Array.isArray(section?.lines) ? section.lines : []
+    const category = section?.header ?? ''
+
+    return lines
+      .map((line) => String(line).replace(/^-\s*/, '').trim())
+      .filter(Boolean)
+      .map((text) => ({
+        outcomeText: text,
+        category,
+      }))
+  })
+
+  const recordType = formData.recordType || (formData.course_id ? 'cunyCourse' : 'learningExperience')
+  const courseId = formData.course_id ?? null
+  const experienceId = formData.experience_id ?? null
+
+  const payload = {
+    outcomes: normalizedOutcomes,
+    ...(recordType === 'cunyCourse'
+      ? { courseId: courseId ?? null, experienceId: null }
+      : { courseId: null, experienceId: experienceId ?? null }),
+  }
+
+  const response = await axios.post('/api/outcomes/bulk-replace', payload)
+  console.log('Submitted outcomes:', response.data)
+  return response.data
+}
+
 const createLearningExperienceProps = {
   outcomeType: 'learningExperience',
   onChange: () => {},
   submitMainData: createLearningExperience,
-  submitOutcomes: () => {},
+  submitOutcomes,
   submitTagMapping: () => {},
-  goToBoard: () => {},
-  isTemplate: false,
+  goToEnd: () => {}, //if template, goes to temlate, if reg crosswalk goes to cuny course
+  is_template: false,
 }
 
 const createCunyCourseProps = {
@@ -71,9 +108,10 @@ const createCunyCourseProps = {
   formData: {},
   onChange: () => {},
   submitMainData: createCunyCourse,
-  submitOutcomes: () => {},
+  submitOutcomes,
   submitTagMapping: () => {},
-  goToTemplateCrosswalk: () => {},
+  goToEnd: () => {}, // if add-equiv goes to crosswalk with template, if reg crosswalk goes to crosswalk with le it got made with
+  learningExperienceId: null, 
 }
 
 const createCrosswalkProps = {
@@ -625,7 +663,7 @@ function App() {
         path="/create-template"
         element={
           <Create_Outcomes
-          formProps={createLearningExperienceProps}
+          formProps={{ ...createLearningExperienceProps, is_template: true, goToEnd: () => window.location.href = '/board' }}
           />
         }
       />
