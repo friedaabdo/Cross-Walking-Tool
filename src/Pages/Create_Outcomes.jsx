@@ -6,12 +6,12 @@ import ReviewOutcomesStep from "./ReviewOutcomesStep";
 import { parseInputToOutcomeSections } from "../utils/outcomeText";
 
 function Create_Outcomes({ formProps }) {
-  const { outcomeType, submitMainData, submitOutcomes, is_template, goToEnd, learningExperienceId } = formProps;
+  const { outcomeType, submitMainData, submitOutcomes, is_template, goToEnd, experienceId } = formProps;
   const [formData, setFormData] = useState({
-    learningExperienceId: learningExperienceId ?? null,
+    experienceId: experienceId ?? null,
   });
   const createdRecordRef = useRef(null);
-  console.log("LE id:", formData.learningExperienceId);
+  console.log("Experience id:", formData.experienceId);
   const [outcomesDraft, setOutcomesDraft] = useState("");
   const [currentStep, setCurrentStep] = useState("main");
 
@@ -56,7 +56,7 @@ function Create_Outcomes({ formProps }) {
 
     const nextFormData = {
       ...formData,
-      learningExperienceId: formData.learningExperienceId ?? learningExperienceId ?? null,
+      experienceId: formData.experienceId ?? experienceId ?? null,
       is_template,
       recordType: outcomeType,
     };
@@ -126,7 +126,6 @@ function Create_Outcomes({ formProps }) {
           onBack={() => setCurrentStep("parse-outcomes")}
           onNext={handleReviewNext}
           outcomeLinks={formData.outcomes || []}
-          // learningExperienceId={templateId}
         />
       )}
     </div>

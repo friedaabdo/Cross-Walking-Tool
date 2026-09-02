@@ -48,7 +48,7 @@ router.post("/", async (req, res) => {
     departmentId = null,
     userId = null,
     courseCode = "",
-    learningExperienceId = null,
+    experienceId = null,
   } = req.body ?? {};
 
   if (!title || !String(title).trim()) {
@@ -76,11 +76,11 @@ router.post("/", async (req, res) => {
 
     const courseId = Number(result.insertId);
 
-    if (learningExperienceId) {
+    if (experienceId) {
       try {
         await query(
           `INSERT INTO Matches (course_id, experience_id) VALUES (?, ?)`,
-          [courseId, Number(learningExperienceId)]
+          [courseId, Number(experienceId)]
         );
       } catch {
         // optional relation is not required to create the course itself

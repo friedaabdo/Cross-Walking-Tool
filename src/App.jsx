@@ -28,10 +28,13 @@ const createLearningExperience = async (formData = {}) => {
     link: String(formData.LElink ?? ''),
     outcomes: [],
     userId: null,
-    is_template: Boolean(formData.is_template) ? 1 : 0,
+    is_template: formData.is_template ? 1 : 0,
   }
 
-  const response = await axios.post('/api/learning-experiences', payload)
+  const experienceId = formData.experienceId ?? formData.experience_id
+  const response = experienceId
+    ? await axios.put(`/api/learning-experiences/${experienceId}`, payload)
+    : await axios.post('/api/learning-experiences', payload)
   console.log('Created learning experience:', response.data)
   return response.data
 }
@@ -56,10 +59,13 @@ const createCunyCourse = async (formData = {}) => {
     courseCode,
     syllabusFileName: String(formData.syllabusFileName ?? ''),
     syllabusFileUrl: String(formData.syllabusFile ?? ''),
-    learningExperienceId: formData.learningExperienceId ?? null,
+    experienceId: formData.experienceId ?? null,
   }
 
-  const response = await axios.post('/api/cuny-courses', payload)
+  const courseId = formData.courseId ?? formData.course_id
+  const response = courseId
+    ? await axios.put(`/api/cuny-courses/${courseId}`, payload)
+    : await axios.post('/api/cuny-courses', payload)
   console.log('Created CUNY course:', response.data)
   return response.data
 }
@@ -136,7 +142,7 @@ const createCunyCourseProps = {
   submitTagMapping: () => {},
   createMatch,
   goToEnd: () => {}, // if add-equiv goes to crosswalk with template, if reg crosswalk goes to crosswalk with le it got made with
-  learningExperienceId: null, 
+  experienceId: null,
 }
 
 const createCrosswalkProps = {
@@ -423,13 +429,7 @@ function AppRoutes() {
     navigate(`/crosswalk?${params.toString()}`)
   }
 
-  useEffect(() => {
-    if (location.state?.templateId) {
-      setTemplateId(location.state.templateId)
-    }
-  }, [location.state?.templateId])
-
-//---------------------------------------------
+  //---------------------------------------------
 
   const [certLines, setCertLines] = useState(() => getStoredValue(STORAGE_KEYS.certLines, []))
   const [syllLines, setSyllLines] = useState(() => getStoredValue(STORAGE_KEYS.syllLines, []))
@@ -733,6 +733,7 @@ function AppRoutes() {
         path="/create-learning-experience"
         element={
           <Create_Outcomes
+            key="create-learning-experience"
             formProps={{
               ...createLearningExperienceProps,
               is_template: false,
@@ -745,7 +746,7 @@ function AppRoutes() {
                 }
 
                 navigate('/create-cuny-course', {
-                  state: { learningExperienceId: experienceId },
+                  state: { experienceId },
                 })
               },
             }}
@@ -756,20 +757,12 @@ function AppRoutes() {
         path="/create-cuny-course"
         element={
           <Create_Outcomes
+            key="create-cuny-course"
             formProps={{
               ...createCunyCourseProps,
-              learningExperienceId: location.state?.learningExperienceId ?? null,
-              goToEnd: async (formData) => {
-                const courseId = formData?.courseId ?? formData?.course_id ?? null
-                const experienceId = formData?.experienceId ?? formData?.experience_id ?? location.state?.learningExperienceId ?? null
-
-                if (!courseId || !experienceId) {
-                  navigate('/board')
-                  return
-                }
-
-                await goToCrosswalk(formData, experienceId)
-              },
+              experienceId: location.state?.experienceId ?? null,
+              goToEnd: (formData) =>
+                goToCrosswalk(formData, location.state?.experienceId),
             }}
           />
         }
@@ -788,18 +781,9 @@ function AppRoutes() {
           <Create_Outcomes
             formProps={{
               ...createCunyCourseProps,
-              learningExperienceId: selectedTemplateId,
-              goToEnd: async (formData) => {
-                const courseId = formData?.courseId ?? formData?.course_id ?? null
-                const experienceId = formData?.experienceId ?? formData?.experience_id ?? selectedTemplateId ?? null
-
-                if (!courseId || !experienceId) {
-                  navigate('/board')
-                  return
-                }
-
-                await goToCrosswalk(formData, experienceId)
-              },
+              experienceId: selectedTemplateId,
+              goToEnd: (formData) =>
+                goToCrosswalk(formData, selectedTemplateId),
             }}
           />
         }

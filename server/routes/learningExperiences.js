@@ -143,6 +143,53 @@ router.post("/create-template", async (req, res) => {
   
 });
 
+router.put("/:experienceId", async (req, res) => {
+  const experienceId = req.params?.experienceId;
+  const {
+    title,
+    description = "",
+    link = "",
+    userId = null,
+    is_template = 0,
+  } = req.body ?? {};
+
+  if (!experienceId) {
+    return res.status(400).json({ error: "experience id is required" });
+  }
+
+  if (!title || !String(title).trim()) {
+    return res.status(400).json({ error: "title is required" });
+  }
+
+  try {
+    await query(
+      `UPDATE Learning_Experience
+       SET user_id = ?, title = ?, description = ?, link = ?, is_template = ?
+       WHERE experience_id = ?`,
+      [
+        userId,
+        String(title).trim(),
+        String(description),
+        String(link),
+        Number(Boolean(is_template)),
+        experienceId,
+      ]
+    );
+
+    return res.json({
+      experienceId: Number(experienceId),
+      user_id: userId,
+      title: String(title).trim(),
+      description: String(description),
+      link: String(link),
+      is_template: Number(Boolean(is_template)),
+    });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: "Failed to update learning experience" });
+  }
+});
+
 
 
 export default router;
