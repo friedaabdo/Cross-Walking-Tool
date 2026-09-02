@@ -268,16 +268,14 @@ function CrossWalk({
       <h1>Now you're ready to crosswalk!</h1>
       <p>Here you can drag-and-drop individual items from the horizontal Learning Experience Outcomes menu to the “Matches” column, alongside the appropriate Course Learning Outcomes item.</p>
       <p>Once a Learning Experience Outcome is matched to a Course Learning Outcome, it will turn blue to help you keep track. The same Learning Experience Outcome can be matched against multiple Course Learning Outcomes if appropriate.</p>
-      <p>You can add notes and remove matches as needed, and you can always go back to edit the items if you want. </p>
-      <p>Note: 
+      <p>You can add notes and remove matches as needed, and you can always go back to edit the items if you want.</p>
+      <div>
+        <p>Note:</p>
         <ul>
-          <li>If you navigate away from or close this page, your progress will be saved by the browser unless you choose to clear it in the home page.
-          </li>
-          <li>You may also export the crosswalk as a CSV file below at any time and it will save your progress if you choose to work on your crosswalk on a different device.
-          </li>
+          <li>If you navigate away from or close this page, your progress will be saved by the browser unless you choose to clear it in the home page.</li>
+          <li>You may also export the crosswalk as a CSV file below at any time and it will save your progress if you choose to work on your crosswalk on a different device.</li>
         </ul>
-
-</p>
+      </div>
       <p>This is a brand-new tool, still in development! We appreciate you checking it out, and we welcome your comments to help us improve. If you want to leave any feedback or report any bugs, please click <a href="https://docs.google.com/forms/d/e/1FAIpQLSdh2duwP_A12Wl-CFYIq1GqYRRUTbv9UeBTVfYXu8bBEScf5Q/viewform?usp=dialog" target="_blank" rel="noreferrer">here</a> and fill out the form. Thank you!</p>
       <div id="crosswalk-div">
         <div id="horizontal-div">

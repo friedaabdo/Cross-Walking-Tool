@@ -5,6 +5,7 @@ import {
   handleFileUpload,
   MAX_SYLLABUS_FILE_SIZE_BYTES,
 } from "../utils/fileHandler";
+import "./CreateWizard.css";
 
 function MainDataStep({
   formData,
@@ -25,6 +26,8 @@ function MainDataStep({
   const [departmentsList, setDepartmentsList] = useState([]);
   const [selectedCampusId, setSelectedCampusId] = useState(null);
 
+
+//loads campus and tags for the dropdowns in the form
   useEffect(() => {
     let cancelled = false;
 
@@ -59,6 +62,7 @@ function MainDataStep({
     };
   }, []);
 
+  //loads departments for the department dropdown based on the selected campus
   const handleCampusChange = async (event) => {
     const selectedCampus = event.target.value;
 
@@ -187,6 +191,7 @@ function MainDataStep({
     }
   };
 
+  // Renders the appropriate input field based on the field type
   const renderField = (field) => {
     switch (field.type) {
       case "text":
@@ -295,15 +300,24 @@ function MainDataStep({
   console.log("formData", formData);
 
   return (
-    <div id="main-data">
-      <h3>Let's create a {currentConfig.title}</h3>
-      {currentConfig.fields.map((field) => (
-        <div key={field.name} className="field-group">
-          <label htmlFor={field.name}>{field.label}</label>
-          {renderField(field)}
-        </div>
-      ))}
-      <button onClick={onNext}>Next</button>
+    <div id="main-data" className="wizard-shell">
+      <div className="wizard-header">
+        <h3>Let's create a {currentConfig.title}</h3>
+        <p className="wizard-subtitle">Add the core record details before we parse outcomes.</p>
+      </div>
+
+      <div className="wizard-grid">
+        {currentConfig.fields.map((field) => (
+          <div key={field.name} className="field-group">
+            <label htmlFor={field.name}>{field.label}</label>
+            {renderField(field)}
+          </div>
+        ))}
+      </div>
+
+      <div className="wizard-actions">
+        <button className="wizard-button" onClick={onNext}>Next</button>
+      </div>
     </div>
   );
 }

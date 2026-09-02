@@ -7,27 +7,27 @@ const router = express.Router();
 // POST: Create a new match
 router.post("/", async (req, res) => {
   const body = req.body ?? {};
-  const experience_id = body.experience_id ?? body.experienceId;
-  const course_id = body.course_id ?? body.courseId;
+  const experienceId = body.experienceId ?? body.experience_id;
+  const courseId = body.courseId ?? body.course_id;
 
-  if (!experience_id) {
-    return res.status(400).json({ error: "experience_id is required" });
+  if (!experienceId) {
+    return res.status(400).json({ error: "experienceId is required" });
   }
-  if (!course_id) {
-    return res.status(400).json({ error: "course_id is required" });
+  if (!courseId) {
+    return res.status(400).json({ error: "courseId is required" });
   }
 
   try {
     const result = await query(
       `INSERT INTO Matches (course_id, experience_id)
        VALUES (?, ?)`,
-      [course_id, experience_id]
+      [courseId, experienceId]
     );
 
     res.status(201).json({
-      match_id: result.insertId,
-      course_id,
-      experience_id,
+      matchId: result.insertId,
+      courseId,
+      experienceId,
       message: "Match created successfully",
     });
   } catch (err) {
@@ -39,8 +39,8 @@ router.post("/", async (req, res) => {
 router.get("/", async (req, res) => {
   try {
     const result = await query(
-        `SELECT match_id, course_id, experience_id FROM Matches`
-      );
+      `SELECT match_id AS matchId, course_id AS courseId, experience_id AS experienceId FROM Matches`
+    );
     res.json(result.rows);
   } catch (err) {
     console.error(err);
@@ -48,18 +48,18 @@ router.get("/", async (req, res) => {
   }
 });
 
-// GET: matches by experience_id (path param or query)
-router.get("/equivalency/:experience_id", async (req, res) => {
-  const experience_id = req.params.experience_id ?? req.query.experience_id;
+// GET: matches by experienceId (path param or query)
+router.get("/equivalency/:experienceId", async (req, res) => {
+  const experienceId = req.params.experienceId ?? req.query.experienceId ?? req.params.experience_id ?? req.query.experience_id;
 
-  if (!experience_id) {
-    return res.status(400).json({ error: "experience_id is required" });
+  if (!experienceId) {
+    return res.status(400).json({ error: "experienceId is required" });
   }
 
   try {
     const result = await query(
-      `SELECT match_id, course_id FROM Matches WHERE experience_id = ?`,
-      [experience_id]
+      `SELECT match_id AS matchId, course_id AS courseId FROM Matches WHERE experience_id = ?`,
+      [experienceId]
     );
     res.json(result.rows);
   } catch (err) {

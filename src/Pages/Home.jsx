@@ -1,5 +1,5 @@
 import "./Home.css";
-import InputLine from "../Components/inputLine";
+import InputLine from "../Components/InputLine";
 import Button from "../Components/button";
 import { useNavigate } from "react-router-dom";
 import { useRef, useState } from "react";
@@ -8,18 +8,18 @@ import { importCrosswalkCsv } from "../utils/csvImport";
 const MAX_SYLLABUS_FILE_SIZE_BYTES = 5 * 1024 * 1024;
 
 function Home({
-  learningExperienceTitle,
-  setLearningExperienceTitle,
-  learningExperienceDescription,
+  // learningExperienceTitle,
+  // setLearningExperienceTitle,
+  // learningExperienceDescription,
   setLearningExperienceDescription,
-  learningExperienceLink,
+  // learningExperienceLink,
   setLearningExperienceLink,
   setSyllabusFileUrl,
-  syllabusFileName,
+  // syllabusFileName,
   setSyllabusFileName,
-  cunyCourseTitle,
-  setCunyCourseTitle,
-  cunyCourseDescription,
+  // cunyCourseTitle,
+  // setCunyCourseTitle,
+  // cunyCourseDescription,
   setCunyCourseDescription,
   setCertLines,
   setSyllLines,
@@ -92,37 +92,37 @@ function Home({
     }
   };
 
-  const handleSyllabusFileChange = (event) => {
-    const selectedFile = event.target.files?.[0];
-    if (!selectedFile) {
-      return;
-    }
+  // const handleSyllabusFileChange = (event) => {
+  //   const selectedFile = event.target.files?.[0];
+  //   if (!selectedFile) {
+  //     return;
+  //   }
 
-    if (selectedFile.size > MAX_SYLLABUS_FILE_SIZE_BYTES) {
-      const maxSizeMb = MAX_SYLLABUS_FILE_SIZE_BYTES / (1024 * 1024);
-      setImportError(
-        `Syllabus file is too large. Please upload a file smaller than ${maxSizeMb} MB.`,
-      );
-      event.target.value = "";
-      return;
-    }
+  //   if (selectedFile.size > MAX_SYLLABUS_FILE_SIZE_BYTES) {
+  //     const maxSizeMb = MAX_SYLLABUS_FILE_SIZE_BYTES / (1024 * 1024);
+  //     setImportError(
+  //       `Syllabus file is too large. Please upload a file smaller than ${maxSizeMb} MB.`,
+  //     );
+  //     event.target.value = "";
+  //     return;
+  //   }
 
-    setImportError(null);
+  //   setImportError(null);
 
-    const fileReader = new FileReader();
-    fileReader.onload = () => {
-      const dataUrl =
-        typeof fileReader.result === "string" ? fileReader.result : "";
-      setSyllabusFileUrl(dataUrl);
-      setSyllabusFileName(selectedFile.name);
-    };
+  //   const fileReader = new FileReader();
+  //   fileReader.onload = () => {
+  //     const dataUrl =
+  //       typeof fileReader.result === "string" ? fileReader.result : "";
+  //     setSyllabusFileUrl(dataUrl);
+  //     setSyllabusFileName(selectedFile.name);
+  //   };
 
-    fileReader.onerror = () => {
-      setImportError("Failed to read uploaded syllabus file");
-    };
+  //   fileReader.onerror = () => {
+  //     setImportError("Failed to read uploaded syllabus file");
+  //   };
 
-    fileReader.readAsDataURL(selectedFile);
-  };
+  //   fileReader.readAsDataURL(selectedFile);
+  // };
 
   return (
     <div id="home-div">
@@ -157,16 +157,18 @@ function Home({
         below. Your progress is auto-saved on this browser.
       </p>
       <div className="home-persistence-actions">
+         <Button
+          text="Clear Saved Progress"
+          onClick={handleClearSavedProgress}
+          disabled={!hasSavedProgress}
+        /> 
         <Button
           text="Resume Saved Progress"
           onClick={() => navigate("/crosswalk")}
           disabled={!hasSavedProgress}
         />
-        <Button
-          text="Clear Saved Progress"
-          onClick={handleClearSavedProgress}
-          disabled={!hasSavedProgress}
-        />
+      
+      <Button text="Start New Crosswalk" onClick={() => navigate("/create-learning-experience")} />
       </div>
 
       <p className="home-save-hint">
@@ -175,7 +177,7 @@ function Home({
           : "No saved progress found on this browser yet."}
       </p>
       <hr />
-      <p>
+      {/* <p>
         Start by inputting the title of the credential or training program you are evaluating, a description of the program, and a link to more information about the program. 
       </p>
 
@@ -248,7 +250,7 @@ function Home({
           text="Add Outcomes"
           onClick={() => navigate("/learning-experience")}
         />
-      </div>
+      </div> */}
       <hr />
       <div className="import-csv">
         <p>

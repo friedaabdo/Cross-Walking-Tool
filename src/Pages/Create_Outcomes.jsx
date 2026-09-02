@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 import MainDatastep from "./MainDataStep";
 import ParseOutcomesStep from "./ParseOutcomesStep";
@@ -6,8 +6,12 @@ import ReviewOutcomesStep from "./ReviewOutcomesStep";
 import { parseInputToOutcomeSections } from "../utils/outcomeText";
 
 function Create_Outcomes({ formProps }) {
-  const { outcomeType, submitMainData, submitOutcomes, is_template, goToEnd } = formProps;
-  const [formData, setFormData] = useState({});
+  const { outcomeType, submitMainData, submitOutcomes, is_template, goToEnd, learningExperienceId } = formProps;
+  const [formData, setFormData] = useState({
+    learningExperienceId: learningExperienceId ?? null,
+  });
+  const createdRecordRef = useRef(null);
+  console.log("LE id:", formData.learningExperienceId);
   const [outcomesDraft, setOutcomesDraft] = useState("");
   const [currentStep, setCurrentStep] = useState("main");
 
@@ -29,8 +33,14 @@ function Create_Outcomes({ formProps }) {
         return;
       }
 
-      await submitOutcomes(formData);
-      goToEnd();
+      const finalFormData = {
+        ...formData,
+        ...(createdRecordRef.current ?? {}),
+        recordType: outcomeType,
+      };
+
+      await submitOutcomes(finalFormData);
+      goToEnd?.(finalFormData);
     } catch (error) {
       alert(error?.message || "Failed to save outcomes.");
     }
@@ -46,6 +56,7 @@ function Create_Outcomes({ formProps }) {
 
     const nextFormData = {
       ...formData,
+      learningExperienceId: formData.learningExperienceId ?? learningExperienceId ?? null,
       is_template,
       recordType: outcomeType,
     };
@@ -56,8 +67,10 @@ function Create_Outcomes({ formProps }) {
       const createdRecord = await submitMainData?.(nextFormData);
 
       if (createdRecord) {
-        const createdId = createdRecord.experience_id ?? createdRecord.course_id ?? createdRecord.id;
         const isCunyCourse = outcomeType === "cunyCourse";
+        const createdId = isCunyCourse ? createdRecord.courseId : createdRecord.experienceId;
+
+        createdRecordRef.current = createdRecord;
 
         setFormData((prev) => ({
           ...prev,
@@ -66,12 +79,12 @@ function Create_Outcomes({ formProps }) {
           ...(createdId !== undefined
             ? isCunyCourse
               ? {
-                  course_id: createdId,
-                  experience_id: null,
+                  courseId: createdId,
+                  experienceId: null,
                 }
               : {
-                  experience_id: createdId,
-                  course_id: null,
+                  experienceId: createdId,
+                  courseId: null,
                 }
             : {}),
         }));
@@ -113,7 +126,7 @@ function Create_Outcomes({ formProps }) {
           onBack={() => setCurrentStep("parse-outcomes")}
           onNext={handleReviewNext}
           outcomeLinks={formData.outcomes || []}
-       
+          // learningExperienceId={templateId}
         />
       )}
     </div>

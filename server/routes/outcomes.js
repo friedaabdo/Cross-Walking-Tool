@@ -85,7 +85,7 @@ router.get("/", async (req, res) => {
 
   try {
     const result = await query(
-      `SELECT outcome_id AS id, course_id, experience_id, outcome_text, category
+      `SELECT outcome_id AS outcomeId, course_id AS courseId, experience_id AS experienceId, outcome_text AS outcomeText, category
        FROM Outcome
        WHERE (? IS NULL OR course_id = ?)
          AND (? IS NULL OR experience_id = ?)

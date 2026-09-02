@@ -1,4 +1,24 @@
 
+.board {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1.25rem 3rem;
+}
+
+.board h1 {
+  margin: 0 0 1.5rem;
+  font-size: clamp(2rem, 3vw, 2.6rem);
+  color: #1a1d29;
+}
+
+.templates-section {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.25rem;
+  align-items: stretch;
+}
+
 .board-error {
-	color: #c1121f;
+  color: #c1121f;
+  font-weight: 600;
 }

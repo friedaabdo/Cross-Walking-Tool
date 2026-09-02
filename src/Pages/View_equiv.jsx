@@ -85,9 +85,9 @@ function View_equiv() {
 
     Promise.all(
       equivalencies.map((eq) =>
-        fetch(`/api/cuny-courses/${eq.course_id}`)
+        fetch(`/api/cuny-courses/${eq.courseId}`)
           .then((res) => res.json())
-          .then((course) => ({ [eq.course_id]: course })),
+          .then((course) => ({ [eq.courseId]: course })),
       ),
     )
       .then((courseArray) => {
@@ -153,12 +153,12 @@ function View_equiv() {
       {equivalencies.length === 0 && <p>No equivalencies found for this learning experience.</p>}
      
       {equivalencies.map((eq) => {
-        const course = courses[eq.course_id];
-        if (!course) return <div key={eq.course_id}>Loading course...</div>;
+        const course = courses[eq.courseId];
+        if (!course) return <div key={eq.courseId}>Loading course...</div>;
 
         return (
           <div key={course.courseId} className="equivalency-card">
-            <Link to={buildCrosswalkPath(eq.course_id, eq.match_id)}>
+            <Link to={buildCrosswalkPath(eq.courseId, eq.matchId)}>
               <h4>{course.title}</h4>
             </Link>
             <p>{course.description}</p>

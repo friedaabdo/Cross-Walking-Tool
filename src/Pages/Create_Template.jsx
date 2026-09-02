@@ -80,7 +80,7 @@ function Create_Template({
     axios
       .post("/api/learning-experiences/create-template", payload)
       .then((res) => {
-        const experienceId = res.data?.id;
+        const experienceId = res.data?.experienceId;
         if (!experienceId) {
           throw new Error(
             "Missing experience id from create-template response",

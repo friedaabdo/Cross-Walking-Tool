@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect, useState } from 'react'
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, useLocation, useNavigate } from 'react-router-dom'
 import './App.css'
 import axios from 'axios'
 
@@ -38,9 +38,14 @@ const createLearningExperience = async (formData = {}) => {
 
 const createCunyCourse = async (formData = {}) => {
   const title = String(formData.title ?? '').trim()
+  const courseCode = String(formData.courseCode ?? '').trim()
 
   if (!title) {
     throw new Error('Title is required before creating a CUNY course.')
+  }
+
+  if (!courseCode) {
+    throw new Error('Course code is required before creating a CUNY course.')
   }
 
   const payload = {
@@ -48,12 +53,31 @@ const createCunyCourse = async (formData = {}) => {
     description: String(formData.description ?? ''),
     departmentId: formData.department?.id ?? null,
     userId: null,
+    courseCode,
     syllabusFileName: String(formData.syllabusFileName ?? ''),
     syllabusFileUrl: String(formData.syllabusFile ?? ''),
+    learningExperienceId: formData.learningExperienceId ?? null,
   }
 
   const response = await axios.post('/api/cuny-courses', payload)
   console.log('Created CUNY course:', response.data)
+  return response.data
+}
+
+const createMatch = async (formData = {}) => {
+  const courseId = Number(formData.courseId ?? formData.course_id ?? 0)
+  const experienceId = Number(formData.experienceId ?? formData.experience_id ?? 0)
+
+  if (!courseId || !experienceId) {
+    throw new Error('A course and learning experience are required before creating a match.')
+  }
+
+  const response = await axios.post('/api/matches', {
+    courseId,
+    experienceId,
+  })
+
+  console.log('Created match:', response.data)
   return response.data
 }
 
@@ -77,9 +101,9 @@ const submitOutcomes = async (formData = {}) => {
       }))
   })
 
-  const recordType = formData.recordType || (formData.course_id ? 'cunyCourse' : 'learningExperience')
-  const courseId = formData.course_id ?? null
-  const experienceId = formData.experience_id ?? null
+  const recordType = formData.recordType || (formData.courseId ? 'cunyCourse' : 'learningExperience')
+  const courseId = formData.courseId ?? null
+  const experienceId = formData.experienceId ?? null
 
   const payload = {
     outcomes: normalizedOutcomes,
@@ -110,6 +134,7 @@ const createCunyCourseProps = {
   submitMainData: createCunyCourse,
   submitOutcomes,
   submitTagMapping: () => {},
+  createMatch,
   goToEnd: () => {}, // if add-equiv goes to crosswalk with template, if reg crosswalk goes to crosswalk with le it got made with
   learningExperienceId: null, 
 }
@@ -123,6 +148,9 @@ const createCrosswalkProps = {
   submitTagMapping: () => {},
   goToCrosswalk: () => {},
 }
+
+
+//--------------------------------------------
 
 const STORAGE_KEYS = {
   certLines: 'crosswalk.certLines',
@@ -192,8 +220,6 @@ function CrossWalkRoute({
 
   useEffect(() => {
     if (!crosswalkCourseId || !crosswalkExperienceId) {
-      setCertLines([])
-      setSyllLines([])
       return
     }
 
@@ -359,7 +385,52 @@ function CrossWalkRoute({
   )
 }
 
-function App() {
+function AppRoutes() {
+  const location = useLocation()
+  const navigate = useNavigate()
+  const [templateId, setTemplateId] = useState(null)
+  const selectedTemplateId = location.state?.templateId ?? templateId
+
+  const goToCrosswalk = async (formData, fallbackExperienceId = null) => {
+    const courseId = formData?.courseId ?? formData?.course_id ?? null
+    const experienceId = formData?.experienceId ?? formData?.experience_id ?? fallbackExperienceId ?? null
+
+    if (!courseId || !experienceId) {
+      navigate('/board')
+      return
+    }
+
+    let matchId = formData?.matchId ?? formData?.match_id ?? null
+
+    if (!matchId) {
+      try {
+        const matchResponse = await createMatch({ courseId, experienceId })
+        matchId = matchResponse?.matchId ?? null
+      } catch (error) {
+        console.error('Failed to create match before navigating to crosswalk:', error)
+      }
+    }
+
+    const params = new URLSearchParams({
+      courseId: String(courseId),
+      experienceId: String(experienceId),
+    })
+
+    if (matchId) {
+      params.set('matchId', String(matchId))
+    }
+
+    navigate(`/crosswalk?${params.toString()}`)
+  }
+
+  useEffect(() => {
+    if (location.state?.templateId) {
+      setTemplateId(location.state.templateId)
+    }
+  }, [location.state?.templateId])
+
+//---------------------------------------------
+
   const [certLines, setCertLines] = useState(() => getStoredValue(STORAGE_KEYS.certLines, []))
   const [syllLines, setSyllLines] = useState(() => getStoredValue(STORAGE_KEYS.syllLines, []))
   const [certOutcomeLinks, setCertOutcomeLinks] = useState(() => getStoredValue(STORAGE_KEYS.certOutcomeLinks, {}))
@@ -506,7 +577,6 @@ function App() {
   return (
     <div className="App">
   {/* <h1>CUNY CPL Evaluation Cross Walking Tool</h1> */}
-    <BrowserRouter>
       <Nav clearCreateTemplateDraft={clearCreateTemplateDraft} />
       <Suspense fallback={<p>Loading page...</p>}>
         <Routes>
@@ -541,7 +611,7 @@ function App() {
       </Route>
       <Route
         path="/board"
-        element={<Board clearAddEquivDraft={clearAddEquivDraft} />}
+        element={<Board clearAddEquivDraft={clearAddEquivDraft} templateId={templateId} setTemplateId={setTemplateId} />}
       />
        {/* <Route
         path="/create-template"
@@ -574,7 +644,7 @@ function App() {
           outcomesDraft={outcomesDraft}
           setOutcomesDraft={setOutcomesDraft}
           clearCrosswalkDraft={clearCrosswalkDraft}
-        />}
+        />} 
       />
       <Route
         path="/equivalency/:experienceId"
@@ -660,6 +730,51 @@ function App() {
         }
       />
       <Route
+        path="/create-learning-experience"
+        element={
+          <Create_Outcomes
+            formProps={{
+              ...createLearningExperienceProps,
+              is_template: false,
+              goToEnd: (formData) => {
+                const experienceId = formData?.experienceId ?? formData?.experience_id ?? null
+
+                if (!experienceId) {
+                  navigate('/board')
+                  return
+                }
+
+                navigate('/create-cuny-course', {
+                  state: { learningExperienceId: experienceId },
+                })
+              },
+            }}
+          />
+        }
+      />
+      <Route
+        path="/create-cuny-course"
+        element={
+          <Create_Outcomes
+            formProps={{
+              ...createCunyCourseProps,
+              learningExperienceId: location.state?.learningExperienceId ?? null,
+              goToEnd: async (formData) => {
+                const courseId = formData?.courseId ?? formData?.course_id ?? null
+                const experienceId = formData?.experienceId ?? formData?.experience_id ?? location.state?.learningExperienceId ?? null
+
+                if (!courseId || !experienceId) {
+                  navigate('/board')
+                  return
+                }
+
+                await goToCrosswalk(formData, experienceId)
+              },
+            }}
+          />
+        }
+      />
+      <Route
         path="/create-template"
         element={
           <Create_Outcomes
@@ -671,16 +786,36 @@ function App() {
         path="/create-equivalency"
         element={
           <Create_Outcomes
-          formProps={createCunyCourseProps}
+            formProps={{
+              ...createCunyCourseProps,
+              learningExperienceId: selectedTemplateId,
+              goToEnd: async (formData) => {
+                const courseId = formData?.courseId ?? formData?.course_id ?? null
+                const experienceId = formData?.experienceId ?? formData?.experience_id ?? selectedTemplateId ?? null
+
+                if (!courseId || !experienceId) {
+                  navigate('/board')
+                  return
+                }
+
+                await goToCrosswalk(formData, experienceId)
+              },
+            }}
           />
         }
       />
       <Route path="/*" element={<h1>404 Not Found</h1>} />
     </Routes>
     </Suspense>
-    </BrowserRouter>
     
      </div> 
+   ) }
+
+function App() {
+  return (
+    <BrowserRouter>
+      <AppRoutes />
+    </BrowserRouter>
   )
 }
 

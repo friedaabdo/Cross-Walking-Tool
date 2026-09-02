@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import Template from "../Components/template.jsx";
 
-function Board({ clearAddEquivDraft }) {
+function Board({ clearAddEquivDraft, setTemplateId }) {
   const [templates, setTemplates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -36,7 +36,6 @@ function Board({ clearAddEquivDraft }) {
       <h1>Templates</h1>
 
       <section className="templates-section">
-        <h2>Templates</h2>
         {loading && <p>Loading templates…</p>}
         {error && <p className="board-error">{error}</p>}
         {!loading && !error && templates.length === 0 && <p>No templates found.</p>}
@@ -44,13 +43,14 @@ function Board({ clearAddEquivDraft }) {
           
         {!loading && !error && templates.map((t) => (
           <Template
-            key={t.experience_id}
+            key={t.experienceId}
             title={t.title}
             description={t.description}
             link={t.link}
-            experience_id={t.experience_id}
+            experienceId={t.experienceId}
             user={t.user}
             clearAddEquivDraft={clearAddEquivDraft}
+            setTemplateId={setTemplateId}
           />
         ))}
       </section>

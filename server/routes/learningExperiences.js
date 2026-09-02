@@ -6,7 +6,7 @@ const router = Router();
 router.get("/", async (_req, res) => {
   try {
     const result = await query(
-      `SELECT experience_id AS experience_id, user_id, title, description, link, last_edited AS created_at, last_edited AS updated_at
+      `SELECT experience_id AS experienceId, user_id, title, description, link, last_edited AS created_at, last_edited AS updated_at
        FROM Learning_Experience
        ORDER BY last_edited DESC`
     );
@@ -21,9 +21,7 @@ router.get("/", async (_req, res) => {
 router.get("/templates", async (_req, res) => {
   try {
     const result = await query(
-      // return `id` for consistency with other endpoints
-
-      `SELECT experience_id AS experience_id, user_id, title, description, link, last_edited AS created_at, last_edited AS updated_at
+      `SELECT experience_id AS experienceId, user_id, title, description, link, last_edited AS created_at, last_edited AS updated_at
        FROM Learning_Experience
        WHERE is_template = 1
        ORDER BY last_edited DESC`
@@ -41,7 +39,7 @@ router.get("/:experience_id", async (req, res) => {
   try {
     const experienceId = req.params.experience_id;
     const experienceResult = await query(
-      `SELECT experience_id AS experience_id, user_id, title, description, link, last_edited AS created_at, last_edited AS updated_at
+      `SELECT experience_id AS experienceId, user_id, title, description, link, last_edited AS created_at, last_edited AS updated_at
        FROM Learning_Experience
        WHERE experience_id = ?`,
       [experienceId]
@@ -84,7 +82,7 @@ router.post("/", async (req, res) => {
     const experienceId = experienceResult.insertId;
 
     return res.status(201).json({
-      id: experienceId,
+      experienceId,
       user_id: userId,
       title: String(title).trim(),
       description: String(description),
@@ -130,7 +128,7 @@ router.post("/create-template", async (req, res) => {
     }
 
     return res.status(201).json({
-      id: experienceId,
+      experienceId,
       user_id: userId,
       title: String(title).trim(),
       description: String(description),

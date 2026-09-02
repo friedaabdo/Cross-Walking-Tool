@@ -47,19 +47,26 @@ router.post("/", async (req, res) => {
     syllabusFileUrl = "",
     departmentId = null,
     userId = null,
+    courseCode = "",
+    learningExperienceId = null,
   } = req.body ?? {};
 
   if (!title || !String(title).trim()) {
     return res.status(400).json({ error: "title is required" });
   }
 
+  if (!String(courseCode ?? "").trim()) {
+    return res.status(400).json({ error: "courseCode is required" });
+  }
+
   try {
     const result = await query(
-      `INSERT INTO CUNY_Course (department_id, user_id, title, description, syllabus_file_names, syllabus_file_url)
-       VALUES (?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO CUNY_Course (department_id, user_id, course_code, title, description, syllabus_file_names, syllabus_file_url)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
       [
         departmentId,
         userId,
+        String(courseCode ?? "").trim() || "",
         String(title).trim(),
         String(description),
         String(syllabusFileName),
@@ -67,11 +74,24 @@ router.post("/", async (req, res) => {
       ]
     );
 
+    const courseId = Number(result.insertId);
+
+    if (learningExperienceId) {
+      try {
+        await query(
+          `INSERT INTO Matches (course_id, experience_id) VALUES (?, ?)`,
+          [courseId, Number(learningExperienceId)]
+        );
+      } catch {
+        // optional relation is not required to create the course itself
+      }
+    }
+
     return res.status(201).json({
-      id: result.insertId,
-      courseId: result.insertId,
+      courseId,
       department_id: departmentId,
       user_id: userId,
+      course_code: String(courseCode ?? "").trim() || "",
       title: String(title).trim(),
       description: String(description),
       syllabus_file_name: String(syllabusFileName),

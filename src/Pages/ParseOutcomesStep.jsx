@@ -1,4 +1,5 @@
 import Textarea from "../Components/textarea";
+import "./CreateWizard.css";
 
 function ParseOutcomesStep({
   outcomesDraft,
@@ -8,15 +9,24 @@ function ParseOutcomesStep({
   onBack,
 }) {
   return (
-    <div id="parsing-div">
-      <h3>{formData.title || "Outcome"} Outcomes, Competencies, Key Topics</h3>
-      <Textarea
-        pageName="outcomes"
-        value={outcomesDraft}
-        onChange={setOutcomesDraft}
-      />
-      <button onClick={onBack}>Back</button>
-      <button onClick={onParse}>Parse Outcomes</button>
+    <div id="parsing-div" className="wizard-shell parse-panel">
+      <div className="wizard-header">
+        <h3>{formData.title || "Outcome"} outcomes, competencies, and key topics</h3>
+        <p className="wizard-subtitle">Paste or type each outcome on a new line. We’ll parse them into structured cards next.</p>
+      </div>
+
+      <div className="parse-textarea-wrap">
+        <Textarea
+          pageName="outcomes"
+          value={outcomesDraft}
+          onChange={setOutcomesDraft}
+        />
+      </div>
+
+      <div className="wizard-actions">
+        <button className="wizard-button secondary" onClick={onBack}>Back</button>
+        <button className="wizard-button" onClick={onParse}>Parse Outcomes</button>
+      </div>
     </div>
   );
 }
