@@ -1,4 +1,4 @@
-import "./Create_Template.css";
+import "./Create_template.css";
 import axios from "axios";
 import InputLine from "../Components/InputLine";
 import Textarea from "../Components/textarea";
