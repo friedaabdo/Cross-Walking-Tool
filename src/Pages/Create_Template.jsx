@@ -1,6 +1,6 @@
 import "./Create_template.css";
 import axios from "axios";
-import InputLine from "../Components/InputLine";
+import InputLine from "../Components/inputline";
 import Textarea from "../Components/textarea";
 import OutcomeCard from "../Components/Outcome-card";
 import { parseInputToOutcomeSections } from "../utils/outcomeText";
