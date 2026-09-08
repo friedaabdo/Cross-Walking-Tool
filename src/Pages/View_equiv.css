@@ -1,0 +1,12 @@
+.equivalency-card {
+     border: 1px solid var(--card-border-color);
+     border-radius: 8px;
+     padding: 10px;
+     margin-bottom: 10px;
+     background-color: var(--card-bg);
+ }
+
+ h4, p {
+     margin: 0 0 5px 0;
+     font-size: .9rem;
+ }

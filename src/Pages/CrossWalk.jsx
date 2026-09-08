@@ -1,7 +1,7 @@
 import DraggableCard from "../Components/Draggable-card";
 import "./CrossWalk.css";
 import { DragDropProvider } from "@dnd-kit/react";
-import { Fragment, useMemo } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import CrosswalkRow from "../Components/Crosswalk-row";
 import downloadCrosswalkCsv from "../utils/csvExport";
 import { normalizeToArray } from "../utils/collections";
@@ -43,12 +43,67 @@ function CrossWalk({
   setNotesByRow,
   draggedOnceById,
   setDraggedOnceById,
+  courseId,
+  experienceId,
+  matchId,
 }) {
   const navigate = useNavigate();
+  const [courseOutcomeRows, setCourseOutcomeRows] = useState([]);
+  const [experienceOutcomeRows, setExperienceOutcomeRows] = useState([]);
+  const [saveStatus, setSaveStatus] = useState("");
   const hasLearningExperienceLink = Boolean((learningExperienceLink || "").trim());
   const resolvedLearningExperienceLink = normalizeExternalUrl(learningExperienceLink);
   const hasSyllabusFile = Boolean(syllabusFileUrl);
   const getMatchesForRow = (rowId) => normalizeToArray(matchesByRow[rowId]);
+
+  useEffect(() => {
+    if (!courseId || !experienceId) {
+      setCourseOutcomeRows([]);
+      setExperienceOutcomeRows([]);
+      return;
+    }
+
+    let cancelled = false;
+
+    const loadOutcomeRows = async () => {
+      try {
+        const [courseResponse, experienceResponse] = await Promise.all([
+          fetch(`/api/outcomes?courseId=${courseId}`),
+          fetch(`/api/outcomes?experienceId=${experienceId}`),
+        ]);
+
+        if (!courseResponse.ok) {
+          throw new Error("Failed to load course outcomes");
+        }
+
+        if (!experienceResponse.ok) {
+          throw new Error("Failed to load learning experience outcomes");
+        }
+
+        const [courseRows, experienceRows] = await Promise.all([
+          courseResponse.json(),
+          experienceResponse.json(),
+        ]);
+
+        if (cancelled) {
+          return;
+        }
+
+        setCourseOutcomeRows(Array.isArray(courseRows) ? courseRows : []);
+        setExperienceOutcomeRows(Array.isArray(experienceRows) ? experienceRows : []);
+      } catch (error) {
+        if (!cancelled) {
+          console.error("Failed to load outcome rows for crosswalk save:", error);
+        }
+      }
+    };
+
+    loadOutcomeRows();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [courseId, experienceId]);
 
   const handleDragEnd = (event) => {
     if (event.canceled) {
@@ -140,22 +195,87 @@ function CrossWalk({
     navigate('/syllabus');
   };
 
+  const handleSave = async () => {
+    if (!matchId) {
+      setSaveStatus("Missing match id.");
+      return;
+    }
+
+    const detailRows = [];
+
+    syllLines.forEach((_, rowIndex) => {
+      const rowId = `drop-${rowIndex}`;
+      const notes = notesByRow[rowId] ?? "";
+      const cunyOutcomeId = courseOutcomeRows[rowIndex]?.id;
+      const matchedIds = getMatchesForRow(rowId);
+
+      if (matchedIds.length === 0) {
+        if (cunyOutcomeId && String(notes).trim()) {
+          detailRows.push({
+            cuny_outcome_id: cunyOutcomeId,
+            experience_outcome_id: null,
+            notes,
+          });
+        }
+
+        return;
+      }
+
+      matchedIds.forEach((matchedId) => {
+        const experienceIndex = Number(String(matchedId).replace("cert-", ""));
+        const experienceOutcomeId = experienceOutcomeRows[experienceIndex]?.id;
+
+        if (!cunyOutcomeId || !experienceOutcomeId) {
+          return;
+        }
+
+        detailRows.push({
+          cuny_outcome_id: cunyOutcomeId,
+          experience_outcome_id: experienceOutcomeId,
+          notes,
+        });
+      });
+    });
+
+    try {
+      setSaveStatus("Saving...");
+
+      const apiBase = import.meta.env.VITE_API_BASE || "http://localhost:4000";
+      const response = await fetch(`${apiBase}/api/match-details/bulk-replace`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          match_id: matchId,
+          details: detailRows,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorBody = await response.json().catch(() => ({}));
+        throw new Error(errorBody?.error || "Failed to save match details");
+      }
+
+      setSaveStatus("Saved.");
+    } catch (error) {
+      console.error("Error saving match details:", error);
+      setSaveStatus("Save failed.");
+    }
+  };
+
   return (
     
     <DragDropProvider onDragEnd={handleDragEnd}>
       <h1>Now you're ready to crosswalk!</h1>
       <p>Here you can drag-and-drop individual items from the horizontal Learning Experience Outcomes menu to the “Matches” column, alongside the appropriate Course Learning Outcomes item.</p>
       <p>Once a Learning Experience Outcome is matched to a Course Learning Outcome, it will turn blue to help you keep track. The same Learning Experience Outcome can be matched against multiple Course Learning Outcomes if appropriate.</p>
-      <p>You can add notes and remove matches as needed, and you can always go back to edit the items if you want. </p>
-      <p>Note: 
+      <p>You can add notes and remove matches as needed, and you can always go back to edit the items if you want.</p>
+      <div>
+        <p>Note:</p>
         <ul>
-          <li>If you navigate away from or close this page, your progress will be saved by the browser unless you choose to clear it in the home page.
-          </li>
-          <li>You may also export the crosswalk as a CSV file below at any time and it will save your progress if you choose to work on your crosswalk on a different device.
-          </li>
+          <li>If you navigate away from or close this page, your progress will be saved by the browser unless you choose to clear it in the home page.</li>
+          <li>You may also export the crosswalk as a CSV file below at any time and it will save your progress if you choose to work on your crosswalk on a different device.</li>
         </ul>
-
-</p>
+      </div>
       <p>This is a brand-new tool, still in development! We appreciate you checking it out, and we welcome your comments to help us improve. If you want to leave any feedback or report any bugs, please click <a href="https://docs.google.com/forms/d/e/1FAIpQLSdh2duwP_A12Wl-CFYIq1GqYRRUTbv9UeBTVfYXu8bBEScf5Q/viewform?usp=dialog" target="_blank" rel="noreferrer">here</a> and fill out the form. Thank you!</p>
       <div id="crosswalk-div">
         <div id="horizontal-div">
@@ -172,7 +292,7 @@ function CrossWalk({
               aria-label="Open learning experience link"
               title="Open learning experience"
             >
-              <FontAwesomeIcon icon={faLink} style={{ color: "rgb(70, 147, 207)" }} />
+              <FontAwesomeIcon icon={faLink} className="icon-primary" />
             </a>
           ) : null}
         </div>
@@ -213,7 +333,7 @@ function CrossWalk({
               aria-label="Open uploaded syllabus file"
               title={syllabusFileName ? `Open ${syllabusFileName}` : "Open uploaded syllabus file"}
             >
-              <FontAwesomeIcon icon={faFile} style={{ color: "rgb(70, 147, 207)" }} />
+              <FontAwesomeIcon icon={faFile} className="icon-primary" />
             </a>
           ) : null}
         </div>
@@ -250,8 +370,10 @@ function CrossWalk({
     </div>
      <div id="columns-actions">
         <Button text="Back" onClick={handleBackNavigation} />
+        <Button text="Save" onClick={handleSave} />
         <Button text="Export CSV" onClick={handleExportCsv} />
       </div>
+      {saveStatus ? <p>{saveStatus}</p> : null}
     </DragDropProvider>
   );
 }

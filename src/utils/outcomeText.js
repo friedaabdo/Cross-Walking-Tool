@@ -13,92 +13,176 @@ export const splitOutcomeText = (text) => {
   return { bullets, statement };
 };
 
-const HEADING_TOKEN = "||HEADING||";
-
-const splitNonEmptyLines = (text) =>
-  String(text ?? "")
-    .split("\n")
-    .map((item) => item.trim())
-    .filter((item) => item !== "");
-
-const decodeHeadingLine = (line) => {
-  const trimmed = String(line ?? "").trim();
-  if (!trimmed) {
+const getHeaderTextFromNode = (node) => {
+  const boldNode = node.querySelector?.("strong, b");
+  if (!boldNode) {
     return "";
   }
 
-  if (trimmed.includes(HEADING_TOKEN)) {
-    return trimmed.replace(HEADING_TOKEN, "").trim();
-  }
-
-  const htmlMatch = trimmed.match(/^<(?:strong|b)>([\s\S]*?)<\/(?:strong|b)>$/i);
-  if (htmlMatch?.[1]) {
-    return htmlMatch[1].trim();
-  }
-
-  const markdownMatch = trimmed.match(/^\*\*([\s\S]*?)\*\*$/);
-  if (markdownMatch?.[1]) {
-    return markdownMatch[1].trim();
-  }
-
-  return "";
+  const text = node.textContent?.trim() ?? "";
+  const boldText = boldNode.textContent?.trim() ?? "";
+  return text && text === boldText ? text : "";
 };
 
-export const splitOutcomeDisplayParts = (text) => {
-  const { bullets, statement } = splitOutcomeText(text);
-
-  if (!statement) {
-    return { bullets, heading: "", statementBody: "" };
+export const parseInputToOutcomeSections = (value) => {
+  if (!value) {
+    return [];
   }
 
-  const parts = splitNonEmptyLines(statement);
-  const headingLineIndex = parts.findIndex((part) => decodeHeadingLine(part) !== "");
+  if (!value.includes("<")) {
+    const sections = [];
+    let currentSection = null;
 
-  if (headingLineIndex === -1) {
-    return { bullets, heading: "", statementBody: statement };
+    const startSection = () => {
+      currentSection = { header: "", lines: [] };
+      sections.push(currentSection);
+    };
+
+    const ensureSection = () => {
+      if (!currentSection) {
+        startSection();
+      }
+
+      return currentSection;
+    };
+
+    String(value)
+      .split("\n")
+      .map((line) => line.trim())
+      .filter((line) => line !== "")
+      .forEach((line) => {
+        if (/^-\s+/.test(line)) {
+          const section = ensureSection();
+          section.lines.push(line);
+          return;
+        }
+
+        startSection();
+        currentSection.lines.push(line);
+      });
+
+    return sections;
   }
 
-  const lineWithHeading = parts[headingLineIndex];
-  const heading = decodeHeadingLine(lineWithHeading);
-  const statementBody = parts
-    .filter((_, index) => index !== headingLineIndex)
-    .join("\n");
+  const container = document.createElement("div");
+  container.innerHTML = value;
 
-  return { bullets, heading, statementBody };
+  const sections = [];
+  let currentHeader = "";
+  let currentSection = null;
+
+  const startSection = (header) => {
+    currentHeader = header;
+    currentSection = null;
+  };
+
+  const startLineSection = (line) => {
+    currentSection = { header: currentHeader, lines: [line] };
+    sections.push(currentSection);
+  };
+
+  const appendBulletToCurrentSection = (line) => {
+    const trimmedLine = line.trim();
+    if (!trimmedLine) {
+      return;
+    }
+
+    if (currentSection) {
+      currentSection.lines.push(trimmedLine);
+      return;
+    }
+
+    startLineSection(trimmedLine);
+  };
+
+  Array.from(container.children).forEach((node) => {
+    const tag = node.tagName.toLowerCase();
+    const headerText = getHeaderTextFromNode(node);
+
+    if (headerText) {
+      startSection(headerText);
+      return;
+    }
+
+    if (tag === "ul" || tag === "ol") {
+      const bullets = Array.from(node.querySelectorAll("li"))
+        .map((li) => li.textContent?.trim() ?? "")
+        .filter((item) => item !== "");
+
+      if (bullets.length === 0) {
+        return;
+      }
+
+      bullets.forEach((item) => appendBulletToCurrentSection(`- ${item}`));
+      return;
+    }
+
+    const blockText = node.textContent?.trim() ?? "";
+    if (!blockText) {
+      return;
+    }
+
+    startLineSection(blockText);
+  });
+
+  return sections;
 };
 
-export const encodeOutcomeForCsv = (text) => {
-  const { bullets, heading, statementBody } = splitOutcomeDisplayParts(text);
-  const outputParts = [];
-
-  if (heading) {
-    outputParts.push(`<strong>${heading}</strong>`);
+export const parseInputToOutcomeLines = (value) => {
+  if (!value) {
+    return [];
   }
 
-  if (statementBody) {
-    outputParts.push(statementBody);
+  if (!value.includes("<")) {
+    return String(value)
+      .split("\n")
+      .map((line) => line.trim())
+      .filter((line) => line !== "");
   }
 
-  if (bullets.length > 0) {
-    outputParts.push(...bullets.map((bullet) => `- ${bullet}`));
-  }
+  const container = document.createElement("div");
+  container.innerHTML = value;
 
-  return outputParts.join("\n");
-};
+  const lines = [];
+  let currentLine = "";
 
-export const decodeOutcomeFromCsv = (text) => {
-  const lines = splitNonEmptyLines(text);
-  if (lines.length === 0) {
-    return "";
-  }
+  const pushCurrentLine = () => {
+    const trimmed = currentLine.trim();
+    if (trimmed) {
+      lines.push(trimmed);
+    }
+    currentLine = "";
+  };
 
-  const headingLineIndex = lines.findIndex((line) => decodeHeadingLine(line) !== "");
-  if (headingLineIndex === -1) {
-    return lines.join("\n");
-  }
+  Array.from(container.children).forEach((node) => {
+    const tag = node.tagName.toLowerCase();
 
-  const heading = decodeHeadingLine(lines[headingLineIndex]);
-  const normalizedLines = [...lines];
-  normalizedLines[headingLineIndex] = `${HEADING_TOKEN}${heading}`;
-  return normalizedLines.join("\n");
+    if (tag === "ul" || tag === "ol") {
+      const bullets = Array.from(node.querySelectorAll("li"))
+        .map((li) => li.textContent?.trim() ?? "")
+        .filter((item) => item !== "");
+
+      if (bullets.length === 0) {
+        return;
+      }
+
+      const bulletText = bullets.map((item) => `- ${item}`).join("\n");
+      currentLine = currentLine ? `${currentLine}\n${bulletText}` : bulletText;
+      return;
+    }
+
+    const blockText = node.textContent?.trim() ?? "";
+    if (!blockText) {
+      return;
+    }
+
+    if (currentLine) {
+      pushCurrentLine();
+    }
+
+    currentLine = blockText;
+  });
+
+  pushCurrentLine();
+  return lines;
 };

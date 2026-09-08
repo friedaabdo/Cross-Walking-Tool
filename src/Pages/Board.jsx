@@ -1,49 +1,59 @@
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import Template from "../Components/template.jsx";
 
-function Board() {
-  const navigate = useNavigate();
+function Board({ clearAddEquivDraft, setTemplateId }) {
+  const [templates, setTemplates] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    let mounted = true;
+
+    fetch("/api/learning-experiences/templates")
+      .then((res) => {
+        if (!res.ok) throw new Error("Network response was not ok");
+        return res.json();
+      })
+      .then((data) => {
+        if (!mounted) return;
+        setTemplates(data || []);
+        console.log("Fetched templates data:", data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        if (!mounted) return;
+        setError(err.message || "Failed to load templates");
+        setLoading(false);
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   return (
     <div className="board">
-      <h1>Board Page</h1>
-      <p>This is the board page.</p>
-      {/* create a dummy content for the board page where it shows what crosswalks are being worked on. add a button on top to add a new crosswalk */}
-        {/* make button go to home page */}
-        <button className="add-crosswalk-button" onClick={() => navigate('/')}>
-          Add New Crosswalk
-        </button>
-        <div className="crosswalk-list">
-            <h2>Working Crosswalks</h2>
-          <div className="crosswalk-item" style={{ backgroundColor: '#f0f0f0', padding: '10px', marginBottom: '10px' }}>
-            <h3>Crosswalk 1</h3>
-            <p>Learning Experience: Introduction to Psychology</p>
-            <p>CUNY Course: PSY 101</p>
-            {/* add drop down with dummy names for who has submitted a crosswalk. */}
-            <p>Submitted By:</p>
-            <select className="submitter-dropdown">
-              <option value="">Alice</option>
-              <option value="bob">Bob</option>
-                <option value="carol">Carol</option>
-            </select>
-            <button className="view-crosswalk-button">View Crosswalk</button>
+      <h1>Templates</h1>
 
-          </div>
-          {/* change the info below to be different dummy info */}
-          <div className="crosswalk-item" style={{ backgroundColor: '#f0f0f0', padding: '10px', marginBottom: '10px' }}>
-            <h3>Crosswalk 2</h3>
-            <p>Learning Experience: Introduction to Biology</p>
-            <p>CUNY Course: BIO 101</p>
-            {/* add drop down with dummy names for who has submitted a crosswalk. */}
-            <p>Submitted By:</p>
-            <select className="submitter-dropdown">
-              <option value="">Alice</option>
-              <option value="bob">Bob</option>
-                <option value="carol">Carol</option>
-            </select>
-            <button className="view-crosswalk-button">View Crosswalk</button>
+      <section className="templates-section">
+        {loading && <p>Loading templates…</p>}
+        {error && <p className="board-error">{error}</p>}
+        {!loading && !error && templates.length === 0 && <p>No templates found.</p>}
 
-          </div>
-        </div>
+          
+        {!loading && !error && templates.map((t) => (
+          <Template
+            key={t.experienceId}
+            title={t.title}
+            description={t.description}
+            link={t.link}
+            experienceId={t.experienceId}
+            user={t.user}
+            clearAddEquivDraft={clearAddEquivDraft}
+            setTemplateId={setTemplateId}
+          />
+        ))}
+      </section>
 
     </div>
   );

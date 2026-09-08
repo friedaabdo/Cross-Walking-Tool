@@ -1,0 +1,21 @@
+#nav {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+  background-color: var(--taxi);
+  border-radius:18px 18px 0px 0px ;
+}
+
+#nav a {
+ padding:0% 10px;
+  text-decoration: none;
+  color: var(--cuny-blue);
+  font-weight: 600;
+
+  border-right: 1px solid var(--slate);
+}
+
+#nav a:last-child {
+  border-right: none;
+}

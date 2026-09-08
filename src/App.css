@@ -1,11 +1,13 @@
+
 #root {
-  width: 100%;
-  max-width: 1320px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+	width: 100%;
+  max-width: 920px;
+	margin: 0 auto;
+	padding: 0 2rem;
+  
 }
 
-.App {
-  font-family: "Nunito Sans", "Segoe UI", Helvetica, Arial, sans-serif;
+/* center nav to the page */
+#nav {
+  margin: 0 auto;
 }

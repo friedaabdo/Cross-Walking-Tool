@@ -30,7 +30,7 @@ function CrosswalkRow({
             aria-label="Open syllabus outcome link"
             title="Open linked file"
           >
-            <FontAwesomeIcon icon={faLink} style={{ color: "rgb(70, 147, 207)" }} />
+            <FontAwesomeIcon icon={faLink} className="icon-primary" />
           </a>
         ) : null}
         {heading ? (

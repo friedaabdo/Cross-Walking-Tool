@@ -2,21 +2,25 @@
 /* submit button should be below the text box on the bottom right corner*/
 
 #outcomes-div {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 20px;
-  min-height: 100vh;
-  padding: 24px;
+
+  margin: 0 auto;
+  padding: 28px;
+  border: 1px solid var(--card-border-color);
+  border-radius: 18px;
+  background: var(--bg-surface);
+  box-shadow: var(--panel-shadow);
+  /* min-height: 100vh; */
+  border-radius:0px 0px 18px 18px;
 }
 
 .outcomes-layout {
-  width: min(1200px, 100%);
+  width: 100%;
+  height: 800px;
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  gap: 24px;
+  gap: 12px;
+
 }
 
 .outcomes-input-panel,
@@ -25,12 +29,14 @@
   min-width: 0;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  background: var(--bg-surface);
-  border: 1px solid var(--card-border-color);
+  align-items: stretch;
+  min-height: 0;
+  background: rgba(213, 228, 249, 0.803) ;
+  border: 1px solid rgba(31, 92, 255, 0.20);
   border-radius: 16px;
-  padding: 20px;
+  padding: 10px;
   box-shadow: var(--panel-shadow);
+  height: 100%;
 }
 
 .outcomes-title-row {
@@ -51,7 +57,7 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  color: var(--accent-color);
+  color: var(--color-azure);
   font-weight: 600;
 }
 
@@ -78,7 +84,23 @@
   width: min(520px, 100%);
   height: 500px;
   margin-bottom: 16px;
-  background: var(--bg-surface);
+  background: linear-gradient(180deg, rgba(255, 252, 213, 0.42) 0%, var(--bg-surface) 60%);
+  padding: 10px;
+}
+
+.outcomes-input-panel > .textarea-quill-shell {
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+}
+
+#confirmation-area {
+  width: 100%;
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 10px;
+  box-sizing: border-box;
 }
 
 @media (max-width: 900px) {
