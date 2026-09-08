@@ -7,11 +7,11 @@ import Nav from './Components/Nav.jsx'
 import CreateTemplate from './Pages/CreateTemplate.jsx'
 import AddEquiv from './Pages/AddEquiv.jsx'
 import CreateOutcomes from './Pages/CreateOutcomes.jsx'
-const OutcomesInput = lazy(() => import('./Pages/OutcomesInput'))
-const CrossWalk = lazy(() => import('./Pages/CrossWalk'))
-const Home = lazy(() => import('./Pages/Home'))
-const Board = lazy(() => import('./Pages/Board'))
-const ViewEquiv = lazy(() => import('./Pages/ViewEquiv'))
+const OutcomesInput = lazy(() => import('./Pages/OutcomesInput.jsx'))
+const CrossWalk = lazy(() => import('./Pages/CrossWalk.jsx'))
+const Home = lazy(() => import('./Pages/Home.jsx'))
+const Board = lazy(() => import('./Pages/Board.jsx'))
+const ViewEquiv = lazy(() => import('./Pages/ViewEquiv.jsx'))
 
 
 

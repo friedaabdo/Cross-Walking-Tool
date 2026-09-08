@@ -1,12 +1,12 @@
-import DraggableCard from "../Components/DraggableCard";
+import DraggableCard from "../Components/DraggableCard.jsx";
 import "./CrossWalk.css";
 import { DragDropProvider } from "@dnd-kit/react";
 import { Fragment, useEffect, useMemo, useState } from "react";
-import CrosswalkRow from "../Components/CrosswalkRow";
+import CrosswalkRow from "../Components/CrosswalkRow.jsx";
 import downloadCrosswalkCsv from "../utils/csvExport";
 import { normalizeToArray } from "../utils/collections";
 import { useNavigate } from "react-router-dom";
-import Button from "../Components/Button";
+import Button from "../Components/Button.jsx";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFile, faLink } from "@fortawesome/free-solid-svg-icons";
 

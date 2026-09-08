@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-import InputLine from "../Components/InputLine";
+import InputLine from "../Components/InputLine.jsx";
 import {
   handleFileUpload,
   MAX_SYLLABUS_FILE_SIZE_BYTES,

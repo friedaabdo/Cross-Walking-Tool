@@ -1,5 +1,5 @@
-import DroppableArea from "./DroppableArea";
-import MatchesList from "./MatchesList";
+import DroppableArea from "./DroppableArea.jsx";
+import MatchesList from "./MatchesList.jsx";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faLink } from "@fortawesome/free-solid-svg-icons";
 import { splitOutcomeDisplayParts } from "../utils/outcomeText";

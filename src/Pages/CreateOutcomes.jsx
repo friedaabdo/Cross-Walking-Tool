@@ -1,8 +1,8 @@
 import { useRef, useState } from "react";
 
-import MainDatastep from "./MainDataStep";
-import ParseOutcomesStep from "./ParseOutcomesStep";
-import ReviewOutcomesStep from "./ReviewOutcomesStep";
+import MainDatastep from "./MainDataStep.jsx";
+import ParseOutcomesStep from "./ParseOutcomesStep.jsx";
+import ReviewOutcomesStep from "./ReviewOutcomesStep.jsx";
 import { parseInputToOutcomeSections } from "../utils/outcomeText";
 
 function Create_Outcomes({ formProps }) {

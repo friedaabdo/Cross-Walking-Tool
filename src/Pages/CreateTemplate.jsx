@@ -1,8 +1,8 @@
 import "./CreateTemplate.css";
 import axios from "axios";
-import InputLine from "../Components/InputLine";
-import Textarea from "../Components/Textarea";
-import OutcomeCard from "../Components/OutcomeCard";
+import InputLine from "../Components/InputLine.jsx";
+import Textarea from "../Components/Textarea.jsx";
+import OutcomeCard from "../Components/OutcomeCard.jsx";
 import { parseInputToOutcomeSections } from "../utils/outcomeText";
 import { useNavigate } from "react-router-dom";
 
