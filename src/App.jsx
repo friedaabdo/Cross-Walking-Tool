@@ -5,7 +5,7 @@ import axios from 'axios'
 
 import Nav from './Components/Nav.jsx'
 import Create_Template from './Pages/Create_Template.jsx'
-import Add_Equiv from './Pages/Add_Equiv.jsx'
+import Add_Equiv from './Pages/Add_equiv.jsx'
 import Create_Outcomes from './Pages/Create_Outcomes.jsx'
 const OutcomesInput = lazy(() => import('./Pages/OutcomesInput'))
 const CrossWalk = lazy(() => import('./Pages/CrossWalk'))
