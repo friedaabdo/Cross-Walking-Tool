@@ -13,6 +13,20 @@ export const splitOutcomeText = (text) => {
   return { bullets, statement };
 };
 
+export const splitOutcomeDisplayParts = (text) => {
+  const { bullets, statement } = splitOutcomeText(text);
+
+  return {
+    bullets,
+    heading: "",
+    statementBody: statement,
+  };
+};
+
+export const encodeOutcomeForCsv = (text) => String(text ?? "");
+
+export const decodeOutcomeFromCsv = (text) => String(text ?? "");
+
 const getHeaderTextFromNode = (node) => {
   const boldNode = node.querySelector?.("strong, b");
   if (!boldNode) {
