@@ -1,4 +1,4 @@
-import Textarea from "../Components/textarea";
+import Textarea from "../Components/Textarea";
 import "./CreateWizard.css";
 
 function ParseOutcomesStep({

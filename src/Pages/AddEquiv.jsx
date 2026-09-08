@@ -1,10 +1,10 @@
 import axios from "axios";
 import { useLocation, useNavigate } from "react-router-dom";
 import InputLine from "../Components/InputLine";
-import Textarea from "../Components/textarea";
-import OutcomeCard from "../Components/Outcome-card";
+import Textarea from "../Components/Textarea";
+import OutcomeCard from "../Components/OutcomeCard";
 import { parseInputToOutcomeSections } from "../utils/outcomeText";
-import "./Create_template.css";
+import "./CreateTemplate.css";
 
 function Add_Equiv({
   cunyCourseTitle,

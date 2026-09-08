@@ -1,8 +1,8 @@
 //create the component for the templates
 // import React, { useState } from "react";
-import "./template.css";
+import "./Template.css";
 import { useNavigate } from "react-router-dom";
-import Button from "./button.jsx";
+import Button from "./Button.jsx";
 
   //  const createCourseAndMatch = async (experienceId) => {
   //           try {

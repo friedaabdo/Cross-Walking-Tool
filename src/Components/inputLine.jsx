@@ -1,4 +1,4 @@
-import './inputLine.css';
+import './InputLine.css';
 
 function InputLine({ value, onChange, placeholder, type = '', accept }) {
 

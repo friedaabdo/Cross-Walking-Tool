@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import Template from "../Components/template.jsx";
+import Template from "../Components/Template.jsx";
 
 function Board({ clearAddEquivDraft, setTemplateId }) {
   const [templates, setTemplates] = useState([]);

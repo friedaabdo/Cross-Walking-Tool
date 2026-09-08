@@ -4,14 +4,14 @@ import './App.css'
 import axios from 'axios'
 
 import Nav from './Components/Nav.jsx'
-import Create_Template from './Pages/Create_Template.jsx'
-import Add_Equiv from './Pages/Add_equiv.jsx'
-import Create_Outcomes from './Pages/Create_Outcomes.jsx'
+import CreateTemplate from './Pages/CreateTemplate.jsx'
+import AddEquiv from './Pages/AddEquiv.jsx'
+import CreateOutcomes from './Pages/CreateOutcomes.jsx'
 const OutcomesInput = lazy(() => import('./Pages/OutcomesInput'))
 const CrossWalk = lazy(() => import('./Pages/CrossWalk'))
 const Home = lazy(() => import('./Pages/Home'))
 const Board = lazy(() => import('./Pages/Board'))
-const View_equiv = lazy(() => import('./Pages/View_equiv'))
+const ViewEquiv = lazy(() => import('./Pages/ViewEquiv'))
 
 
 
@@ -613,9 +613,9 @@ function AppRoutes() {
         path="/board"
         element={<Board clearAddEquivDraft={clearAddEquivDraft} templateId={templateId} setTemplateId={setTemplateId} />}
       />
-       {/* <Route
+      {/* <Route
         path="/create-template"
-        element={<Create_Template
+       element={<CreateTemplate
           learningExperienceTitle={leTitle}
           setLearningExperienceTitle={setLeTitle}
           learningExperienceDescription={learningExperienceDescription}
@@ -630,7 +630,7 @@ function AppRoutes() {
       /> */}
       <Route
         path="/add-equivalency"
-        element={<Add_Equiv
+        element={<AddEquiv
           cunyCourseTitle={ccTitle}
           setCunyCourseTitle={setccTitle}
           cunyCourseDescription={cunyCourseDescription}
@@ -648,7 +648,7 @@ function AppRoutes() {
       />
       <Route
         path="/equivalency/:experienceId"
-        element={<View_equiv />}
+        element={<ViewEquiv />}
       />
       <Route
         path="/learning-experience"
@@ -724,7 +724,7 @@ function AppRoutes() {
       <Route
         path="/create-crosswalk"
         element={
-          <Create_Outcomes
+          <CreateOutcomes
           formProps={createCrosswalkProps}
           />
         }
@@ -732,7 +732,7 @@ function AppRoutes() {
       <Route
         path="/create-learning-experience"
         element={
-          <Create_Outcomes
+          <CreateOutcomes
             key="create-learning-experience"
             formProps={{
               ...createLearningExperienceProps,
@@ -756,7 +756,7 @@ function AppRoutes() {
       <Route
         path="/create-cuny-course"
         element={
-          <Create_Outcomes
+          <CreateOutcomes
             key="create-cuny-course"
             formProps={{
               ...createCunyCourseProps,
@@ -770,7 +770,7 @@ function AppRoutes() {
       <Route
         path="/create-template"
         element={
-          <Create_Outcomes
+          <CreateOutcomes
           formProps={{ ...createLearningExperienceProps, is_template: true, goToEnd: () => window.location.href = '/board' }}
           />
         }
@@ -778,7 +778,7 @@ function AppRoutes() {
       <Route
         path="/create-equivalency"
         element={
-          <Create_Outcomes
+          <CreateOutcomes
             formProps={{
               ...createCunyCourseProps,
               experienceId: selectedTemplateId,

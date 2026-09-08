@@ -1,5 +1,5 @@
-import './confirmationArea.css'
-import OutcomeCard from './Outcome-card'
+import './ConfirmationArea.css'
+import OutcomeCard from './OutcomeCard'
 
 function ConfirmationArea({ lines, sections, outcomeLinks, setOutcomeLinks }) {
     return (

@@ -1,7 +1,7 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleXmark, faLink } from "@fortawesome/free-solid-svg-icons";
 import { splitOutcomeDisplayParts } from "../utils/outcomeText";
-import "./outcome-rich.css";
+import "./OutcomeRich.css";
 
 const normalizeExternalUrl = (url) => {
   const trimmedUrl = (url || "").trim();

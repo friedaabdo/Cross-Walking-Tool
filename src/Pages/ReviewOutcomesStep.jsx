@@ -1,4 +1,4 @@
-import OutcomeCard from "../Components/Outcome-card.jsx";
+import OutcomeCard from "../Components/OutcomeCard.jsx";
 import "./CreateWizard.css";
 
 function ReviewOutcomesStep({

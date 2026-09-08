@@ -1,9 +1,9 @@
-import DroppableArea from "./Droppable-area";
-import MatchesList from "./Matches-list";
+import DroppableArea from "./DroppableArea";
+import MatchesList from "./MatchesList";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faLink } from "@fortawesome/free-solid-svg-icons";
 import { splitOutcomeDisplayParts } from "../utils/outcomeText";
-import "./outcome-rich.css";
+import "./OutcomeRich.css";
 
 function CrosswalkRow({
   line,

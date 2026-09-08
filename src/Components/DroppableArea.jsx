@@ -1,5 +1,5 @@
 import { useDroppable } from "@dnd-kit/react";
-import "./Droppable-area.css";
+import "./DroppableArea.css";
 
 function DroppableArea({ id, children }) {
     const {ref} = useDroppable({ id });

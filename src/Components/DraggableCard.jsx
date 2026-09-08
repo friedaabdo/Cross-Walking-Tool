@@ -3,8 +3,8 @@ import { useEffect, useRef, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faLink } from "@fortawesome/free-solid-svg-icons";
 import { splitOutcomeDisplayParts } from "../utils/outcomeText";
-import "./Draggable-card.css";
-import "./outcome-rich.css";
+import "./DraggableCard.css";
+import "./OutcomeRich.css";
 
 const COLLAPSED_CARD_HEIGHT = 150;
 

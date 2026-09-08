@@ -1,5 +1,5 @@
-import "./Outcome-card.css";
-import "./outcome-rich.css";
+import "./OutcomeCard.css";
+import "./OutcomeRich.css";
 // import { splitOutcomeText } from "../utils/outcomeText";
 
 // const normalizeSections = (lines, sections) => {

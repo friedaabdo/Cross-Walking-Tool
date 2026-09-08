@@ -5,9 +5,9 @@
 import "./OutcomesInput.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFile, faLink } from "@fortawesome/free-solid-svg-icons";
-import Textarea from "../Components/textarea";
-import ConfirmationArea from "../Components/confirmationArea";
-import Button from "../Components/button";
+import Textarea from "../Components/Textarea";
+import ConfirmationArea from "../Components/ConfirmationArea";
+import Button from "../Components/Button";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { parseInputToOutcomeSections } from "../utils/outcomeText";
