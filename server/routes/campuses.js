@@ -10,7 +10,7 @@ router.get("/", async (req, res) => {
       SELECT 
         school_id,
         school_name
-      FROM cuny_school
+      FROM CUNY_School
       ORDER BY school_name ASC
     `);
 
