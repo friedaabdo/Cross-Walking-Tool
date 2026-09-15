@@ -240,7 +240,7 @@ function CrossWalk({
     try {
       setSaveStatus("Saving...");
 
-      const apiBase = import.meta.env.VITE_API_BASE || "http://localhost:4000";
+      const apiBase = import.meta.env.DATABASE_URL || "http://localhost:4000";
       const response = await fetch(`${apiBase}/api/match-details/bulk-replace`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
