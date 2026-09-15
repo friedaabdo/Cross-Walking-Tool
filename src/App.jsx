@@ -7,6 +7,7 @@ import Nav from './Components/Nav.jsx'
 import CreateTemplate from './Pages/CreateTemplate.jsx'
 import AddEquiv from './Pages/AddEquiv.jsx'
 import CreateOutcomes from './Pages/CreateOutcomes.jsx'
+import { buildOutcomeRecords } from './utils/outcomeText'
 const OutcomesInput = lazy(() => import('./Pages/OutcomesInput.jsx'))
 const CrossWalk = lazy(() => import('./Pages/CrossWalk.jsx'))
 const Home = lazy(() => import('./Pages/Home.jsx'))
@@ -94,18 +95,7 @@ const submitOutcomes = async (formData = {}) => {
     throw new Error('No outcomes to submit.')
   }
 
-  const normalizedOutcomes = outcomes.flatMap((section) => {
-    const lines = Array.isArray(section?.lines) ? section.lines : []
-    const category = section?.header ?? ''
-
-    return lines
-      .map((line) => String(line).replace(/^-\s*/, '').trim())
-      .filter(Boolean)
-      .map((text) => ({
-        outcomeText: text,
-        category,
-      }))
-  })
+  const normalizedOutcomes = buildOutcomeRecords(outcomes)
 
   const recordType = formData.recordType || (formData.courseId ? 'cunyCourse' : 'learningExperience')
   const courseId = formData.courseId ?? null
@@ -199,6 +189,8 @@ function clearStoredKeys(keys) {
 function CrossWalkRoute({
   certLines,
   syllLines,
+  // certOutcomeRows,
+  // syllOutcomeRows,
   setCertLines,
   setSyllLines,
   certOutcomeLinks,
@@ -369,6 +361,9 @@ function CrossWalkRoute({
     <CrossWalk
       certLines={certLines}
       syllLines={syllLines}
+      certOutcomeRows={experienceOutcomeRows}
+      syllOutcomeRows={courseOutcomeRows}
+      matchId={crosswalkMatchId}
       certOutcomeLinks={certOutcomeLinks}
       syllOutcomeLinks={syllOutcomeLinks}
       leTitle={leTitle}
@@ -386,7 +381,7 @@ function CrossWalkRoute({
       setDraggedOnceById={setDraggedOnceById}
       courseId={crosswalkCourseId}
       experienceId={crosswalkExperienceId}
-      matchId={crosswalkMatchId}
+      // matchId={crosswalkMatchId}
     />
   )
 }
@@ -558,21 +553,21 @@ function AppRoutes() {
     ])
   }
 
-  const clearCrosswalkDraft = () => {
-    setMatchesByRow({})
-    setNotesByRow({})
-    setDraggedOnceById({})
-    setCertLines([])
-    setSyllLines([])
+  // const clearCrosswalkDraft = () => {
+  //   setMatchesByRow({})
+  //   setNotesByRow({})
+  //   setDraggedOnceById({})
+  //   setCertLines([])
+  //   setSyllLines([])
 
-    clearStoredKeys([
-      STORAGE_KEYS.matchesByRow,
-      STORAGE_KEYS.notesByRow,
-      STORAGE_KEYS.draggedOnceById,
-      STORAGE_KEYS.certLines,
-      STORAGE_KEYS.syllLines,
-    ])
-  }
+  //   clearStoredKeys([
+  //     STORAGE_KEYS.matchesByRow,
+  //     STORAGE_KEYS.notesByRow,
+  //     STORAGE_KEYS.draggedOnceById,
+  //     STORAGE_KEYS.certLines,
+  //     STORAGE_KEYS.syllLines,
+  //   ])
+  // }
 
   return (
     <div className="App">
@@ -628,7 +623,7 @@ function AppRoutes() {
           setOutcomesDraft={setOutcomesDraft}
         />}
       /> */}
-      <Route
+      {/* <Route
         path="/add-equivalency"
         element={<AddEquiv
           cunyCourseTitle={ccTitle}
@@ -645,12 +640,12 @@ function AppRoutes() {
           setOutcomesDraft={setOutcomesDraft}
           clearCrosswalkDraft={clearCrosswalkDraft}
         />} 
-      />
+      /> */}
       <Route
         path="/equivalency/:experienceId"
         element={<ViewEquiv />}
       />
-      <Route
+      {/* <Route
         path="/learning-experience"
         element={
           <OutcomesInput
@@ -668,8 +663,8 @@ function AppRoutes() {
             learningExperienceDescription={learningExperienceDescription}
           />
         }
-      />
-      <Route
+      /> */}
+      {/* <Route
         path="/syllabus"
         element={
           <OutcomesInput
@@ -689,7 +684,7 @@ function AppRoutes() {
 
           />
         }
-      />
+      /> */}
       <Route
         path="/crosswalk"
         element={

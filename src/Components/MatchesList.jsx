@@ -18,7 +18,7 @@ const normalizeExternalUrl = (url) => {
 
 const toLineKey = (line) => `line:${(line || "").trim()}`;
 
-function MatchesList({ matchedIds, matchedLines, certOutcomeLinks, onRemove }) {
+function MatchesList({ matchedIds, matchedLines, matchedOutcomeRows = [], certOutcomeLinks, onRemove }) {
   if (matchedLines.length === 0) {
     return <span className="drop-placeholder">Drop outcome here</span>;
   }
@@ -31,6 +31,7 @@ function MatchesList({ matchedIds, matchedLines, certOutcomeLinks, onRemove }) {
         const matchedLink = normalizeExternalUrl(
           certOutcomeLinks?.[certIndex] ?? certOutcomeLinks?.[toLineKey(matchedLine)]
         );
+        const category = certIndex ? matchedOutcomeRows[Number(certIndex)]?.category : "";
         const { bullets, heading, statementBody } = splitOutcomeDisplayParts(matchedLine);
 
         return (
@@ -57,9 +58,9 @@ function MatchesList({ matchedIds, matchedLines, certOutcomeLinks, onRemove }) {
               onClick={() => onRemove(matchedId)}
             />
             <div className="outcome-rich-content">
-              {heading ? (
+              {category || heading ? (
                 <div className="outcome-rich-heading">
-                  <strong>{heading}</strong>
+                  <strong>{category || heading}</strong>
                 </div>
               ) : null}
               {statementBody ? <span className="outcome-rich-statement">{statementBody}</span> : null}

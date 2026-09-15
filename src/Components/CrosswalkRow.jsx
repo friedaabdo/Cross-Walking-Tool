@@ -7,8 +7,10 @@ import "./OutcomeRich.css";
 
 function CrosswalkRow({
   line,
+  category,
   matchedIds,
   matchedLines,
+  matchedOutcomeRows,
   certOutcomeLinks,
   syllabusLinkUrl,
   note,
@@ -33,9 +35,9 @@ function CrosswalkRow({
             <FontAwesomeIcon icon={faLink} className="icon-primary" />
           </a>
         ) : null}
-        {heading ? (
+        {category || heading ? (
           <div className="outcome-rich-heading">
-            <strong>{heading}</strong>
+            <strong>{category || heading}</strong>
           </div>
         ) : null}
         {statementBody ? <span className="outcome-rich-statement">{statementBody}</span> : null}
@@ -51,6 +53,7 @@ function CrosswalkRow({
         <MatchesList
           matchedIds={matchedIds}
           matchedLines={matchedLines}
+          matchedOutcomeRows={matchedOutcomeRows}
           certOutcomeLinks={certOutcomeLinks}
           onRemove={(matchedId) => onRemoveMatch(rowId, matchedId)}
         />

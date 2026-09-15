@@ -10,6 +10,7 @@ function ReviewOutcomesStep({
   const outcomes = Array.isArray(formData?.outcomes) && formData.outcomes.length > 0
     ? formData.outcomes
     : [];
+    console.log("outcomes in ReviewOutcomesStep.jsx:", outcomes);
 
   return (
     <div id="review-outcomes" className="wizard-shell review-panel">

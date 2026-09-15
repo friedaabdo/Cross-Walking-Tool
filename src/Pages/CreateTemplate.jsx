@@ -3,7 +3,7 @@ import axios from "axios";
 import InputLine from "../Components/InputLine.jsx";
 import Textarea from "../Components/Textarea.jsx";
 import OutcomeCard from "../Components/OutcomeCard.jsx";
-import { parseInputToOutcomeSections } from "../utils/outcomeText";
+import { buildOutcomeRecords, parseInputToOutcomeSections } from "../utils/outcomeText";
 import { useNavigate } from "react-router-dom";
 
 function Create_Template({
@@ -35,48 +35,6 @@ function Create_Template({
       is_template: true,
     };
 
-    const buildOutcomesPayload = (sections) => {
-      const items = [];
-      (sections || []).forEach((sec) => {
-        const header = sec?.header ?? "";
-        const lines = Array.isArray(sec?.lines)
-          ? sec.lines
-          : sec?.line
-            ? [sec.line]
-            : [];
-
-        let lastItem = null;
-        lines.forEach((rawLine) => {
-          const line = String(rawLine ?? "").trim();
-          if (!line) return;
-
-          if (/^[-]\s+/.test(line)) {
-            // bullet: attach to previous non-bullet outcome if present
-            if (lastItem) {
-              lastItem.outcomeText = `${lastItem.outcomeText}\n${line}`;
-            } else {
-              // bullet without a prior main line: create standalone bullet outcome
-              const item = {
-                outcomeText: line,
-                category: String(header).trim() || null,
-              };
-              items.push(item);
-              lastItem = item;
-            }
-          } else {
-            // new main line -> create a new outcome
-            const item = {
-              outcomeText: line,
-              category: String(header).trim() || null,
-            };
-            items.push(item);
-            lastItem = item;
-          }
-        });
-      });
-      return items;
-    };
-
     axios
       .post("/api/learning-experiences/create-template", payload)
       .then((res) => {
@@ -87,7 +45,7 @@ function Create_Template({
           );
         }
 
-        const outcomesPayload = buildOutcomesPayload(outcomes);
+        const outcomesPayload = buildOutcomeRecords(outcomes);
 
         return axios.post("/api/outcomes/bulk-replace", {
           experienceId,

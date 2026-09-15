@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import InputLine from "../Components/InputLine.jsx";
 import Textarea from "../Components/Textarea.jsx";
 import OutcomeCard from "../Components/OutcomeCard.jsx";
-import { parseInputToOutcomeSections } from "../utils/outcomeText";
+import { buildOutcomeRecords, parseInputToOutcomeSections } from "../utils/outcomeText";
 import "./CreateTemplate.css";
 
 function Add_Equiv({
@@ -33,40 +33,6 @@ function Add_Equiv({
     setOutcomes(parsedOutcomes);
   };
 
-  const buildOutcomesPayload = (sections) => {
-    const items = [];
-
-    (sections || []).forEach((sec) => {
-      const header = sec?.header ?? "";
-      const lines = Array.isArray(sec?.lines) ? sec.lines : sec?.line ? [sec.line] : [];
-
-      let lastItem = null;
-
-      lines.forEach((rawLine) => {
-        const line = String(rawLine ?? "").trim();
-        if (!line) {
-          return;
-        }
-
-        if (/^[-]\s+/.test(line)) {
-          if (lastItem) {
-            lastItem.outcomeText = `${lastItem.outcomeText}\n${line}`;
-          } else {
-            const item = { outcomeText: line, category: String(header).trim() || null };
-            items.push(item);
-            lastItem = item;
-          }
-        } else {
-          const item = { outcomeText: line, category: String(header).trim() || null };
-          items.push(item);
-          lastItem = item;
-        }
-      });
-    });
-
-    return items;
-  };
-
   const handleSubmit = (event) => {
     event.preventDefault();
 
@@ -80,7 +46,7 @@ function Add_Equiv({
       return;
     }
 
-    const outcomesPayload = buildOutcomesPayload(outcomes);
+    const outcomesPayload = buildOutcomeRecords(outcomes);
 
     axios
       .put(`/api/cuny-courses/${courseId}`, {

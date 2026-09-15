@@ -28,6 +28,8 @@ const toLineKey = (line) => `line:${(line || "").trim()}`;
 function CrossWalk({ 
   certLines, 
   syllLines, 
+  certOutcomeRows = [],
+  syllOutcomeRows = [],
   certOutcomeLinks,
   syllOutcomeLinks,
   leTitle, 
@@ -206,7 +208,8 @@ function CrossWalk({
     syllLines.forEach((_, rowIndex) => {
       const rowId = `drop-${rowIndex}`;
       const notes = notesByRow[rowId] ?? "";
-      const cunyOutcomeId = courseOutcomeRows[rowIndex]?.id;
+      const cunyOutcomeId =
+        courseOutcomeRows[rowIndex]?.outcomeId ?? courseOutcomeRows[rowIndex]?.id;
       const matchedIds = getMatchesForRow(rowId);
 
       if (matchedIds.length === 0) {
@@ -223,7 +226,9 @@ function CrossWalk({
 
       matchedIds.forEach((matchedId) => {
         const experienceIndex = Number(String(matchedId).replace("cert-", ""));
-        const experienceOutcomeId = experienceOutcomeRows[experienceIndex]?.id;
+        const experienceOutcomeId =
+          experienceOutcomeRows[experienceIndex]?.outcomeId ??
+          experienceOutcomeRows[experienceIndex]?.id;
 
         if (!cunyOutcomeId || !experienceOutcomeId) {
           return;
@@ -240,8 +245,7 @@ function CrossWalk({
     try {
       setSaveStatus("Saving...");
 
-      const apiBase = import.meta.env.DATABASE_URL || "http://localhost:4000";
-      const response = await fetch(`${apiBase}/api/match-details/bulk-replace`, {
+      const response = await fetch("/api/match-details/bulk-replace", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -312,6 +316,7 @@ function CrossWalk({
                 id={certId}
                 className={`crosswalk-cert-card ${draggedClass}`}
                 line={line}
+                category={certOutcomeRows[index]?.category}
                 linkUrl={certLink}
               />
             );
@@ -354,8 +359,10 @@ function CrossWalk({
             <Fragment key={`row-${index}`}>
               <CrosswalkRow
                 line={line}
+                category={syllOutcomeRows[index]?.category}
                 matchedIds={matchedIds}
                 matchedLines={matchedLines}
+                matchedOutcomeRows={certOutcomeRows}
                 certOutcomeLinks={certOutcomeLinks}
                 syllabusLinkUrl={syllLink}
                 note={notesByRow[rowId] ?? ""}

@@ -8,7 +8,7 @@ import "./OutcomeRich.css";
 
 const COLLAPSED_CARD_HEIGHT = 150;
 
-function DraggableCard({ id, className, line, linkUrl }) {
+function DraggableCard({ id, className, line, category, linkUrl }) {
     const { ref, attributes, listeners } = useDraggable({ id });
     const wrapperRef = useRef(null);
     const cardRef = useRef(null);
@@ -101,9 +101,9 @@ function DraggableCard({ id, className, line, linkUrl }) {
                     </a>
                 ) : null}
                 <div className="draggable-card-content outcome-rich-content">
-                    {heading ? (
+                    {category || heading ? (
                         <div className="outcome-rich-heading">
-                            <strong>{heading}</strong>
+                            <strong>{category || heading}</strong>
                         </div>
                     ) : null}
                     {statementBody ? <span className="outcome-rich-statement">{statementBody}</span> : null}

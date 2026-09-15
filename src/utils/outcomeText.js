@@ -23,6 +23,51 @@ export const splitOutcomeDisplayParts = (text) => {
   };
 };
 
+export const buildOutcomeRecords = (sections) => {
+  const records = [];
+
+  (sections || []).forEach((section) => {
+    const header = String(section?.header ?? "").trim();
+    const lines = Array.isArray(section?.lines)
+      ? section.lines
+      : section?.line
+        ? [section.line]
+        : [];
+    let currentRecord = null;
+    let headerRecord = null;
+
+    lines.forEach((rawLine) => {
+      const line = String(rawLine ?? "").trim();
+      if (!line) {
+        return;
+      }
+
+      if (/^-\s+/.test(line)) {
+        const record = currentRecord ?? headerRecord;
+
+        if (record) {
+          record.outcomeText = `${record.outcomeText}\n${line}`;
+        } else {
+          headerRecord = {
+            outcomeText: line,
+            category: header || null,
+          };
+          records.push(headerRecord);
+        }
+        return;
+      }
+
+      currentRecord = {
+        outcomeText: line,
+        category: header || null,
+      };
+      records.push(currentRecord);
+    });
+  });
+
+  return records;
+};
+
 export const encodeOutcomeForCsv = (text) => String(text ?? "");
 
 export const decodeOutcomeFromCsv = (text) => String(text ?? "");
