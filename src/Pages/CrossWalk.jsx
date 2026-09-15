@@ -192,7 +192,7 @@ function CrossWalk({
   };
 
   const handleBackNavigation = () => {
-    navigate('/syllabus');
+    navigate(-1);
   };
 
   const handleSave = async () => {
