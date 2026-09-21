@@ -1,7 +1,7 @@
 import DraggableCard from "../Components/DraggableCard.jsx";
 import "./CrossWalk.css";
 import { DragDropProvider } from "@dnd-kit/react";
-import { Fragment, useEffect, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import CrosswalkRow from "../Components/CrosswalkRow.jsx";
 import downloadCrosswalkCsv from "../utils/csvExport";
 import { normalizeToArray } from "../utils/collections";
@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 import Button from "../Components/Button.jsx";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFile, faLink } from "@fortawesome/free-solid-svg-icons";
+import html2pdf from "html2pdf.js";
 
 const normalizeExternalUrl = (url) => {
   const trimmedUrl = (url || "").trim();
@@ -53,6 +54,7 @@ function CrossWalk({
   const [courseOutcomeRows, setCourseOutcomeRows] = useState([]);
   const [experienceOutcomeRows, setExperienceOutcomeRows] = useState([]);
   const [saveStatus, setSaveStatus] = useState("");
+  const crosswalkRef = useRef(null);
   const hasLearningExperienceLink = Boolean((learningExperienceLink || "").trim());
   const resolvedLearningExperienceLink = normalizeExternalUrl(learningExperienceLink);
   const hasSyllabusFile = Boolean(syllabusFileUrl);
@@ -193,6 +195,35 @@ function CrossWalk({
     });
   };
 
+  const handleExportPdf = async () => {
+    if (!crosswalkRef.current) {
+      setSaveStatus("PDF export failed.");
+      return;
+    }
+
+    const safeTitle = (ccTitle || leTitle || "crosswalk")
+      .trim()
+      .replace(/[<>:"/\\|?*]/g, "-")
+      .replace(/\s+/g, "-")
+      .slice(0, 100) || "crosswalk";
+
+    try {
+      await html2pdf()
+        .set({
+          margin: 0.5,
+          filename: `${safeTitle}.pdf`,
+          image: { type: "jpeg", quality: 0.98 },
+          html2canvas: { scale: 2, useCORS: true },
+          jsPDF: { unit: "in", format: "letter", orientation: "landscape" },
+        })
+        .from(crosswalkRef.current)
+        .save();
+    } catch (error) {
+      console.error("Error exporting crosswalk PDF:", error);
+      setSaveStatus("PDF export failed.");
+    }
+  };
+
   const handleBackNavigation = () => {
     navigate(-1);
   };
@@ -281,7 +312,7 @@ function CrossWalk({
         </ul>
       </div>
       <p>This is a brand-new tool, still in development! We appreciate you checking it out, and we welcome your comments to help us improve. If you want to leave any feedback or report any bugs, please click <a href="https://docs.google.com/forms/d/e/1FAIpQLSdh2duwP_A12Wl-CFYIq1GqYRRUTbv9UeBTVfYXu8bBEScf5Q/viewform?usp=dialog" target="_blank" rel="noreferrer">here</a> and fill out the form. Thank you!</p>
-      <div id="crosswalk-div">
+      <div id="crosswalk-div" ref={crosswalkRef}>
         <div id="horizontal-div">
         <div className="crosswalk-heading-row">
           <h2>{leTitle || "Learning Experience"} Outcomes</h2>
@@ -379,6 +410,7 @@ function CrossWalk({
         <Button text="Back" onClick={handleBackNavigation} />
         <Button text="Save" onClick={handleSave} />
         <Button text="Export CSV" onClick={handleExportCsv} />
+        <Button text="Export PDF" onClick={handleExportPdf} />
       </div>
       {saveStatus ? <p>{saveStatus}</p> : null}
     </DragDropProvider>
