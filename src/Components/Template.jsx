@@ -1,8 +1,8 @@
 //create the component for the templates
-// import React, { useState } from "react";
 import "./Template.css";
 import { useNavigate } from "react-router-dom";
 import Button from "./Button.jsx";
+import { useEffect, useState } from "react";
 
   //  const createCourseAndMatch = async (experienceId) => {
   //           try {
@@ -47,9 +47,51 @@ import Button from "./Button.jsx";
 
 function Template({ title, description, link, experienceId, clearAddEquivDraft, setTemplateId }) {
   const navigate = useNavigate();
+  const [showDetails, setShowDetails] = useState(false);
+  const [outcomes, setOutcomes] = useState([]);
+  const [outcomesLoading, setOutcomesLoading] = useState(false);
+  const [outcomesError, setOutcomesError] = useState("");
+
+  const handleViewDetails = async () => {
+    setShowDetails(true);
+    setOutcomesLoading(true);
+    setOutcomesError("");
+
+    try {
+      const response = await fetch(`/api/outcomes?experienceId=${experienceId}`);
+
+      if (!response.ok) {
+        throw new Error("Failed to load template outcomes");
+      }
+
+      const data = await response.json();
+      setOutcomes(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error("Error loading template outcomes:", error);
+      setOutcomesError("Unable to load outcomes. Please try again.");
+    } finally {
+      setOutcomesLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!showDetails) {
+      return undefined;
+    }
+
+    const handleEscape = (event) => {
+      if (event.key === "Escape") {
+        setShowDetails(false);
+      }
+    };
+
+    document.addEventListener("keydown", handleEscape);
+    return () => document.removeEventListener("keydown", handleEscape);
+  }, [showDetails]);
 
   return (
-    <article className="template-card">
+    <>
+      <article className="template-card">
       <div className="template-card-header">
         <span className="template-badge">Template</span>
       </div>
@@ -78,6 +120,11 @@ function Template({ title, description, link, experienceId, clearAddEquivDraft, 
         />
         <Button
           className="template-button secondary"
+          onClick={handleViewDetails}
+          text={"View Template Details"}
+        />
+        <Button
+          className="template-button secondary"
           onClick={() => {
             const url = `/equivalency/${experienceId}`;
             window.location.href = url;
@@ -85,7 +132,54 @@ function Template({ title, description, link, experienceId, clearAddEquivDraft, 
           text={"View Equivalencies"}
         />
       </div>
-    </article>
+      </article>
+
+      {showDetails ? (
+        <div
+          className="template-modal-backdrop"
+          role="presentation"
+          onClick={() => setShowDetails(false)}
+        >
+          <section
+            className="template-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby={`template-details-title-${experienceId}`}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="template-modal-header">
+              <h2 id={`template-details-title-${experienceId}`}>{title}</h2>
+              <button
+                type="button"
+                className="template-modal-close"
+                onClick={() => setShowDetails(false)}
+                aria-label="Close template details"
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="template-modal-content">
+              {outcomesLoading ? <p>Loading outcomes...</p> : null}
+              {outcomesError ? <p className="template-modal-error">{outcomesError}</p> : null}
+              {!outcomesLoading && !outcomesError && outcomes.length === 0 ? (
+                <p>No outcomes found for this learning experience.</p>
+              ) : null}
+              {!outcomesLoading && !outcomesError && outcomes.length > 0 ? (
+                <ol className="template-outcomes-list">
+                  {outcomes.map((outcome) => (
+                    <li key={outcome.outcomeId ?? outcome.id}>
+                      {outcome.category ? <strong>{outcome.category}: </strong> : null}
+                      {outcome.outcomeText ?? outcome.text}
+                    </li>
+                  ))}
+                </ol>
+              ) : null}
+            </div>
+          </section>
+        </div>
+      ) : null}
+    </>
   );
 }
 
