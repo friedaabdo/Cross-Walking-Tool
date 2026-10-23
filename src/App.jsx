@@ -71,23 +71,6 @@ const createCunyCourse = async (formData = {}) => {
   return response.data
 }
 
-const createMatch = async (formData = {}) => {
-  const courseId = Number(formData.courseId ?? formData.course_id ?? 0)
-  const experienceId = Number(formData.experienceId ?? formData.experience_id ?? 0)
-
-  if (!courseId || !experienceId) {
-    throw new Error('A course and learning experience are required before creating a match.')
-  }
-
-  const response = await axios.post('/api/matches', {
-    courseId,
-    experienceId,
-  })
-
-  console.log('Created match:', response.data)
-  return response.data
-}
-
 const submitOutcomes = async (formData = {}) => {
   const outcomes = Array.isArray(formData.outcomes) ? formData.outcomes : []
 
@@ -130,7 +113,6 @@ const createCunyCourseProps = {
   submitMainData: createCunyCourse,
   submitOutcomes,
   submitTagMapping: () => {},
-  createMatch,
   goToEnd: () => {}, // if add-equiv goes to crosswalk with template, if reg crosswalk goes to crosswalk with le it got made with
   experienceId: null,
 }
@@ -392,7 +374,7 @@ function AppRoutes() {
   const [templateId, setTemplateId] = useState(null)
   const selectedTemplateId = location.state?.templateId ?? templateId
 
-  const goToCrosswalk = async (formData, fallbackExperienceId = null) => {
+  const goToCrosswalk = (formData, fallbackExperienceId = null) => {
     const courseId = formData?.courseId ?? formData?.course_id ?? null
     const experienceId = formData?.experienceId ?? formData?.experience_id ?? fallbackExperienceId ?? null
 
@@ -401,16 +383,7 @@ function AppRoutes() {
       return
     }
 
-    let matchId = formData?.matchId ?? formData?.match_id ?? null
-
-    if (!matchId) {
-      try {
-        const matchResponse = await createMatch({ courseId, experienceId })
-        matchId = matchResponse?.matchId ?? null
-      } catch (error) {
-        console.error('Failed to create match before navigating to crosswalk:', error)
-      }
-    }
+    const matchId = formData?.matchId ?? formData?.match_id ?? null
 
     const params = new URLSearchParams({
       courseId: String(courseId),

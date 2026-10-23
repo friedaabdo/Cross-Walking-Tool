@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { query } from "../db.js";
+import { pool, query } from "../db.js";
 
 const router = Router();
 
@@ -59,8 +59,12 @@ router.post("/", async (req, res) => {
     return res.status(400).json({ error: "courseCode is required" });
   }
 
+  const connection = await pool.getConnection();
+
   try {
-    const result = await query(
+    await connection.beginTransaction();
+
+    const [courseResult] = await connection.execute(
       `INSERT INTO CUNY_Course (department_id, user_id, course_code, title, description, syllabus_file_names, syllabus_file_url)
        VALUES (?, ?, ?, ?, ?, ?, ?)`,
       [
@@ -74,21 +78,23 @@ router.post("/", async (req, res) => {
       ]
     );
 
-    const courseId = Number(result.insertId);
+    const courseId = Number(courseResult.insertId);
+    let matchId = null;
 
+    // The match is created here, in the same transaction as the course, so the client never has to create it.
     if (experienceId) {
-      try {
-        await query(
-          `INSERT INTO Matches (course_id, experience_id) VALUES (?, ?)`,
-          [courseId, Number(experienceId)]
-        );
-      } catch {
-        // optional relation is not required to create the course itself
-      }
+      const [matchResult] = await connection.execute(
+        `INSERT INTO Matches (course_id, experience_id) VALUES (?, ?)`,
+        [courseId, Number(experienceId)]
+      );
+      matchId = Number(matchResult.insertId);
     }
+
+    await connection.commit();
 
     return res.status(201).json({
       courseId,
+      matchId,
       department_id: departmentId,
       user_id: userId,
       course_code: String(courseCode ?? "").trim() || "",
@@ -97,8 +103,12 @@ router.post("/", async (req, res) => {
       syllabus_file_name: String(syllabusFileName),
       syllabus_file_url: String(syllabusFileUrl),
     });
-  } catch {
+  } catch (err) {
+    await connection.rollback();
+    console.error("Failed to create CUNY course:", err);
     return res.status(500).json({ error: "Failed to create CUNY course" });
+  } finally {
+    connection.release();
   }
 });
 
