@@ -68,10 +68,6 @@ export const buildOutcomeRecords = (sections) => {
   return records;
 };
 
-export const encodeOutcomeForCsv = (text) => String(text ?? "");
-
-export const decodeOutcomeFromCsv = (text) => String(text ?? "");
-
 const getHeaderTextFromNode = (node) => {
   const boldNode = node.querySelector?.("strong, b");
   if (!boldNode) {

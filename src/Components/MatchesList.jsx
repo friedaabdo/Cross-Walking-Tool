@@ -1,24 +1,9 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCircleXmark, faLink } from "@fortawesome/free-solid-svg-icons";
+import { faCircleXmark } from "@fortawesome/free-solid-svg-icons";
 import { splitOutcomeDisplayParts } from "../utils/outcomeText";
 import "./OutcomeRich.css";
 
-const normalizeExternalUrl = (url) => {
-  const trimmedUrl = (url || "").trim();
-  if (!trimmedUrl) {
-    return "";
-  }
-
-  if (/^[a-zA-Z][a-zA-Z\d+.-]*:/.test(trimmedUrl) || trimmedUrl.startsWith("//")) {
-    return trimmedUrl;
-  }
-
-  return `https://${trimmedUrl}`;
-};
-
-const toLineKey = (line) => `line:${(line || "").trim()}`;
-
-function MatchesList({ matchedIds, matchedLines, matchedOutcomeRows = [], certOutcomeLinks, onRemove }) {
+function MatchesList({ matchedIds, matchedLines, matchedOutcomeRows = [], onRemove }) {
   if (matchedLines.length === 0) {
     return <span className="drop-placeholder">Drop outcome here</span>;
   }
@@ -28,9 +13,6 @@ function MatchesList({ matchedIds, matchedLines, matchedOutcomeRows = [], certOu
       {matchedLines.map((matchedLine, matchedIndex) => {
         const matchedId = matchedIds[matchedIndex];
         const certIndex = matchedId?.startsWith("cert-") ? matchedId.slice(5) : "";
-        const matchedLink = normalizeExternalUrl(
-          certOutcomeLinks?.[certIndex] ?? certOutcomeLinks?.[toLineKey(matchedLine)]
-        );
         const category = certIndex ? matchedOutcomeRows[Number(certIndex)]?.category : "";
         const { bullets, heading, statementBody } = splitOutcomeDisplayParts(matchedLine);
 
@@ -39,19 +21,6 @@ function MatchesList({ matchedIds, matchedLines, matchedOutcomeRows = [], certOu
             key={matchedId}
             className="draggable-card-item crosswalk-match-card"
           >
-            {matchedLink ? (
-              <a
-                className="crosswalk-card-link-icon"
-                href={matchedLink}
-                target="_blank"
-                rel="noreferrer"
-                aria-label="Open matched outcome link"
-                title="Open linked outcome"
-                onMouseDown={(event) => event.stopPropagation()}
-              >
-                <FontAwesomeIcon icon={faLink} className="icon-primary" />
-              </a>
-            ) : null}
             <FontAwesomeIcon
               className="close-icon"
               icon={faCircleXmark}

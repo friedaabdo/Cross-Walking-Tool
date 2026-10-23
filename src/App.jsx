@@ -1,14 +1,11 @@
-import { lazy, Suspense, useEffect, useState } from 'react'
-import { BrowserRouter, Routes, Route, useLocation, useNavigate } from 'react-router-dom'
+import { lazy, Suspense, useEffect, useMemo, useState } from 'react'
+import { BrowserRouter, Navigate, Routes, Route, useLocation, useNavigate } from 'react-router-dom'
 import './App.css'
 import axios from 'axios'
 
 import Nav from './Components/Nav.jsx'
-import CreateTemplate from './Pages/CreateTemplate.jsx'
-import AddEquiv from './Pages/AddEquiv.jsx'
 import CreateOutcomes from './Pages/CreateOutcomes.jsx'
 import { buildOutcomeRecords } from './utils/outcomeText'
-const OutcomesInput = lazy(() => import('./Pages/OutcomesInput.jsx'))
 const CrossWalk = lazy(() => import('./Pages/CrossWalk.jsx'))
 const Home = lazy(() => import('./Pages/Home.jsx'))
 const Board = lazy(() => import('./Pages/Board.jsx'))
@@ -130,73 +127,54 @@ const createCrosswalkProps = {
 
 //--------------------------------------------
 
-const STORAGE_KEYS = {
-  certLines: 'crosswalk.certLines',
-  syllLines: 'crosswalk.syllLines',
-  certOutcomeLinks: 'crosswalk.certOutcomeLinks',
-  syllOutcomeLinks: 'crosswalk.syllOutcomeLinks',
-  certDraft: 'crosswalk.certDraft',
-  syllDraft: 'crosswalk.syllDraft',
-  leTitle: 'crosswalk.leTitle',
-  leDescription: 'crosswalk.leDescription',
-  leLink: 'crosswalk.leLink',
-  outcomes: 'crosswalk.outcomes',
-  outcomesDraft: 'crosswalk.outcomesDraft',
-  ccTitle: 'crosswalk.ccTitle',
-  ccDescription: 'crosswalk.ccDescription',
-  matchesByRow: 'crosswalk.matchesByRow',
-  notesByRow: 'crosswalk.notesByRow',
-  draggedOnceById: 'crosswalk.draggedOnceById',
-}
-
-function getStoredValue(key, fallbackValue) {
-  try {
-    const raw = localStorage.getItem(key)
-    if (raw === null) {
-      return fallbackValue
-    }
-
-    return JSON.parse(raw)
-  } catch {
-    return fallbackValue
-  }
-}
-
-function clearStoredKeys(keys) {
-  keys.forEach((key) => {
-    localStorage.removeItem(key)
-  })
-}
-
-function CrossWalkRoute({
-  certLines,
-  syllLines,
-  // certOutcomeRows,
-  // syllOutcomeRows,
-  setCertLines,
-  setSyllLines,
-  certOutcomeLinks,
-  syllOutcomeLinks,
-  leTitle,
-  learningExperienceDescription,
-  learningExperienceLink,
-  ccTitle,
-  cunyCourseDescription,
-  syllabusFileUrl,
-  syllabusFileName,
-  matchesByRow,
-  setMatchesByRow,
-  notesByRow,
-  setNotesByRow,
-  draggedOnceById,
-  setDraggedOnceById,
-}) {
+function CrossWalkRoute() {
   const [courseOutcomeRows, setCourseOutcomeRows] = useState([])
   const [experienceOutcomeRows, setExperienceOutcomeRows] = useState([])
+  const [matchesByRow, setMatchesByRow] = useState({})
+  const [notesByRow, setNotesByRow] = useState({})
+  const [draggedOnceById, setDraggedOnceById] = useState({})
+  const [loadedDetails, setLoadedDetails] = useState(null)
   const queryParams = new URLSearchParams(window.location.search)
   const crosswalkCourseId = queryParams.get('courseId')
   const crosswalkExperienceId = queryParams.get('experienceId')
   const crosswalkMatchId = queryParams.get('matchId')
+
+  useEffect(() => {
+    if (!crosswalkCourseId || !crosswalkExperienceId) {
+      return
+    }
+
+    let cancelled = false
+
+    const loadCrosswalkDetails = async () => {
+      try {
+        const [courseResponse, experienceResponse] = await Promise.all([
+          fetch(`/api/cuny-courses/${crosswalkCourseId}`),
+          fetch(`/api/learning-experiences/${crosswalkExperienceId}`),
+        ])
+
+        if (!courseResponse.ok || !experienceResponse.ok) {
+          throw new Error("Failed to load course or learning experience")
+        }
+
+        const [course, experience] = await Promise.all([courseResponse.json(), experienceResponse.json()])
+
+        if (!cancelled) {
+          setLoadedDetails({ courseId: crosswalkCourseId, experienceId: crosswalkExperienceId, course, experience })
+        }
+      } catch (error) {
+        if (!cancelled) {
+          console.error("Failed to load crosswalk details:", error)
+        }
+      }
+    }
+
+    loadCrosswalkDetails()
+
+    return () => {
+      cancelled = true
+    }
+  }, [crosswalkCourseId, crosswalkExperienceId])
 
   useEffect(() => {
     if (!crosswalkCourseId || !crosswalkExperienceId) {
@@ -229,22 +207,8 @@ function CrossWalkRoute({
           return
         }
 
-        const nextCourseOutcomeRows = Array.isArray(courseOutcomes) ? courseOutcomes : []
-        const nextExperienceOutcomeRows = Array.isArray(experienceOutcomes) ? experienceOutcomes : []
-
-        setCourseOutcomeRows(nextCourseOutcomeRows)
-        setExperienceOutcomeRows(nextExperienceOutcomeRows)
-
-        setSyllLines(
-          nextCourseOutcomeRows
-            .map((item) => item?.outcome_text ?? item?.outcomeText ?? "")
-            .filter((line) => Boolean(String(line).trim()))
-        )
-        setCertLines(
-          nextExperienceOutcomeRows
-            .map((item) => item?.outcome_text ?? item?.outcomeText ?? "")
-            .filter((line) => Boolean(String(line).trim()))
-        )
+        setCourseOutcomeRows(Array.isArray(courseOutcomes) ? courseOutcomes : [])
+        setExperienceOutcomeRows(Array.isArray(experienceOutcomes) ? experienceOutcomes : [])
       } catch (error) {
         if (!cancelled) {
           console.error("Failed to load crosswalk outcomes:", error)
@@ -257,7 +221,7 @@ function CrossWalkRoute({
     return () => {
       cancelled = true
     }
-  }, [crosswalkCourseId, crosswalkExperienceId, setCertLines, setSyllLines])
+  }, [crosswalkCourseId, crosswalkExperienceId])
 
   useEffect(() => {
     if (!crosswalkMatchId || courseOutcomeRows.length === 0 || experienceOutcomeRows.length === 0) {
@@ -285,8 +249,8 @@ function CrossWalkRoute({
         const nextDraggedOnceById = {}
 
         detailRows.forEach((detail) => {
-          const courseRowIndex = courseOutcomeRows.findIndex((row) => Number(row?.id) === Number(detail?.cuny_outcome_id))
-          const experienceRowIndex = experienceOutcomeRows.findIndex((row) => Number(row?.id) === Number(detail?.experience_outcome_id))
+          const courseRowIndex = courseOutcomeRows.findIndex((row) => Number(row?.outcomeId) === Number(detail?.cuny_outcome_id))
+          const experienceRowIndex = experienceOutcomeRows.findIndex((row) => Number(row?.outcomeId) === Number(detail?.experience_outcome_id))
 
           if (courseRowIndex < 0) {
             return
@@ -330,40 +294,38 @@ function CrossWalkRoute({
     return () => {
       cancelled = true
     }
-  }, [
-    crosswalkMatchId,
-    courseOutcomeRows,
-    experienceOutcomeRows,
-    setDraggedOnceById,
-    setMatchesByRow,
-    setNotesByRow,
-  ])
+  }, [crosswalkMatchId, courseOutcomeRows, experienceOutcomeRows])
+
+  const certLines = useMemo(() => experienceOutcomeRows.map((row) => row.outcomeText ?? ''), [experienceOutcomeRows])
+  const syllLines = useMemo(() => courseOutcomeRows.map((row) => row.outcomeText ?? ''), [courseOutcomeRows])
+
+  if (!crosswalkCourseId || !crosswalkExperienceId) {
+    return <Navigate to="/board" replace />
+  }
+
+  const isLoaded =
+    loadedDetails?.courseId === crosswalkCourseId && loadedDetails?.experienceId === crosswalkExperienceId
+  const course = isLoaded ? loadedDetails.course : null
+  const experience = isLoaded ? loadedDetails.experience : null
 
   return (
     <CrossWalk
+      leTitle={experience?.title ?? ''}
+      learningExperienceLink={experience?.link ?? ''}
+      ccTitle={course?.title ?? ''}
+      syllabusFileUrl={course?.syllabus_file_url ?? ''}
+      syllabusFileName={course?.syllabus_file_name ?? ''}
       certLines={certLines}
       syllLines={syllLines}
       certOutcomeRows={experienceOutcomeRows}
       syllOutcomeRows={courseOutcomeRows}
       matchId={crosswalkMatchId}
-      certOutcomeLinks={certOutcomeLinks}
-      syllOutcomeLinks={syllOutcomeLinks}
-      leTitle={leTitle}
-      learningExperienceDescription={learningExperienceDescription}
-      learningExperienceLink={learningExperienceLink}
-      ccTitle={ccTitle}
-      cunyCourseDescription={cunyCourseDescription}
-      syllabusFileUrl={syllabusFileUrl}
-      syllabusFileName={syllabusFileName}
       matchesByRow={matchesByRow}
       setMatchesByRow={setMatchesByRow}
       notesByRow={notesByRow}
       setNotesByRow={setNotesByRow}
       draggedOnceById={draggedOnceById}
       setDraggedOnceById={setDraggedOnceById}
-      courseId={crosswalkCourseId}
-      experienceId={crosswalkExperienceId}
-      // matchId={crosswalkMatchId}
     />
   )
 }
@@ -397,293 +359,22 @@ function AppRoutes() {
     navigate(`/crosswalk?${params.toString()}`)
   }
 
-  //---------------------------------------------
-
-  const [certLines, setCertLines] = useState(() => getStoredValue(STORAGE_KEYS.certLines, []))
-  const [syllLines, setSyllLines] = useState(() => getStoredValue(STORAGE_KEYS.syllLines, []))
-  const [certOutcomeLinks, setCertOutcomeLinks] = useState(() => getStoredValue(STORAGE_KEYS.certOutcomeLinks, {}))
-  const [syllOutcomeLinks, setSyllOutcomeLinks] = useState(() => getStoredValue(STORAGE_KEYS.syllOutcomeLinks, {}))
-  const [certDraft, setCertDraft] = useState(() => getStoredValue(STORAGE_KEYS.certDraft, ''))
-  const [syllDraft, setSyllDraft] = useState(() => getStoredValue(STORAGE_KEYS.syllDraft, ''))
-  const [leTitle, setLeTitle] = useState(() => getStoredValue(STORAGE_KEYS.leTitle, ''))
-  const [learningExperienceDescription, setLearningExperienceDescription] = useState(() => getStoredValue(STORAGE_KEYS.leDescription, ''))
-  const [learningExperienceLink, setLearningExperienceLink] = useState(() => getStoredValue(STORAGE_KEYS.leLink, ''))
-  const [outcomes, setOutcomes] = useState(() => getStoredValue(STORAGE_KEYS.outcomes, []))
-  const [outcomesDraft, setOutcomesDraft] = useState(() => getStoredValue(STORAGE_KEYS.outcomesDraft, ''))
-  const [syllabusFileUrl, setSyllabusFileUrl] = useState('')
-  const [syllabusFileName, setSyllabusFileName] = useState('')
-  const [ccTitle, setccTitle] = useState(() => getStoredValue(STORAGE_KEYS.ccTitle, ''))
-  const [cunyCourseDescription, setCunyCourseDescription] = useState(() => getStoredValue(STORAGE_KEYS.ccDescription, ''))
-  const [matchesByRow, setMatchesByRow] = useState(() => getStoredValue(STORAGE_KEYS.matchesByRow, {}))
-  const [notesByRow, setNotesByRow] = useState(() => getStoredValue(STORAGE_KEYS.notesByRow, {}))
-  const [draggedOnceById, setDraggedOnceById] = useState(() => getStoredValue(STORAGE_KEYS.draggedOnceById, {}))
-
-  const hasSavedProgress =
-    certLines.length > 0 ||
-    syllLines.length > 0 ||
-    Object.keys(certOutcomeLinks).length > 0 ||
-    Object.keys(syllOutcomeLinks).length > 0 ||
-    Boolean(leTitle.trim()) ||
-    Boolean(learningExperienceDescription.trim()) ||
-    Boolean(learningExperienceLink.trim()) ||
-    outcomes.length > 0 ||
-    Boolean(outcomesDraft.trim()) ||
-    Boolean(syllabusFileUrl) ||
-    Boolean(ccTitle.trim()) ||
-    Boolean(cunyCourseDescription.trim()) ||
-    Object.keys(matchesByRow).length > 0 ||
-    Object.keys(notesByRow).length > 0 ||
-    Object.keys(draggedOnceById).length > 0
-
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEYS.certLines, JSON.stringify(certLines))
-    localStorage.setItem(STORAGE_KEYS.syllLines, JSON.stringify(syllLines))
-    localStorage.setItem(STORAGE_KEYS.certOutcomeLinks, JSON.stringify(certOutcomeLinks))
-    localStorage.setItem(STORAGE_KEYS.syllOutcomeLinks, JSON.stringify(syllOutcomeLinks))
-    localStorage.setItem(STORAGE_KEYS.certDraft, JSON.stringify(certDraft))
-    localStorage.setItem(STORAGE_KEYS.syllDraft, JSON.stringify(syllDraft))
-    localStorage.setItem(STORAGE_KEYS.leTitle, JSON.stringify(leTitle))
-    localStorage.setItem(STORAGE_KEYS.leDescription, JSON.stringify(learningExperienceDescription))
-    localStorage.setItem(STORAGE_KEYS.leLink, JSON.stringify(learningExperienceLink))
-    localStorage.setItem(STORAGE_KEYS.outcomes, JSON.stringify(outcomes))
-    localStorage.setItem(STORAGE_KEYS.outcomesDraft, JSON.stringify(outcomesDraft))
-    localStorage.setItem(STORAGE_KEYS.ccTitle, JSON.stringify(ccTitle))
-    localStorage.setItem(STORAGE_KEYS.ccDescription, JSON.stringify(cunyCourseDescription))
-    localStorage.setItem(STORAGE_KEYS.matchesByRow, JSON.stringify(matchesByRow))
-    localStorage.setItem(STORAGE_KEYS.notesByRow, JSON.stringify(notesByRow))
-    localStorage.setItem(STORAGE_KEYS.draggedOnceById, JSON.stringify(draggedOnceById))
-  }, [
-    certLines,
-    syllLines,
-    certOutcomeLinks,
-    syllOutcomeLinks,
-    certDraft,
-    syllDraft,
-    leTitle,
-    learningExperienceDescription,
-    learningExperienceLink,
-    outcomes,
-    outcomesDraft,
-    ccTitle,
-    cunyCourseDescription,
-    matchesByRow,
-    notesByRow,
-    draggedOnceById,
-  ])
-
-  const clearSavedProgress = () => {
-    setCertLines([])
-    setSyllLines([])
-    setCertOutcomeLinks({})
-    setSyllOutcomeLinks({})
-    setCertDraft('')
-    setSyllDraft('')
-    setLeTitle('')
-    setLearningExperienceDescription('')
-    setLearningExperienceLink('')
-    setOutcomes([])
-    setOutcomesDraft('')
-    setSyllabusFileUrl('')
-    setSyllabusFileName('')
-    setccTitle('')
-    setCunyCourseDescription('')
-    setMatchesByRow({})
-    setNotesByRow({})
-    setDraggedOnceById({})
-
-    clearStoredKeys(Object.values(STORAGE_KEYS))
-  }
-
-  const clearAddEquivDraft = () => {
-    setccTitle('')
-    setCunyCourseDescription('')
-    setSyllabusFileUrl('')
-    setSyllabusFileName('')
-    setOutcomes([])
-    setOutcomesDraft('')
-
-    clearStoredKeys([
-      STORAGE_KEYS.ccTitle,
-      STORAGE_KEYS.ccDescription,
-      STORAGE_KEYS.outcomes,
-      STORAGE_KEYS.outcomesDraft,
-    ])
-  }
-
-  const clearCreateTemplateDraft = () => {
-    setLeTitle('')
-    setLearningExperienceDescription('')
-    setLearningExperienceLink('')
-    setOutcomes([])
-    setOutcomesDraft('')
-
-    clearStoredKeys([
-      STORAGE_KEYS.leTitle,
-      STORAGE_KEYS.leDescription,
-      STORAGE_KEYS.leLink,
-      STORAGE_KEYS.outcomes,
-      STORAGE_KEYS.outcomesDraft,
-    ])
-  }
-
-  // const clearCrosswalkDraft = () => {
-  //   setMatchesByRow({})
-  //   setNotesByRow({})
-  //   setDraggedOnceById({})
-  //   setCertLines([])
-  //   setSyllLines([])
-
-  //   clearStoredKeys([
-  //     STORAGE_KEYS.matchesByRow,
-  //     STORAGE_KEYS.notesByRow,
-  //     STORAGE_KEYS.draggedOnceById,
-  //     STORAGE_KEYS.certLines,
-  //     STORAGE_KEYS.syllLines,
-  //   ])
-  // }
-
   return (
     <div className="App">
   {/* <h1>CUNY CPL Evaluation Cross Walking Tool</h1> */}
-      <Nav clearCreateTemplateDraft={clearCreateTemplateDraft} />
+      <Nav />
       <Suspense fallback={<p>Loading page...</p>}>
         <Routes>
-          <Route path="/"
-            element={<Home
-              learningExperienceTitle={leTitle}
-          setLearningExperienceTitle={setLeTitle}
-          learningExperienceDescription={learningExperienceDescription}
-          setLearningExperienceDescription={setLearningExperienceDescription}
-          learningExperienceLink={learningExperienceLink}
-          setLearningExperienceLink={setLearningExperienceLink}
-          setSyllabusFileUrl={setSyllabusFileUrl}
-          syllabusFileName={syllabusFileName}
-          setSyllabusFileName={setSyllabusFileName}
-          cunyCourseTitle={ccTitle}
-          setCunyCourseTitle={setccTitle}
-          cunyCourseDescription={cunyCourseDescription}
-          setCunyCourseDescription={setCunyCourseDescription}
-          setCertLines={setCertLines}
-          setSyllLines={setSyllLines}
-          setCertOutcomeLinks={setCertOutcomeLinks}
-          setSyllOutcomeLinks={setSyllOutcomeLinks}
-          setLeTitle={setLeTitle}
-          setccTitle={setccTitle}
-          setMatchesByRow={setMatchesByRow}
-          setNotesByRow={setNotesByRow}
-          setDraggedOnceById={setDraggedOnceById}
-          hasSavedProgress={hasSavedProgress}
-          clearSavedProgress={clearSavedProgress}
-        />}>
-        
-      </Route>
+          <Route path="/" element={<Home />} />
       <Route
         path="/board"
-        element={<Board clearAddEquivDraft={clearAddEquivDraft} templateId={templateId} setTemplateId={setTemplateId} />}
+        element={<Board templateId={templateId} setTemplateId={setTemplateId} />}
       />
-      {/* <Route
-        path="/create-template"
-       element={<CreateTemplate
-          learningExperienceTitle={leTitle}
-          setLearningExperienceTitle={setLeTitle}
-          learningExperienceDescription={learningExperienceDescription}
-          setLearningExperienceDescription={setLearningExperienceDescription}
-          learningExperienceLink={learningExperienceLink}
-          setLearningExperienceLink={setLearningExperienceLink}
-          outcomes={outcomes}
-          setOutcomes={setOutcomes}
-          outcomesDraft={outcomesDraft}
-          setOutcomesDraft={setOutcomesDraft}
-        />}
-      /> */}
-      {/* <Route
-        path="/add-equivalency"
-        element={<AddEquiv
-          cunyCourseTitle={ccTitle}
-          setCunyCourseTitle={setccTitle}
-          cunyCourseDescription={cunyCourseDescription}
-          setCunyCourseDescription={setCunyCourseDescription}
-          syllabusFileUrl={syllabusFileUrl}
-          setSyllabusFileUrl={setSyllabusFileUrl}
-          syllabusFileName={syllabusFileName}
-          setSyllabusFileName={setSyllabusFileName}
-          outcomes={outcomes}
-          setOutcomes={setOutcomes}
-          outcomesDraft={outcomesDraft}
-          setOutcomesDraft={setOutcomesDraft}
-          clearCrosswalkDraft={clearCrosswalkDraft}
-        />} 
-      /> */}
       <Route
         path="/equivalency/:experienceId"
         element={<ViewEquiv />}
       />
-      {/* <Route
-        path="/learning-experience"
-        element={
-          <OutcomesInput
-            key="learning-experience"
-            pageName="Learning Experience"
-            certLines={certLines}
-            setCertLines={setCertLines}
-            outcomeLinks={certOutcomeLinks}
-            setOutcomeLinks={setCertOutcomeLinks}
-            draftValue={certDraft}
-            setDraftValue={setCertDraft}
-            leTitle={leTitle}
-            learningExperienceLink={learningExperienceLink}
-            setLeTitle={setLeTitle}
-            learningExperienceDescription={learningExperienceDescription}
-          />
-        }
-      /> */}
-      {/* <Route
-        path="/syllabus"
-        element={
-          <OutcomesInput
-            key="syllabus"
-            pageName="Syllabus"
-            syllLines={syllLines}
-            setSyllLines={setSyllLines}
-            outcomeLinks={syllOutcomeLinks}
-            setOutcomeLinks={setSyllOutcomeLinks}
-            draftValue={syllDraft}
-            setDraftValue={setSyllDraft}
-            ccTitle={ccTitle}
-            syllabusFileUrl={syllabusFileUrl}
-            syllabusFileName={syllabusFileName}
-            setCcTitle={setccTitle}
-            cunyCourseDescription={cunyCourseDescription}
-
-          />
-        }
-      /> */}
-      <Route
-        path="/crosswalk"
-        element={
-          <CrossWalkRoute
-            certLines={certLines}
-            syllLines={syllLines}
-            certOutcomeLinks={certOutcomeLinks}
-            syllOutcomeLinks={syllOutcomeLinks}
-            leTitle={leTitle}
-            setCertLines={setCertLines}
-            setSyllLines={setSyllLines}
-            learningExperienceDescription={learningExperienceDescription}
-            learningExperienceLink={learningExperienceLink}
-            ccTitle={ccTitle}
-            cunyCourseDescription={cunyCourseDescription}
-            syllabusFileUrl={syllabusFileUrl}
-            syllabusFileName={syllabusFileName}
-            matchesByRow={matchesByRow}
-            setMatchesByRow={setMatchesByRow}
-            notesByRow={notesByRow}
-            setNotesByRow={setNotesByRow}
-            draggedOnceById={draggedOnceById}
-            setDraggedOnceById={setDraggedOnceById}
-          />
-        }
-      />
+      <Route path="/crosswalk" element={<CrossWalkRoute />} />
 
       {/* make 2 functions one to create a new cuny course and one to create a new learning experience. Each function will take in the form data and submit it to the appropriate endpoint. */}
 

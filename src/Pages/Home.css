@@ -7,46 +7,9 @@
 	box-shadow: var(--panel-shadow);
 }
 
-#home-actions {
-	display: flex;
-	justify-content: center;
-}
-
-.home-persistence-actions {
+.home-actions {
 	display: flex;
 	gap: 12px;
 	flex-wrap: wrap;
 	justify-content: center;
-}
-
-.home-save-hint {
-	font-size: 0.9rem;
-	color: var(--text-muted);
-}
-
-.home-description-textarea {
-	width: 100%;
-	box-sizing: border-box;
-	padding: 10px 12px;
-	border: 1px solid var(--card-border-color);
-	border-radius: 10px;
-	background: var(--bg-surface);
-	color: inherit;
-	font: inherit;
-	resize: vertical;
-	min-height: 96px;
-}
-.main-data {
-	display: flex;
-	flex-direction: column;
-	justify-content: left;
-
-}
-
-.home-hidden-file-input {
-	display: none;
-}
-
-.home-import-error {
-	color: #c1121f;
 }

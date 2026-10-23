@@ -1,43 +1,24 @@
 import DraggableCard from "../Components/DraggableCard.jsx";
 import "./CrossWalk.css";
 import { DragDropProvider } from "@dnd-kit/react";
-import { Fragment, useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import CrosswalkRow from "../Components/CrosswalkRow.jsx";
-import downloadCrosswalkCsv from "../utils/csvExport";
+import { downloadCrosswalkPdf } from "../utils/crosswalkPdf";
 import { normalizeToArray } from "../utils/collections";
+import { normalizeExternalUrl, openDataUrlInNewTab } from "../utils/links";
 import { useNavigate } from "react-router-dom";
 import Button from "../Components/Button.jsx";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFile, faLink } from "@fortawesome/free-solid-svg-icons";
-import html2pdf from "html2pdf.js";
 
-const normalizeExternalUrl = (url) => {
-  const trimmedUrl = (url || "").trim();
-  if (!trimmedUrl) {
-    return "";
-  }
-
-  if (/^[a-zA-Z][a-zA-Z\d+.-]*:/.test(trimmedUrl) || trimmedUrl.startsWith("//")) {
-    return trimmedUrl;
-  }
-
-  return `https://${trimmedUrl}`;
-};
-
-const toLineKey = (line) => `line:${(line || "").trim()}`;
-
-function CrossWalk({ 
-  certLines, 
-  syllLines, 
+function CrossWalk({
+  certLines,
+  syllLines,
   certOutcomeRows = [],
   syllOutcomeRows = [],
-  certOutcomeLinks,
-  syllOutcomeLinks,
-  leTitle, 
-  learningExperienceDescription,
+  leTitle,
   learningExperienceLink,
   ccTitle,
-  cunyCourseDescription,
   syllabusFileUrl,
   syllabusFileName,
   matchesByRow,
@@ -46,68 +27,14 @@ function CrossWalk({
   setNotesByRow,
   draggedOnceById,
   setDraggedOnceById,
-  courseId,
-  experienceId,
   matchId,
 }) {
   const navigate = useNavigate();
-  const [courseOutcomeRows, setCourseOutcomeRows] = useState([]);
-  const [experienceOutcomeRows, setExperienceOutcomeRows] = useState([]);
   const [saveStatus, setSaveStatus] = useState("");
-  const crosswalkRef = useRef(null);
   const hasLearningExperienceLink = Boolean((learningExperienceLink || "").trim());
   const resolvedLearningExperienceLink = normalizeExternalUrl(learningExperienceLink);
   const hasSyllabusFile = Boolean(syllabusFileUrl);
   const getMatchesForRow = (rowId) => normalizeToArray(matchesByRow[rowId]);
-
-  useEffect(() => {
-    if (!courseId || !experienceId) {
-      setCourseOutcomeRows([]);
-      setExperienceOutcomeRows([]);
-      return;
-    }
-
-    let cancelled = false;
-
-    const loadOutcomeRows = async () => {
-      try {
-        const [courseResponse, experienceResponse] = await Promise.all([
-          fetch(`/api/outcomes?courseId=${courseId}`),
-          fetch(`/api/outcomes?experienceId=${experienceId}`),
-        ]);
-
-        if (!courseResponse.ok) {
-          throw new Error("Failed to load course outcomes");
-        }
-
-        if (!experienceResponse.ok) {
-          throw new Error("Failed to load learning experience outcomes");
-        }
-
-        const [courseRows, experienceRows] = await Promise.all([
-          courseResponse.json(),
-          experienceResponse.json(),
-        ]);
-
-        if (cancelled) {
-          return;
-        }
-
-        setCourseOutcomeRows(Array.isArray(courseRows) ? courseRows : []);
-        setExperienceOutcomeRows(Array.isArray(experienceRows) ? experienceRows : []);
-      } catch (error) {
-        if (!cancelled) {
-          console.error("Failed to load outcome rows for crosswalk save:", error);
-        }
-      }
-    };
-
-    loadOutcomeRows();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [courseId, experienceId]);
 
   const handleDragEnd = (event) => {
     if (event.canceled) {
@@ -175,49 +102,18 @@ function CrossWalk({
     container.scrollLeft += event.deltaY + event.deltaX;
   };
 
-  const handleExportCsv = () => {
-    downloadCrosswalkCsv({
-      ccTitle,
-      certById,
-      certLines,
-      certOutcomeLinks,
-      draggedOnceById,
-      leTitle,
-      learningExperienceDescription,
-      learningExperienceLink,
-      matchesByRow,
-      notesByRow,
-      cunyCourseDescription,
-      syllabusFileName,
-      syllabusFileUrl,
-      syllOutcomeLinks,
-      syllLines,
-    });
-  };
-
-  const handleExportPdf = async () => {
-    if (!crosswalkRef.current) {
-      setSaveStatus("PDF export failed.");
-      return;
-    }
-
-    const safeTitle = (ccTitle || leTitle || "crosswalk")
-      .trim()
-      .replace(/[<>:"/\\|?*]/g, "-")
-      .replace(/\s+/g, "-")
-      .slice(0, 100) || "crosswalk";
-
+  const handleExportPdf = () => {
     try {
-      await html2pdf()
-        .set({
-          margin: 0.5,
-          filename: `${safeTitle}.pdf`,
-          image: { type: "jpeg", quality: 0.98 },
-          html2canvas: { scale: 2, useCORS: true },
-          jsPDF: { unit: "in", format: "letter", orientation: "landscape" },
-        })
-        .from(crosswalkRef.current)
-        .save();
+      downloadCrosswalkPdf({
+        leTitle,
+        ccTitle,
+        certLines,
+        certOutcomeRows,
+        syllLines,
+        syllOutcomeRows,
+        matchesByRow,
+        notesByRow,
+      });
     } catch (error) {
       console.error("Error exporting crosswalk PDF:", error);
       setSaveStatus("PDF export failed.");
@@ -239,8 +135,7 @@ function CrossWalk({
     syllLines.forEach((_, rowIndex) => {
       const rowId = `drop-${rowIndex}`;
       const notes = notesByRow[rowId] ?? "";
-      const cunyOutcomeId =
-        courseOutcomeRows[rowIndex]?.outcomeId ?? courseOutcomeRows[rowIndex]?.id;
+      const cunyOutcomeId = syllOutcomeRows[rowIndex]?.outcomeId;
       const matchedIds = getMatchesForRow(rowId);
 
       if (matchedIds.length === 0) {
@@ -257,9 +152,7 @@ function CrossWalk({
 
       matchedIds.forEach((matchedId) => {
         const experienceIndex = Number(String(matchedId).replace("cert-", ""));
-        const experienceOutcomeId =
-          experienceOutcomeRows[experienceIndex]?.outcomeId ??
-          experienceOutcomeRows[experienceIndex]?.id;
+        const experienceOutcomeId = certOutcomeRows[experienceIndex]?.outcomeId;
 
         if (!cunyOutcomeId || !experienceOutcomeId) {
           return;
@@ -307,12 +200,12 @@ function CrossWalk({
       <div>
         <p>Note:</p>
         <ul>
-          <li>If you navigate away from or close this page, your progress will be saved by the browser unless you choose to clear it in the home page.</li>
-          <li>You may also export the crosswalk as a CSV file below at any time and it will save your progress if you choose to work on your crosswalk on a different device.</li>
+          <li>Click Save to store your matches and notes. They will be here the next time you open this crosswalk.</li>
+          <li>Use Export PDF to download a copy of the crosswalk, including every learning experience outcome and your matches.</li>
         </ul>
       </div>
       <p>This is a brand-new tool, still in development! We appreciate you checking it out, and we welcome your comments to help us improve. If you want to leave any feedback or report any bugs, please click <a href="https://docs.google.com/forms/d/e/1FAIpQLSdh2duwP_A12Wl-CFYIq1GqYRRUTbv9UeBTVfYXu8bBEScf5Q/viewform?usp=dialog" target="_blank" rel="noreferrer">here</a> and fill out the form. Thank you!</p>
-      <div id="crosswalk-div" ref={crosswalkRef}>
+      <div id="crosswalk-div">
         <div id="horizontal-div">
         <div className="crosswalk-heading-row">
           <h2>{leTitle || "Learning Experience"} Outcomes</h2>
@@ -334,9 +227,6 @@ function CrossWalk({
         <div id="crosswalk-cert-div" onWheelCapture={handleCertWheel}>
           {certLines.map((line, index) => {
             const certId = `cert-${index}`;
-            const certLink = normalizeExternalUrl(
-              certOutcomeLinks?.[index] ?? certOutcomeLinks?.[toLineKey(line)]
-            );
             const draggedClass = draggedOnceById[certId]
               ? "crosswalk-cert-card-dragged"
               : "";
@@ -348,7 +238,6 @@ function CrossWalk({
                 className={`crosswalk-cert-card ${draggedClass}`}
                 line={line}
                 category={certOutcomeRows[index]?.category}
-                linkUrl={certLink}
               />
             );
           })}
@@ -366,6 +255,12 @@ function CrossWalk({
               href={syllabusFileUrl}
               target="_blank"
               rel="noreferrer"
+              onClick={(event) => {
+                if (syllabusFileUrl.startsWith("data:")) {
+                  event.preventDefault();
+                  openDataUrlInNewTab(syllabusFileUrl);
+                }
+              }}
               aria-label="Open uploaded syllabus file"
               title={syllabusFileName ? `Open ${syllabusFileName}` : "Open uploaded syllabus file"}
             >
@@ -378,30 +273,24 @@ function CrossWalk({
 
         {syllLines.map((line, index) => {
           const rowId = `drop-${index}`;
-          const syllLink = normalizeExternalUrl(
-            syllOutcomeLinks?.[index] ?? syllOutcomeLinks?.[toLineKey(line)]
-          );
           const matchedIds = getMatchesForRow(rowId);
           const matchedLines = matchedIds
             .map((matchedId) => certById[matchedId])
             .filter(Boolean);
 
           return (
-            <Fragment key={`row-${index}`}>
-              <CrosswalkRow
-                line={line}
-                category={syllOutcomeRows[index]?.category}
-                matchedIds={matchedIds}
-                matchedLines={matchedLines}
-                matchedOutcomeRows={certOutcomeRows}
-                certOutcomeLinks={certOutcomeLinks}
-                syllabusLinkUrl={syllLink}
-                note={notesByRow[rowId] ?? ""}
-                onNoteChange={handleNotesChange}
-                onRemoveMatch={handleRemoveMatch}
-                rowId={rowId}
-              />
-            </Fragment>
+            <CrosswalkRow
+              key={rowId}
+              line={line}
+              category={syllOutcomeRows[index]?.category}
+              matchedIds={matchedIds}
+              matchedLines={matchedLines}
+              matchedOutcomeRows={certOutcomeRows}
+              note={notesByRow[rowId] ?? ""}
+              onNoteChange={handleNotesChange}
+              onRemoveMatch={handleRemoveMatch}
+              rowId={rowId}
+            />
           );
         })}
       </div>
@@ -409,7 +298,6 @@ function CrossWalk({
      <div id="columns-actions">
         <Button text="Back" onClick={handleBackNavigation} />
         <Button text="Save" onClick={handleSave} />
-        <Button text="Export CSV" onClick={handleExportCsv} />
         <Button text="Export PDF" onClick={handleExportPdf} />
       </div>
       {saveStatus ? <p>{saveStatus}</p> : null}

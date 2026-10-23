@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import Template from "../Components/Template.jsx";
 
-function Board({ clearAddEquivDraft, setTemplateId }) {
+function Board({ setTemplateId }) {
   const [templates, setTemplates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -49,7 +49,6 @@ function Board({ clearAddEquivDraft, setTemplateId }) {
             link={t.link}
             experienceId={t.experienceId}
             user={t.user}
-            clearAddEquivDraft={clearAddEquivDraft}
             setTemplateId={setTemplateId}
           />
         ))}

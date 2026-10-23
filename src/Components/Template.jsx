@@ -45,7 +45,7 @@ import { useEffect, useState } from "react";
   //           }
   //         };
 
-function Template({ title, description, link, experienceId, clearAddEquivDraft, setTemplateId }) {
+function Template({ title, description, link, experienceId, setTemplateId }) {
   const navigate = useNavigate();
   const [showDetails, setShowDetails] = useState(false);
   const [outcomes, setOutcomes] = useState([]);
@@ -112,7 +112,6 @@ function Template({ title, description, link, experienceId, clearAddEquivDraft, 
         <Button
           className="template-button primary"
           onClick={() => {
-            clearAddEquivDraft?.();
             setTemplateId?.(experienceId);
             navigate("/create-equivalency", { state: { templateId: experienceId } });
           }}

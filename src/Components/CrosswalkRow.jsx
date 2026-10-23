@@ -1,7 +1,5 @@
 import DroppableArea from "./DroppableArea.jsx";
 import MatchesList from "./MatchesList.jsx";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faLink } from "@fortawesome/free-solid-svg-icons";
 import { splitOutcomeDisplayParts } from "../utils/outcomeText";
 import "./OutcomeRich.css";
 
@@ -11,8 +9,6 @@ function CrosswalkRow({
   matchedIds,
   matchedLines,
   matchedOutcomeRows,
-  certOutcomeLinks,
-  syllabusLinkUrl,
   note,
   onNoteChange,
   onRemoveMatch,
@@ -23,18 +19,6 @@ function CrosswalkRow({
   return (
     <>
       <div className="outcome-card-item crosswalk-syll-card outcome-rich-content">
-        {syllabusLinkUrl ? (
-          <a
-            className="crosswalk-card-link-icon"
-            href={syllabusLinkUrl}
-            target="_blank"
-            rel="noreferrer"
-            aria-label="Open syllabus outcome link"
-            title="Open linked file"
-          >
-            <FontAwesomeIcon icon={faLink} className="icon-primary" />
-          </a>
-        ) : null}
         {category || heading ? (
           <div className="outcome-rich-heading">
             <strong>{category || heading}</strong>
@@ -54,7 +38,6 @@ function CrosswalkRow({
           matchedIds={matchedIds}
           matchedLines={matchedLines}
           matchedOutcomeRows={matchedOutcomeRows}
-          certOutcomeLinks={certOutcomeLinks}
           onRemove={(matchedId) => onRemoveMatch(rowId, matchedId)}
         />
       </DroppableArea>

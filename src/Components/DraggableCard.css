@@ -67,16 +67,6 @@
     width: 100%;
 }
 
-.draggable-card-link-icon {
-    position: absolute;
-    top: 6px;
-    right: 6px;
-    z-index: 2;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-}
-
 .draggable-card-item:active {
     cursor: grabbing;
 }

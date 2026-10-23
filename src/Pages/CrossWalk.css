@@ -31,14 +31,6 @@
     gap: 6px;
 }
 
-.crosswalk-file-name {
-    max-width: 260px;
-    font-size: 0.9rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
 #columns-div {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -85,20 +77,6 @@ padding-bottom: var(--space-2);
 #columns-div .crosswalk-match-card {
     align-items: flex-start;
     position: relative;
-}
-
-.crosswalk-card-link-icon {
-    position: absolute;
-    top: 6px;
-    right: 6px;
-    z-index: 2;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.crosswalk-match-card .crosswalk-card-link-icon {
-    right: 24px;
 }
 
 .crosswalk-match-card .close-icon {
