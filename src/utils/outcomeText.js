@@ -241,3 +241,54 @@ export const parseInputToOutcomeLines = (value) => {
   pushCurrentLine();
   return lines;
 };
+
+const escapeHtml = (value) =>
+  value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+// Builds the outcomes editor's HTML from [{ header, lines }]. A bold-only paragraph is read back as a header
+// and a bullet list as sub-points of the outcome above it, by parseInputToOutcomeSections.
+export const outcomeGroupsToHtml = (groups) =>
+  groups
+    .map(({ header, lines }) => {
+      const headerText = String(header ?? "").trim();
+      const parts = headerText ? [`<p><strong>${escapeHtml(headerText)}</strong></p>`] : [];
+      let bullets = [];
+      const flushBullets = () => {
+        if (bullets.length) {
+          parts.push(`<ul>${bullets.map((bullet) => `<li>${escapeHtml(bullet)}</li>`).join("")}</ul>`);
+          bullets = [];
+        }
+      };
+
+      lines.map((line) => String(line ?? "").trim()).filter(Boolean).forEach((line) => {
+        if (/^-\s+/.test(line)) {
+          bullets.push(line.replace(/^-\s+/, ""));
+        } else {
+          flushBullets();
+          parts.push(`<p>${escapeHtml(line)}</p>`);
+        }
+      });
+      flushBullets();
+
+      return parts.join("");
+    })
+    .join("");
+
+// Saved outcome rows ({ outcomeText, category }) back into groups; neighbours with the same category share one header.
+export const outcomeRecordsToGroups = (records) => {
+  const groups = [];
+
+  records.forEach((record) => {
+    const category = record.category ?? null;
+    const lines = String(record.outcomeText ?? "").split("\n");
+    const previous = groups[groups.length - 1];
+
+    if (previous && previous.header === category) {
+      previous.lines.push(...lines);
+    } else {
+      groups.push({ header: category, lines });
+    }
+  });
+
+  return groups;
+};

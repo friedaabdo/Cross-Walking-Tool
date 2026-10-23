@@ -11,11 +11,28 @@ import {
 } from "../utils/fileHandler";
 import "./CreateWizard.css";
 
+const departmentRequests = new Map();
+
+// One request per campus; the department dropdown and the syllabus reader both use it.
+const fetchDepartments = (campusId) => {
+  if (!departmentRequests.has(campusId)) {
+    departmentRequests.set(
+      campusId,
+      fetch(`/api/departments/${campusId}`)
+        .then((res) => res.json())
+        .then((data) => (Array.isArray(data) ? data : [])),
+    );
+  }
+
+  return departmentRequests.get(campusId);
+};
+
 function MainDataStep({
   formData,
   setFormData,
   setOutcomesDraft,
   onNext,
+  onBack,
   outcomeType,
  
 }) {
@@ -28,8 +45,9 @@ function MainDataStep({
 
   const [campusList, setCampusList] = useState([]);
   const [tagsList, setTagsList] = useState([]);
-  const [departmentsList, setDepartmentsList] = useState([]);
-  const [selectedCampusId, setSelectedCampusId] = useState(null);
+  const [departments, setDepartments] = useState({ campusId: null, list: [] });
+  const campusId = formData.campus?.id ?? null;
+  const departmentsList = String(departments.campusId) === String(campusId) ? departments.list : [];
 
 
 //loads campus and tags for the dropdowns in the form
@@ -67,34 +85,39 @@ function MainDataStep({
     };
   }, []);
 
-  //loads departments for the department dropdown based on the selected campus
-  const applyCampus = async (selectedCampus) => {
+  //keeps the department dropdown in step with the chosen campus (also when this step is reopened with a campus already set)
+  useEffect(() => {
+    if (!campusId) {
+      return;
+    }
+
+    let cancelled = false;
+
+    fetchDepartments(campusId).then((list) => {
+      if (!cancelled) {
+        setDepartments({ campusId, list });
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [campusId]);
+
+  const applyCampus = (selectedCampus) => {
     const campusName = campusList.find(
       (campus) => String(campus.school_id) === String(selectedCampus),
     )?.school_name;
-    setSelectedCampusId(selectedCampus);
 
     handleFieldChange("campus", {
       id: selectedCampus,
       name: campusName,
     });
-
-    if (!selectedCampus) {
-      setDepartmentsList([]);
-      return [];
-    }
-
-    const res = await fetch(`/api/departments/${selectedCampus}`);
-    const data = await res.json();
-    const departments = Array.isArray(data) ? data : [];
-    setDepartmentsList(departments);
-    return departments;
   };
 
   const handleCampusChange = (event) => applyCampus(event.target.value);
 
   console.log("campusList", campusList);
-  console.log("selectedCampusId", selectedCampusId);
   console.log("tagsList", tagsList);
   console.log("departmentsList", departmentsList);
 
@@ -230,8 +253,12 @@ function MainDataStep({
 
           const campus = matchByName(campusList, (item) => item.school_name, campusName);
           if (campus) {
-            const departments = await applyCampus(campus.school_id);
-            const department = matchByName(departments, (item) => item.department_name, departmentName);
+            applyCampus(campus.school_id);
+            const department = matchByName(
+              await fetchDepartments(campus.school_id),
+              (item) => item.department_name,
+              departmentName,
+            );
             if (department) {
               handleFieldChange("department", {
                 id: department.department_id,
@@ -383,6 +410,9 @@ function MainDataStep({
       </div>
 
       <div className="wizard-actions">
+        {onBack ? (
+          <button type="button" className="wizard-button secondary" onClick={onBack}>Back</button>
+        ) : null}
         <button className="wizard-button" onClick={onNext}>Next</button>
       </div>
     </div>

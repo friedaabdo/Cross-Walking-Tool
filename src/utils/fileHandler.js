@@ -1,4 +1,5 @@
 import { PDFParse } from "pdf-parse";
+import { outcomeGroupsToHtml } from "./outcomeText";
 
 const MAX_SYLLABUS_FILE_SIZE_BYTES = 5 * 1024 * 1024;
 const PDF_WORKER_URL =
@@ -78,9 +79,6 @@ export const parseSyllabusWithAgent = async (text) => {
 
 const asText = (value) => String(value ?? "").trim();
 
-const escapeHtml = (value) =>
-  value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-
 // Capitalizes the first letter and drops trailing ";" or "," (syllabi often write outcomes as "understand X;").
 const tidyOutcomeText = (value) => {
   const text = asText(value).replace(/[;,\s]+$/, "");
@@ -100,32 +98,16 @@ const toOutcomeGroups = (outcomes) => {
   return [{ header: null, lines: outcomes.map((item) => (typeof item === "string" ? item : item?.text)) }];
 };
 
-// The outcomes box is a rich-text editor. A bold-only paragraph is read as a header and a bullet list as sub-points of the outcome above it.
+const tidyOutcomeLine = (line) =>
+  /^-\s+/.test(line) ? `- ${tidyOutcomeText(line.replace(/^-\s+/, ""))}` : tidyOutcomeText(line);
+
 const outcomesToHtml = (outcomes) =>
-  toOutcomeGroups(outcomes)
-    .map(({ header, lines }) => {
-      const parts = asText(header) ? [`<p><strong>${escapeHtml(tidyOutcomeText(header))}</strong></p>`] : [];
-      let bullets = [];
-      const flushBullets = () => {
-        if (bullets.length) {
-          parts.push(`<ul>${bullets.map((bullet) => `<li>${escapeHtml(bullet)}</li>`).join("")}</ul>`);
-          bullets = [];
-        }
-      };
-
-      lines.map(asText).filter(Boolean).forEach((line) => {
-        if (/^-\s+/.test(line)) {
-          bullets.push(tidyOutcomeText(line.replace(/^-\s+/, "")));
-        } else {
-          flushBullets();
-          parts.push(`<p>${escapeHtml(tidyOutcomeText(line))}</p>`);
-        }
-      });
-      flushBullets();
-
-      return parts.join("");
-    })
-    .join("");
+  outcomeGroupsToHtml(
+    toOutcomeGroups(outcomes).map(({ header, lines }) => ({
+      header: asText(header) ? tidyOutcomeText(header) : null,
+      lines: lines.map(asText).filter(Boolean).map(tidyOutcomeLine),
+    })),
+  );
 
 // The agent returns { formData: { title, courseCode, description, campus, department, outcomes } } with null for anything it can't find.
 export const agentResultToForm = (result) => {

@@ -5,8 +5,8 @@ import { useMemo, useState } from "react";
 import CrosswalkRow from "../Components/CrosswalkRow.jsx";
 import { downloadCrosswalkPdf } from "../utils/crosswalkPdf";
 import { normalizeToArray } from "../utils/collections";
+import { saveMatchState } from "../utils/matchDetails";
 import { normalizeExternalUrl, openDataUrlInNewTab } from "../utils/links";
-import { useNavigate } from "react-router-dom";
 import Button from "../Components/Button.jsx";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFile, faLink } from "@fortawesome/free-solid-svg-icons";
@@ -28,8 +28,8 @@ function CrossWalk({
   draggedOnceById,
   setDraggedOnceById,
   matchId,
+  onBack,
 }) {
-  const navigate = useNavigate();
   const [saveStatus, setSaveStatus] = useState("");
   const hasLearningExperienceLink = Boolean((learningExperienceLink || "").trim());
   const resolvedLearningExperienceLink = normalizeExternalUrl(learningExperienceLink);
@@ -120,69 +120,20 @@ function CrossWalk({
     }
   };
 
-  const handleBackNavigation = () => {
-    navigate(-1);
-  };
-
   const handleSave = async () => {
     if (!matchId) {
       setSaveStatus("Missing match id.");
       return;
     }
 
-    const detailRows = [];
-
-    syllLines.forEach((_, rowIndex) => {
-      const rowId = `drop-${rowIndex}`;
-      const notes = notesByRow[rowId] ?? "";
-      const cunyOutcomeId = syllOutcomeRows[rowIndex]?.outcomeId;
-      const matchedIds = getMatchesForRow(rowId);
-
-      if (matchedIds.length === 0) {
-        if (cunyOutcomeId && String(notes).trim()) {
-          detailRows.push({
-            cuny_outcome_id: cunyOutcomeId,
-            experience_outcome_id: null,
-            notes,
-          });
-        }
-
-        return;
-      }
-
-      matchedIds.forEach((matchedId) => {
-        const experienceIndex = Number(String(matchedId).replace("cert-", ""));
-        const experienceOutcomeId = certOutcomeRows[experienceIndex]?.outcomeId;
-
-        if (!cunyOutcomeId || !experienceOutcomeId) {
-          return;
-        }
-
-        detailRows.push({
-          cuny_outcome_id: cunyOutcomeId,
-          experience_outcome_id: experienceOutcomeId,
-          notes,
-        });
-      });
-    });
-
     try {
       setSaveStatus("Saving...");
-
-      const response = await fetch("/api/match-details/bulk-replace", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          match_id: matchId,
-          details: detailRows,
-        }),
+      await saveMatchState(matchId, {
+        courseOutcomeRows: syllOutcomeRows,
+        experienceOutcomeRows: certOutcomeRows,
+        matchesByRow,
+        notesByRow,
       });
-
-      if (!response.ok) {
-        const errorBody = await response.json().catch(() => ({}));
-        throw new Error(errorBody?.error || "Failed to save match details");
-      }
-
       setSaveStatus("Saved.");
     } catch (error) {
       console.error("Error saving match details:", error);
@@ -296,7 +247,7 @@ function CrossWalk({
       </div>
     </div>
      <div id="columns-actions">
-        <Button text="Back" onClick={handleBackNavigation} />
+        <Button text="Back" onClick={onBack} />
         <Button text="Save" onClick={handleSave} />
         <Button text="Export PDF" onClick={handleExportPdf} />
       </div>

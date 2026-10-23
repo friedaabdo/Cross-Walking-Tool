@@ -5,6 +5,7 @@ import axios from 'axios'
 
 import Nav from './Components/Nav.jsx'
 import CreateOutcomes from './Pages/CreateOutcomes.jsx'
+import { loadMatchState } from './utils/matchDetails'
 import { buildOutcomeRecords } from './utils/outcomeText'
 const CrossWalk = lazy(() => import('./Pages/CrossWalk.jsx'))
 const Home = lazy(() => import('./Pages/Home.jsx'))
@@ -128,6 +129,8 @@ const createCrosswalkProps = {
 //--------------------------------------------
 
 function CrossWalkRoute() {
+  const navigate = useNavigate()
+  const location = useLocation()
   const [courseOutcomeRows, setCourseOutcomeRows] = useState([])
   const [experienceOutcomeRows, setExperienceOutcomeRows] = useState([])
   const [matchesByRow, setMatchesByRow] = useState({})
@@ -232,53 +235,15 @@ function CrossWalkRoute() {
 
     const loadMatchDetails = async () => {
       try {
-        const response = await fetch(`/api/match-details/${crosswalkMatchId}`)
-
-        if (!response.ok) {
-          throw new Error("Failed to load match details")
-        }
-
-        const detailRows = await response.json()
+        const matchState = await loadMatchState(crosswalkMatchId, courseOutcomeRows, experienceOutcomeRows)
 
         if (cancelled) {
           return
         }
 
-        const nextMatchesByRow = {}
-        const nextNotesByRow = {}
-        const nextDraggedOnceById = {}
-
-        detailRows.forEach((detail) => {
-          const courseRowIndex = courseOutcomeRows.findIndex((row) => Number(row?.outcomeId) === Number(detail?.cuny_outcome_id))
-          const experienceRowIndex = experienceOutcomeRows.findIndex((row) => Number(row?.outcomeId) === Number(detail?.experience_outcome_id))
-
-          if (courseRowIndex < 0) {
-            return
-          }
-
-          const rowId = `drop-${courseRowIndex}`
-
-          if (experienceRowIndex < 0) {
-            if (detail?.notes && !nextNotesByRow[rowId]) {
-              nextNotesByRow[rowId] = detail.notes
-            }
-
-            return
-          }
-
-          const matchedId = `cert-${experienceRowIndex}`
-
-          nextMatchesByRow[rowId] = [...(nextMatchesByRow[rowId] ?? []), matchedId]
-          nextDraggedOnceById[matchedId] = true
-
-          if (detail?.notes && !nextNotesByRow[rowId]) {
-            nextNotesByRow[rowId] = detail.notes
-          }
-        })
-
-        setMatchesByRow(nextMatchesByRow)
-        setNotesByRow(nextNotesByRow)
-        setDraggedOnceById(nextDraggedOnceById)
+        setMatchesByRow(matchState.matchesByRow)
+        setNotesByRow(matchState.notesByRow)
+        setDraggedOnceById(matchState.draggedOnceById)
       } catch (error) {
         if (!cancelled) {
           console.error("Failed to load match details:", error)
@@ -303,6 +268,10 @@ function CrossWalkRoute() {
     return <Navigate to="/board" replace />
   }
 
+  // Opened from the create wizard: Back reopens that wizard step. Opened any other way (e.g. the equivalency list): browser back.
+  const backTo = location.state?.backTo
+  const handleBack = () => (backTo ? navigate(backTo.path, { state: backTo.state }) : navigate(-1))
+
   const isLoaded =
     loadedDetails?.courseId === crosswalkCourseId && loadedDetails?.experienceId === crosswalkExperienceId
   const course = isLoaded ? loadedDetails.course : null
@@ -320,6 +289,7 @@ function CrossWalkRoute() {
       certOutcomeRows={experienceOutcomeRows}
       syllOutcomeRows={courseOutcomeRows}
       matchId={crosswalkMatchId}
+      onBack={handleBack}
       matchesByRow={matchesByRow}
       setMatchesByRow={setMatchesByRow}
       notesByRow={notesByRow}
@@ -336,7 +306,8 @@ function AppRoutes() {
   const [templateId, setTemplateId] = useState(null)
   const selectedTemplateId = location.state?.templateId ?? templateId
 
-  const goToCrosswalk = (formData, fallbackExperienceId = null) => {
+  // "back" says where the crosswalk page's Back button should return to: { path, state } of the wizard step that led here.
+  const goToCrosswalk = (formData, fallbackExperienceId = null, back = null) => {
     const courseId = formData?.courseId ?? formData?.course_id ?? null
     const experienceId = formData?.experienceId ?? formData?.experience_id ?? fallbackExperienceId ?? null
 
@@ -356,7 +327,11 @@ function AppRoutes() {
       params.set('matchId', String(matchId))
     }
 
-    navigate(`/crosswalk?${params.toString()}`)
+    navigate(`/crosswalk?${params.toString()}`, {
+      state: back && {
+        backTo: { path: back.path, state: { ...back.state, restoreCourseId: courseId, restoreMatchId: matchId } },
+      },
+    })
   }
 
   return (
@@ -396,6 +371,7 @@ function AppRoutes() {
             formProps={{
               ...createLearningExperienceProps,
               is_template: false,
+              restoreExperienceId: location.state?.restoreExperienceId ?? null,
               goToEnd: (formData) => {
                 const experienceId = formData?.experienceId ?? formData?.experience_id ?? null
 
@@ -420,8 +396,16 @@ function AppRoutes() {
             formProps={{
               ...createCunyCourseProps,
               experienceId: location.state?.experienceId ?? null,
+              restoreCourseId: location.state?.restoreCourseId ?? null,
+              restoreMatchId: location.state?.restoreMatchId ?? null,
+              goBack: location.state?.experienceId
+                ? () => navigate('/create-learning-experience', { state: { restoreExperienceId: location.state.experienceId } })
+                : undefined,
               goToEnd: (formData) =>
-                goToCrosswalk(formData, location.state?.experienceId),
+                goToCrosswalk(formData, location.state?.experienceId, {
+                  path: '/create-cuny-course',
+                  state: { experienceId: location.state?.experienceId },
+                }),
             }}
           />
         }
@@ -441,8 +425,13 @@ function AppRoutes() {
             formProps={{
               ...createCunyCourseProps,
               experienceId: selectedTemplateId,
+              restoreCourseId: location.state?.restoreCourseId ?? null,
+              restoreMatchId: location.state?.restoreMatchId ?? null,
               goToEnd: (formData) =>
-                goToCrosswalk(formData, selectedTemplateId),
+                goToCrosswalk(formData, selectedTemplateId, {
+                  path: '/create-equivalency',
+                  state: { templateId: selectedTemplateId },
+                }),
             }}
           />
         }

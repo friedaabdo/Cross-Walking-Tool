@@ -22,9 +22,11 @@ router.get("/:courseId", async (req, res) => {
   try {
     const { courseId } = req.params;
     const result = await query(
-      `SELECT course_id AS courseId, department_id, user_id, title, description, syllabus_file_names AS syllabus_file_name, syllabus_file_url, last_edited AS created_at, last_edited AS updated_at
-       FROM CUNY_Course
-       WHERE course_id = ?`,
+      `SELECT c.course_id AS courseId, c.course_code AS courseCode, c.department_id, d.department_name, d.school_id, s.school_name, c.user_id, c.title, c.description, c.syllabus_file_names AS syllabus_file_name, c.syllabus_file_url, c.last_edited AS created_at, c.last_edited AS updated_at
+       FROM CUNY_Course c
+       LEFT JOIN Department d ON d.department_id = c.department_id
+       LEFT JOIN CUNY_School s ON s.school_id = d.school_id
+       WHERE c.course_id = ?`,
       [courseId]
     );
 
