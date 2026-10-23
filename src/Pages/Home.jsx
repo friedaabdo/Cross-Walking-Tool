@@ -34,6 +34,7 @@ function Home() {
 
       <div className="home-actions">
         <Button text="Start New Crosswalk" onClick={() => navigate("/create-learning-experience")} />
+          <Button text = "Use Premade Templates" onClick={() => navigate("/board")} />
       </div>
     </div>
   );
