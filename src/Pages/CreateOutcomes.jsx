@@ -104,6 +104,7 @@ function Create_Outcomes({ formProps }) {
         <MainDatastep
           formData={formData}
           setFormData={setFormData}
+          setOutcomesDraft={setOutcomesDraft}
           onNext={handleSubmitMain}
           outcomeType={outcomeType}
         />

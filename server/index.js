@@ -10,6 +10,7 @@ import matchDetailsRouter from "./routes/matchDetails.js";
 import campusesRouter from "./routes/campuses.js";
 import departmentsRouter from "./routes/departments.js";
 import tagsRouter from "./routes/tags.js";
+import syllabusAgentRouter from "./routes/syllabusAgent.js";
 
 dotenv.config();
 
@@ -36,6 +37,7 @@ app.use("/api/match-details", matchDetailsRouter);
 app.use("/api/campuses", campusesRouter);
 app.use("/api/departments", departmentsRouter);
 app.use("/api/tags", tagsRouter);
+app.use("/api/syllabus", syllabusAgentRouter);
 
 
 

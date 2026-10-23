@@ -2,14 +2,19 @@ import { useState, useEffect } from "react";
 
 import InputLine from "../Components/InputLine.jsx";
 import {
+  agentResultToForm,
+  extractPdfText,
   handleFileUpload,
+  matchByName,
   MAX_SYLLABUS_FILE_SIZE_BYTES,
+  parseSyllabusWithAgent,
 } from "../utils/fileHandler";
 import "./CreateWizard.css";
 
 function MainDataStep({
   formData,
   setFormData,
+  setOutcomesDraft,
   onNext,
   outcomeType,
  
@@ -63,9 +68,7 @@ function MainDataStep({
   }, []);
 
   //loads departments for the department dropdown based on the selected campus
-  const handleCampusChange = async (event) => {
-    const selectedCampus = event.target.value;
-
+  const applyCampus = async (selectedCampus) => {
     const campusName = campusList.find(
       (campus) => String(campus.school_id) === String(selectedCampus),
     )?.school_name;
@@ -78,13 +81,17 @@ function MainDataStep({
 
     if (!selectedCampus) {
       setDepartmentsList([]);
-      return;
+      return [];
     }
 
-    fetch(`/api/departments/${selectedCampus}`)
-      .then((res) => res.json())
-      .then((data) => setDepartmentsList(data || []));
+    const res = await fetch(`/api/departments/${selectedCampus}`);
+    const data = await res.json();
+    const departments = Array.isArray(data) ? data : [];
+    setDepartmentsList(departments);
+    return departments;
   };
+
+  const handleCampusChange = (event) => applyCampus(event.target.value);
 
   console.log("campusList", campusList);
   console.log("selectedCampusId", selectedCampusId);
@@ -125,6 +132,12 @@ function MainDataStep({
       title: "CUNY Course",
       fields: [
         {
+          name: "syllabus",
+          label: "Syllabus",
+          type: "file",
+          placeholder: "Attach Course Syllabus",
+        },
+        {
           name: "title",
           label: "Title",
           type: "text",
@@ -141,12 +154,6 @@ function MainDataStep({
           label: "Description",
           type: "textarea",
           placeholder: "Add a description of the CUNY course",
-        },
-        {
-          name: "syllabus",
-          label: "Syllabus",
-          type: "file",
-          placeholder: "Attach Course Syllabus",
         },
         {
           name: "tags",
@@ -177,16 +184,73 @@ function MainDataStep({
   };
 
   const [importError, setImportError] = useState(null);
+  const [isParsing, setIsParsing] = useState(false);
 
   const currentConfig = config[outcomeType];
 
   const handleFileChange = async (event) => {
+    const file = event.target.files?.[0];
+
+    if (!file) {
+      return;
+    }
+
+    console.log("Selected syllabus file:", {
+      name: file.name,
+      type: file.type,
+      size: file.size,
+    });
+
     try {
-      const dataUrl = await handleFileUpload(event.target.files?.[0]);
+      const dataUrl = await handleFileUpload(file);
       setImportError(null);
       handleFieldChange("syllabusFile", dataUrl);
+      handleFieldChange("syllabusFileName", file.name);
+
+      const isPdf =
+        file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
+
+      if (isPdf) {
+        setIsParsing(true);
+
+        try {
+          console.log("Extracting text from PDF...");
+          const extractedText = await extractPdfText(file);
+
+          const agentResult = await parseSyllabusWithAgent(extractedText);
+          console.log("Syllabus agent result:", agentResult);
+
+          const { fields, campusName, departmentName, outcomesDraft } = agentResultToForm(agentResult);
+          Object.entries(fields).forEach(([name, value]) => {
+            if (value) {
+              handleFieldChange(name, value);
+            }
+          });
+          setOutcomesDraft?.(outcomesDraft);
+
+          const campus = matchByName(campusList, (item) => item.school_name, campusName);
+          if (campus) {
+            const departments = await applyCampus(campus.school_id);
+            const department = matchByName(departments, (item) => item.department_name, departmentName);
+            if (department) {
+              handleFieldChange("department", {
+                id: department.department_id,
+                name: department.department_name,
+              });
+            }
+          }
+        } catch (error) {
+          console.error("Failed to read syllabus with the agent:", error);
+          setImportError(
+            `Couldn't read the syllabus automatically (${error.message}). You can enter the details by hand.`,
+          );
+        } finally {
+          setIsParsing(false);
+        }
+      }
     } catch (error) {
-      setImportError(error.message);
+      console.error("Failed to process uploaded syllabus:", error);
+      setImportError(error.message || "Failed to process uploaded syllabus.");
       event.target.value = "";
     }
   };
@@ -225,6 +289,8 @@ function MainDataStep({
       case "file":
         return (
           <>
+          <h4>Upload the CUNY course syllabus first to extract data</h4>
+          <h5 style={{ color: "red" }}>Double check the extracted data, and make any necessary corrections.</h5>
             <InputLine
               type="file"
               placeholder={field.placeholder}
@@ -234,6 +300,7 @@ function MainDataStep({
             {formData.syllabusFileName ? (
               <p>Uploaded: {formData.syllabusFileName}</p>
             ) : null}
+            {isParsing ? <p>Reading the syllabus…</p> : null}
             {importError ? <p>{importError}</p> : null}
           </>
         );

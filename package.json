@@ -12,6 +12,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@azure/ai-projects": "^2.8.0",
+    "@azure/identity": "^4.14.0",
     "@dnd-kit/react": "^0.3.2",
     "@fortawesome/fontawesome-svg-core": "^7.2.0",
     "@fortawesome/free-brands-svg-icons": "^7.2.0",
@@ -24,6 +26,7 @@
     "express": "^5.2.1",
     "html2pdf.js": "^0.14.0",
     "mysql2": "^3.22.3",
+    "pdf-parse": "^2.4.5",
     "quill": "^2.0.3",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",

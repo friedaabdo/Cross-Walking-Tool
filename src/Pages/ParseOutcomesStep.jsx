@@ -13,6 +13,7 @@ function ParseOutcomesStep({
       <div className="wizard-header">
         <h3>{formData.title || "Outcome"} outcomes, competencies, and key topics</h3>
         <p className="wizard-subtitle">Paste or type each outcome on a new line. We’ll parse them into structured cards next.</p>
+        <h5 style={{ color: "red" }}>Double check the extracted data, and make any necessary corrections.</h5>
       </div>
 
       <div className="parse-textarea-wrap">
